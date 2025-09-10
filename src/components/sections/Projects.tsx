@@ -5,7 +5,6 @@ import { ExternalLink, Github, Code } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
 import projetoImob from "@/assets/projeto-imob.jpg";
 import projetoPokedex from "@/assets/projeto-pokedex.jpg";
-import projetoApigit from "@/assets/projeto-apigit.jpg";
 
 export function Projects() {
   const { ref, isInView } = useInView({ threshold: 0.1 });

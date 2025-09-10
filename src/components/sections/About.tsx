@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code, Rocket, Users, Zap } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
+import profilePhoto from "@/assets/profile.png";
 
 export function About() {
   const { ref, isInView } = useInView({ threshold: 0.2 });
@@ -47,7 +48,7 @@ export function About() {
           </p>
           <div className="flex justify-center mt-6">
             <img
-              src="/public/profile.png"
+              src={profilePhoto}
               alt="Foto de Gustavo Leandro"
               className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
             />
