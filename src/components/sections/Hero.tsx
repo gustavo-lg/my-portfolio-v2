@@ -36,9 +36,8 @@ export function Hero() {
             Ver Projetos
             <ArrowDown className="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform" />
           </Button>
-          
           <a
-            href="/public/CV_GUSTAVO.pdf"
+            href="/CV_GUSTAVO.pdf"
             download
             className="inline-flex items-center justify-center border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg border rounded-md transition-colors"
           >
