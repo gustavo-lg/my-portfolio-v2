@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Download, Github, Linkedin } from "lucide-react";
+import { useInView } from "@/hooks/use-in-view";
 
 export function Hero() {
+  const { ref, isInView } = useInView({ threshold: 0.2 });
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -10,8 +12,10 @@ export function Hero() {
   };
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 px-4">
-      <div className="text-center max-w-4xl mx-auto animate-fade-in">
+    <section ref={ref} id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 px-4">
+      <div className={`text-center max-w-4xl mx-auto transition-all duration-1000 ${
+        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
             Frontend Developer

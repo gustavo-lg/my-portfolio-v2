@@ -2,11 +2,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github, Code } from "lucide-react";
+import { useInView } from "@/hooks/use-in-view";
 import project1Image from "@/assets/project-1.jpg";
 import project2Image from "@/assets/project-2.jpg";
 import project3Image from "@/assets/project-3.jpg";
 
 export function Projects() {
+  const { ref, isInView } = useInView({ threshold: 0.1 });
   const projects = [
     {
       title: "E-commerce Dashboard",
@@ -68,8 +70,10 @@ export function Projects() {
   const otherProjects = projects.filter(p => !p.featured);
 
   return (
-    <section id="projects" className="py-20 px-4 bg-secondary/20">
-      <div className="max-w-6xl mx-auto">
+    <section ref={ref} id="projects" className="py-20 px-4 bg-secondary/20">
+      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
+        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Meus Projetos
@@ -87,7 +91,13 @@ export function Projects() {
           </h3>
           <div className="grid md:grid-cols-2 gap-8">
             {featuredProjects.map((project, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+              <Card 
+                key={index} 
+                className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${
+                  isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
                 <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative overflow-hidden">
                   {project.image ? (
                     <img 
@@ -158,7 +168,13 @@ export function Projects() {
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherProjects.map((project, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card 
+                key={index} 
+                className={`group hover:shadow-lg transition-all duration-500 hover:-translate-y-1 ${
+                  isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ animationDelay: `${(index + 2) * 150}ms` }}
+              >
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg group-hover:text-primary transition-colors">
                     {project.title}

@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Code, Rocket, Users, Zap } from "lucide-react";
+import { useInView } from "@/hooks/use-in-view";
 
 export function About() {
+  const { ref, isInView } = useInView({ threshold: 0.2 });
   const highlights = [
     {
       icon: Code,
@@ -32,8 +34,10 @@ export function About() {
   ];
 
   return (
-    <section id="about" className="py-20 px-4 bg-background">
-      <div className="max-w-6xl mx-auto">
+    <section ref={ref} id="about" className="py-20 px-4 bg-background">
+      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
+        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Sobre Mim

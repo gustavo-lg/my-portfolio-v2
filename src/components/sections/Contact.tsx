@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, MapPin, Phone, Send, Github, Linkedin, Twitter } from "lucide-react";
+import { useInView } from "@/hooks/use-in-view";
 import { useState } from "react";
 
 export function Contact() {
+  const { ref, isInView } = useInView({ threshold: 0.1 });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,8 +32,10 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="py-20 px-4 bg-secondary/20">
-      <div className="max-w-6xl mx-auto">
+    <section ref={ref} id="contact" className="py-20 px-4 bg-secondary/20">
+      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
+        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Entre em Contato
@@ -43,7 +47,9 @@ export function Contact() {
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <div className="space-y-8">
+          <div className={`space-y-8 transition-all duration-700 ${
+            isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <div>
               <h3 className="text-2xl font-semibold mb-6 text-foreground">
                 Informações de Contato
@@ -117,7 +123,9 @@ export function Contact() {
           </div>
 
           {/* Contact Form */}
-          <Card>
+          <Card className={`transition-all duration-700 ${
+            isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`} style={{ animationDelay: '300ms' }}>
             <CardHeader>
               <CardTitle>Envie uma Mensagem</CardTitle>
               <CardDescription>

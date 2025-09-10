@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useInView } from "@/hooks/use-in-view";
 
 export function Skills() {
+  const { ref, isInView } = useInView({ threshold: 0.1 });
   const technicalSkills = [
     { name: "React", level: 90, category: "Frontend" },
     { name: "Next.js", level: 85, category: "Frontend" },
@@ -51,8 +53,10 @@ export function Skills() {
   ];
 
   return (
-    <section id="skills" className="py-20 px-4 bg-background">
-      <div className="max-w-6xl mx-auto">
+    <section ref={ref} id="skills" className="py-20 px-4 bg-background">
+      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
+        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Minhas Habilidades
@@ -64,7 +68,9 @@ export function Skills() {
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           {/* Technical Skills */}
-          <Card>
+          <Card className={`transition-all duration-700 ${
+            isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-primary rounded-full"></span>
@@ -88,7 +94,9 @@ export function Skills() {
           </Card>
 
           {/* Skill Categories */}
-          <div className="space-y-6">
+          <div className={`space-y-6 transition-all duration-700 ${
+            isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`} style={{ animationDelay: '200ms' }}>
             {categories.map((category, index) => (
               <Card key={index} className="group hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-3">
@@ -112,7 +120,9 @@ export function Skills() {
         </div>
 
         {/* Soft Skills */}
-        <Card>
+        <Card className={`transition-all duration-700 ${
+          isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`} style={{ animationDelay: '400ms' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <span className="w-3 h-3 bg-secondary rounded-full"></span>
