@@ -17,11 +17,12 @@ export function Contact() {
   });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically handle form submission
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', subject: '', message: '' });
+  e.preventDefault();
+  const { name, email, subject, message } = formData;
+  const text = `Olá, meu nome é ${name}. Email: ${email}. Assunto: ${subject}. Mensagem: ${message}`;
+  const url = `https://wa.me/5548998155981?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  setFormData({ name: '', email: '', subject: '', message: '' });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -62,7 +63,7 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Email</p>
-                    <p className="text-muted-foreground">seu.email@exemplo.com</p>
+                    <p className="text-muted-foreground">guto_leandro95@hotmail.com</p>
                   </div>
                 </div>
 
@@ -72,7 +73,7 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Telefone</p>
-                    <p className="text-muted-foreground">+55 (11) 99999-9999</p>
+                    <p className="text-muted-foreground">+55 (48) 99815-5981</p>
                   </div>
                 </div>
 
@@ -82,7 +83,7 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Localização</p>
-                    <p className="text-muted-foreground">São Paulo, Brasil</p>
+                    <p className="text-muted-foreground">Santa Catarina, Brasil</p>
                   </div>
                 </div>
               </div>
@@ -95,7 +96,7 @@ export function Contact() {
               </h4>
               <div className="flex gap-4">
                 <a
-                  href="https://github.com"
+                  href="https://github.com/gustavo-lg "
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
@@ -103,21 +104,14 @@ export function Contact() {
                   <Github className="h-6 w-6" />
                 </a>
                 <a
-                  href="https://linkedin.com"
+                  href="https://linkedin.com/in/gustavo-lg"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
                 >
                   <Linkedin className="h-6 w-6" />
                 </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
-                >
-                  <Twitter className="h-6 w-6" />
-                </a>
+                
               </div>
             </div>
           </div>

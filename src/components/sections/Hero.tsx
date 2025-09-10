@@ -37,18 +37,19 @@ export function Hero() {
             <ArrowDown className="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform" />
           </Button>
           
-          <Button 
-            variant="outline" 
-            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg"
+          <a
+            href="/public/CV_GUSTAVO.pdf"
+            download
+            className="inline-flex items-center justify-center border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg border rounded-md transition-colors"
           >
             <Download className="mr-2 h-5 w-5" />
             Download CV
-          </Button>
+          </a>
         </div>
 
         <div className="flex justify-center gap-6">
           <a
-            href="https://github.com"
+            href="https://github.com/gustavo-lg "
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-full bg-card hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
@@ -56,7 +57,7 @@ export function Hero() {
             <Github className="h-6 w-6" />
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://linkedin.com/in/gustavo-lg"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-full bg-card hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
@@ -65,7 +66,7 @@ export function Hero() {
           </a>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="static mt-10 left-1/2 transform -translate-x-1/2 animate-bounce">
           <button 
             onClick={() => handleScroll('about')}
             className="p-2 rounded-full border border-primary/30 hover:border-primary hover:bg-primary/10 transition-colors"
