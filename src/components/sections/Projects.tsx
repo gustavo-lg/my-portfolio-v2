@@ -3,64 +3,55 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github, Code } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
-import project1Image from "@/assets/project-1.jpg";
-import project2Image from "@/assets/project-2.jpg";
-import project3Image from "@/assets/project-3.jpg";
+import projetoImob from "@/assets/projeto-imob.jpg";
+import projetoPokedex from "@/assets/projeto-pokedex.jpg";
+import projetoApigit from "@/assets/projeto-apigit.jpg";
 
 export function Projects() {
   const { ref, isInView } = useInView({ threshold: 0.1 });
   const projects = [
     {
-      title: "E-commerce Dashboard",
-      description: "Dashboard completo para gestão de e-commerce com gráficos interativos, gerenciamento de produtos e análise de vendas.",
-      image: project1Image,
-      technologies: ["React", "TypeScript", "Tailwind", "Chart.js"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      title: "Projeto Imob",
+      description: "Desenvolvi um site imobiliário completo e de alta performance, construído com Next.js e otimizado para a experiência do usuário e para o Google. Não é apenas um site, é uma plataforma de negócio otimizada para SEO e performance, com integração flexível a qualquer CRM imobiliário. Com um sistema de variáveis de ambiente configurável, ele se adapta facilmente às necessidades de qualquer cliente.",
+      image: projetoImob,
+      technologies: ["Next.js", "React", "TypeScript", "CSS", "Axios", "MUI", "API Rest"],
+      liveUrl: "https://imobiliario.vercel.app/",
+      githubUrl: "#",
       featured: true
     },
     {
-      title: "Task Management App",
-      description: "Aplicativo de gerenciamento de tarefas com drag & drop, colaboração em tempo real e notificações.",
-      image: project2Image,
-      technologies: ["Next.js", "React", "Prisma", "Tailwind"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      title: "Pokedex Next",
+      description: "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
+      image: projetoPokedex,
+      technologies: ["Next.js", "React", "TypeScript", "CSS", "Axios", "MUI", "API Rest"],
+      liveUrl: "https://pokedex-next-y3qk.vercel.app/",
+      githubUrl: "https://github.com/gustavo-lg/pokedex-next",
       featured: true
     },
     {
-      title: "Portfolio Website",
-      description: "Site pessoal responsivo com animações suaves, otimizado para performance e SEO.",
-      image: project3Image,
-      technologies: ["React", "Tailwind", "Framer Motion"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
-      featured: false
-    },
-    {
-      title: "Weather App",
-      description: "Aplicativo de previsão do tempo com geolocalização, múltiplas cidades e interface intuitiva.",
+      title: "Meus Repositórios",
+      description: "Meus Repositórios Aplicação desenvolvida com React que consome a API do GitHub para listar repositórios de um usuário e exibir detalhes individuais de cada um deles.",
       image: null,
-      technologies: ["JavaScript", "API", "CSS3"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      technologies: ["React", "Javascript", "Axios", "API Rest"],
+      liveUrl: "https://meus-repositorios-beta.vercel.app/",
+      githubUrl: "https://github.com/gustavo-lg/meus-repositorios",
       featured: false
     },
     {
       title: "Blog Platform",
-      description: "Plataforma de blog com editor rico, sistema de comentários e gerenciamento de conteúdo.",
+      description: "Plataforma de blog com editor rico, painel integrado com Supabase para gerenciamento de dados e storage.",
       image: null,
       technologies: ["Next.js", "MDX", "Tailwind"],
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example",
+      liveUrl: "https://imobiliario.vercel.app/blog",
+      githubUrl: "#",
       featured: false
     },
     {
-      title: "Chat Application",
-      description: "Aplicativo de chat em tempo real com salas privadas, emojis e compartilhamento de arquivos.",
+      title: "GWD Landing Page",
+      description: "Landing page criada para a agência GWD - Global Web Development, utilizando React, TypeScript, SCSS e Material UI para uma interface moderna e responsiva.",
       image: null,
-      technologies: ["React", "Socket.io", "Node.js"],
-      liveUrl: "https://example.com",
+      technologies: ["React", "TypeScript", "SCSS", "MUI", "HTML"],
+      liveUrl: "https://gwd-landingpage.vercel.app/",
       githubUrl: "https://github.com/example",
       featured: false
     }
@@ -143,17 +134,29 @@ export function Projects() {
                       Ver Projeto
                     </a>
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    asChild
-                  >
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                  {project.githubUrl === "#" ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      disabled
+                      className="flex-1 border-primary text-primary opacity-20 cursor-not-allowed"
+                    >
                       <Github className="mr-2 h-4 w-4" />
                       Código
-                    </a>
-                  </Button>
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      asChild
+                    >
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Github className="mr-2 h-4 w-4" />
+                        Código
+                      </a>
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
@@ -203,11 +206,17 @@ export function Projects() {
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
-                  <Button size="sm" variant="ghost" className="p-2" asChild>
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                  {project.githubUrl === "#" ? (
+                    <Button size="sm" variant="ghost" className="p-2 cursor-not-allowed" disabled>
                       <Github className="h-4 w-4" />
-                    </a>
-                  </Button>
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="ghost" className="p-2" asChild>
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Github className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}

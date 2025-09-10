@@ -30,7 +30,7 @@ export function About() {
 
   const technologies = [
     "React", "Next.js", "TypeScript", "JavaScript", "Tailwind CSS",
-    "HTML5", "CSS3", "Node.js", "Git", "Figma", "Responsive Design"
+    "HTML5", "CSS3", "Node.js", "Git", "Responsive Design"
   ];
 
   return (
@@ -45,6 +45,13 @@ export function About() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Desenvolvedor frontend apaixonado por criar interfaces modernas e funcionais
           </p>
+          <div className="flex justify-center mt-6">
+            <img
+              src="/public/profile.png"
+              alt="Foto de Gustavo Leandro"
+              className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
+            />
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">

@@ -34,7 +34,7 @@ export function PortfolioLayout() {
           <footer className="bg-sidebar text-sidebar-foreground py-8 px-4">
             <div className="max-w-6xl mx-auto text-center">
               <p className="text-sm">
-                © 2024 Portfolio. Desenvolvido com ❤️ usando React, Next.js e Tailwind CSS.
+                © 2025 Portfolio. Desenvolvido com ❤️ usando React, TS e Tailwind CSS.
               </p>
             </div>
           </footer>

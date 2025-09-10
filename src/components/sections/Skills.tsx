@@ -15,13 +15,12 @@ export function Skills() {
     { name: "CSS3", level: 90, category: "Styling" },
     { name: "Node.js", level: 70, category: "Backend" },
     { name: "Git", level: 85, category: "Tools" },
-    { name: "Figma", level: 75, category: "Design" }
   ];
 
   const categories = [
     {
       title: "Frontend Frameworks",
-      skills: ["React", "Next.js", "Vue.js", "Angular"],
+      skills: ["React", "Next.js"],
       color: "bg-blue-500"
     },
     {
@@ -36,7 +35,7 @@ export function Skills() {
     },
     {
       title: "Ferramentas & Outros",
-      skills: ["Git", "Webpack", "Vite", "Figma", "Vercel"],
+      skills: ["Git", "Webpack", "Vite", "Vercel"],
       color: "bg-orange-500"
     }
   ];
