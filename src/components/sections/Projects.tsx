@@ -141,7 +141,7 @@ export function Projects() {
                       variant="secondary"
                       className="bg-primary/20 text-primary"
                     >
-                      Featured
+                      Destaque
                     </Badge>
                   </div>
                 </div>
