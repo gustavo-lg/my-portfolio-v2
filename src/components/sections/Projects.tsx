@@ -1,4 +1,11 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Github, Code } from "lucide-react";
@@ -11,65 +18,91 @@ export function Projects() {
   const projects = [
     {
       title: "Projeto Imob",
-      description: "Desenvolvi um site imobiliário completo e de alta performance, construído com Next.js e otimizado para a experiência do usuário e para o Google. Não é apenas um site, é uma plataforma de negócio otimizada para SEO e performance, com integração flexível a qualquer CRM imobiliário. Com um sistema de variáveis de ambiente configurável, ele se adapta facilmente às necessidades de qualquer cliente.",
+      description:
+        "Desenvolvi um site imobiliário completo e de alta performance, construído com Next.js e otimizado para a experiência do usuário e para o Google. Não é apenas um site, é uma plataforma de negócio otimizada para SEO e performance, com integração flexível a qualquer CRM imobiliário. Com um sistema de variáveis de ambiente configurável, ele se adapta facilmente às necessidades de qualquer cliente.",
       image: projetoImob,
-      technologies: ["Next.js", "React", "TypeScript", "CSS", "Axios", "MUI", "API Rest"],
+      technologies: [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Axios",
+        "MUI",
+        "API Rest",
+      ],
       liveUrl: "https://imobiliario.vercel.app/",
       githubUrl: "#",
-      featured: true
+      featured: true,
     },
     {
       title: "Pokedex Next",
-      description: "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
+      description:
+        "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
       image: projetoPokedex,
-      technologies: ["Next.js", "React", "TypeScript", "CSS", "Axios", "MUI", "API Rest"],
+      technologies: [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Axios",
+        "MUI",
+        "API Rest",
+      ],
       liveUrl: "https://pokedex-next-y3qk.vercel.app/",
       githubUrl: "https://github.com/gustavo-lg/pokedex-next",
-      featured: true
+      featured: true,
     },
     {
       title: "Meus Repositórios",
-      description: "Meus Repositórios Aplicação desenvolvida com React que consome a API do GitHub para listar repositórios de um usuário e exibir detalhes individuais de cada um deles.",
+      description:
+        "Meus Repositórios Aplicação desenvolvida com React que consome a API do GitHub para listar repositórios de um usuário e exibir detalhes individuais de cada um deles.",
       image: null,
       technologies: ["React", "Javascript", "Axios", "API Rest"],
       liveUrl: "https://meus-repositorios-beta.vercel.app/",
       githubUrl: "https://github.com/gustavo-lg/meus-repositorios",
-      featured: false
+      featured: false,
     },
     {
       title: "Blog Platform",
-      description: "Plataforma de blog com editor rico, painel integrado com Supabase para gerenciamento de dados e storage.",
+      description:
+        "Plataforma de blog com editor rico, painel integrado com Supabase para gerenciamento de dados e storage.",
       image: null,
       technologies: ["Next.js", "MDX", "Tailwind"],
       liveUrl: "https://imobiliario.vercel.app/blog",
       githubUrl: "#",
-      featured: false
+      featured: false,
     },
     {
       title: "GWD Landing Page",
-      description: "Landing page criada para a agência GWD - Global Web Development, utilizando React, TypeScript, SCSS e Material UI para uma interface moderna e responsiva.",
+      description:
+        "Landing page criada para a agência GWD - Global Web Development, utilizando React, TypeScript, SCSS e Material UI para uma interface moderna e responsiva.",
       image: null,
       technologies: ["React", "TypeScript", "SCSS", "MUI", "HTML"],
       liveUrl: "https://gwd-landingpage.vercel.app/",
       githubUrl: "https://github.com/example",
-      featured: false
-    }
+      featured: false,
+    },
   ];
 
-  const featuredProjects = projects.filter(p => p.featured);
-  const otherProjects = projects.filter(p => !p.featured);
+  const featuredProjects = projects.filter((p) => p.featured);
+  const otherProjects = projects.filter((p) => !p.featured);
 
   return (
     <section ref={ref} id="projects" className="py-20 px-4 bg-secondary/20">
-      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
-        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-      }`}>
+      <div
+        className={`max-w-6xl mx-auto transition-all duration-1000 ${
+          isInView
+            ? "animate-fade-in opacity-100 translate-y-0"
+            : "opacity-0 translate-y-10"
+        }`}
+      >
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Meus Projetos
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Uma seleção dos meus trabalhos mais recentes e projetos que demonstram minhas habilidades
+            Uma seleção dos meus trabalhos mais recentes e projetos que
+            demonstram minhas habilidades
           </p>
         </div>
 
@@ -81,17 +114,19 @@ export function Projects() {
           </h3>
           <div className="grid md:grid-cols-2 gap-8">
             {featuredProjects.map((project, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className={`group hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${
-                  isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                }`}
+                  isInView
+                    ? "animate-scale-in opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
+                } flex flex-col h-full`}
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative overflow-hidden">
                   {project.image ? (
-                    <img 
-                      src={project.image} 
+                    <img
+                      src={project.image}
                       alt={project.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -102,7 +137,10 @@ export function Projects() {
                     </>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Badge variant="secondary" className="bg-primary/20 text-primary">
+                    <Badge
+                      variant="secondary"
+                      className="bg-primary/20 text-primary"
+                    >
                       Featured
                     </Badge>
                   </div>
@@ -113,50 +151,62 @@ export function Projects() {
                   </CardTitle>
                   <CardDescription>{project.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
-                      <Badge key={tech} variant="outline" className="text-xs">
-                        {tech}
-                      </Badge>
-                    ))}
+                <div className="flex flex-col justify-end flex-1">
+                  <div className="mt-auto px-4 pb-4">
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technologies.map((tech) => (
+                          <Badge key={tech} variant="outline" className="text-xs">
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1 bg-primary hover:bg-primary/90"
+                        asChild
+                      >
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Ver Projeto
+                        </a>
+                      </Button>
+                      {project.githubUrl === "#" ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          className="flex-1 border-primary text-primary opacity-20 cursor-not-allowed"
+                        >
+                          <Github className="mr-2 h-4 w-4" />
+                          Código
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                          asChild
+                        >
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Github className="mr-2 h-4 w-4" />
+                            Código
+                          </a>
+                        </Button>
+                      )}
+                    </CardFooter>
                   </div>
-                </CardContent>
-                <CardFooter className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                    asChild
-                  >
-                    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Ver Projeto
-                    </a>
-                  </Button>
-                  {project.githubUrl === "#" ? (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      disabled
-                      className="flex-1 border-primary text-primary opacity-20 cursor-not-allowed"
-                    >
-                      <Github className="mr-2 h-4 w-4" />
-                      Código
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                      asChild
-                    >
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                        <Github className="mr-2 h-4 w-4" />
-                        Código
-                      </a>
-                    </Button>
-                  )}
-                </CardFooter>
+                </div>
               </Card>
             ))}
           </div>
@@ -170,10 +220,12 @@ export function Projects() {
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherProjects.map((project, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className={`group hover:shadow-lg transition-all duration-500 hover:-translate-y-1 ${
-                  isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  isInView
+                    ? "animate-scale-in opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-10"
                 }`}
                 style={{ animationDelay: `${(index + 2) * 150}ms` }}
               >
@@ -201,17 +253,30 @@ export function Projects() {
                 </CardContent>
                 <CardFooter className="flex gap-2 pt-0">
                   <Button size="sm" variant="ghost" className="p-2" asChild>
-                    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
                   {project.githubUrl === "#" ? (
-                    <Button size="sm" variant="ghost" className="p-2 cursor-not-allowed" disabled>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="p-2 cursor-not-allowed"
+                      disabled
+                    >
                       <Github className="h-4 w-4" />
                     </Button>
                   ) : (
                     <Button size="sm" variant="ghost" className="p-2" asChild>
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Github className="h-4 w-4" />
                       </a>
                     </Button>
