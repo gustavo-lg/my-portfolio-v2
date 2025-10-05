@@ -12,6 +12,10 @@ import { ExternalLink, Github, Code } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
 import projetoImob from "@/assets/projeto-imob.jpg";
 import projetoPokedex from "@/assets/projeto-pokedex.jpg";
+import projetoJarvis from "@/assets/projeto-jarvis.jpg";
+import projetoGuardei from "@/assets/projeto-guardei.jpg";
+import projetoRendoia from "@/assets/projeto-rendoia.jpg";
+import projetoPoupeFacil from "@/assets/projeto-poupefacil.jpg";
 
 export function Projects() {
   const { ref, isInView } = useInView({ threshold: 0.1 });
@@ -35,6 +39,94 @@ export function Projects() {
       featured: true,
     },
     {
+      title: "RendO.ia",
+      description:
+        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Kiwify para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. ",
+      image: projetoRendoia,
+      technologies: [
+        "Vite",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Webhook",
+        "Supabase",
+        "Kiwify",
+        "WhatsApp API",
+        "n8n",
+        "OpenAI",
+        "API Rest",
+      ],
+      liveUrl: "https://www.rendoia.com.br/",
+      githubUrl: "#",
+      featured: true,
+    },
+    {
+      title: "Jarvis",
+      description:
+        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Stripe para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. O projeto inclui dashboard dinâmico, chatbot funcional e layout redesenhado com foco em usabilidade, desempenho e experiência do usuário.",
+      image: projetoJarvis,
+      technologies: [
+        "Vite",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Webhook",
+        "Supabase",
+        "Stripe",
+        "WhatsApp API",
+        "n8n",
+        "OpenAI",
+        "API Rest",
+      ],
+      liveUrl: "https://www.useojarvis.com/",
+      githubUrl: "#",
+      featured: true,
+    },
+    {
+      title: "Poupe Fácil",
+      description:
+        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Stripe para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos.",
+      image: projetoPoupeFacil,
+      technologies: [
+        "Vite",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Webhook",
+        "Supabase",
+        "Stripe",
+        "WhatsApp API",
+        "n8n",
+        "OpenAI",
+        "API Rest",
+      ],
+      liveUrl: "https://poupefacilia.com.br/",
+      githubUrl: "#",
+      featured: true,
+    },
+    {
+      title: "Guardei App",
+      description:
+        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Green para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. ",
+      image: projetoGuardei,
+      technologies: [
+        "Vite",
+        "React",
+        "TypeScript",
+        "CSS",
+        "Webhook",
+        "Supabase",
+        "Greenn",
+        "WhatsApp API",
+        "n8n",
+        "OpenAI",
+        "API Rest",
+      ],
+      liveUrl: "https://guardei.vercel.app/",
+      githubUrl: "#",
+      featured: true,
+    },
+    {
       title: "Pokedex Next",
       description:
         "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
@@ -50,7 +142,7 @@ export function Projects() {
       ],
       liveUrl: "https://pokedex-next-y3qk.vercel.app/",
       githubUrl: "https://github.com/gustavo-lg/pokedex-next",
-      featured: true,
+      featured: false,
     },
     {
       title: "Meus Repositórios",
@@ -141,7 +233,7 @@ export function Projects() {
                       variant="secondary"
                       className="bg-primary/20 text-primary"
                     >
-                      Featured
+                      Destaque
                     </Badge>
                   </div>
                 </div>
@@ -156,7 +248,11 @@ export function Projects() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {project.technologies.map((tech) => (
-                          <Badge key={tech} variant="outline" className="text-xs">
+                          <Badge
+                            key={tech}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {tech}
                           </Badge>
                         ))}
@@ -164,6 +260,7 @@ export function Projects() {
                     </CardContent>
                     <CardFooter className="flex gap-2">
                       <Button
+                        aria-label="Acessar projeto"
                         size="sm"
                         className="flex-1 bg-primary hover:bg-primary/90"
                         asChild
@@ -172,6 +269,7 @@ export function Projects() {
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label="Acessar projeto"
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />
                           Ver Projeto
@@ -179,6 +277,7 @@ export function Projects() {
                       </Button>
                       {project.githubUrl === "#" ? (
                         <Button
+                          aria-label="Acessar código"
                           size="sm"
                           variant="outline"
                           disabled
@@ -189,6 +288,7 @@ export function Projects() {
                         </Button>
                       ) : (
                         <Button
+                          aria-label="Acessar código"
                           size="sm"
                           variant="outline"
                           className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
@@ -198,6 +298,7 @@ export function Projects() {
                             href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Acessar código"
                           >
                             <Github className="mr-2 h-4 w-4" />
                             Código
@@ -252,9 +353,16 @@ export function Projects() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex gap-2 pt-0">
-                  <Button size="sm" variant="ghost" className="p-2" asChild>
+                  <Button
+                    aria-label="Acessar projeto"
+                    size="sm"
+                    variant="ghost"
+                    className="p-2"
+                    asChild
+                  >
                     <a
                       href={project.liveUrl}
+                      aria-label="Acessar projeto"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -263,6 +371,7 @@ export function Projects() {
                   </Button>
                   {project.githubUrl === "#" ? (
                     <Button
+                      aria-label="Acessar código"
                       size="sm"
                       variant="ghost"
                       className="p-2 cursor-not-allowed"
@@ -271,9 +380,16 @@ export function Projects() {
                       <Github className="h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button size="sm" variant="ghost" className="p-2" asChild>
+                    <Button
+                      aria-label="Acessar código"
+                      size="sm"
+                      variant="ghost"
+                      className="p-2"
+                      asChild
+                    >
                       <a
                         href={project.githubUrl}
+                        aria-label="Acessar código"
                         target="_blank"
                         rel="noopener noreferrer"
                       >

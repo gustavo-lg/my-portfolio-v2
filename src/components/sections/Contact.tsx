@@ -98,6 +98,7 @@ export function Contact() {
                 <a
                   href="https://github.com/gustavo-lg "
                   target="_blank"
+                  aria-label="Acessar perfil no GitHub"
                   rel="noopener noreferrer"
                   className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
                 >
@@ -106,6 +107,7 @@ export function Contact() {
                 <a
                   href="https://linkedin.com/in/gustavo-lg"
                   target="_blank"
+                  aria-label="Acessar perfil no LinkedIn"
                   rel="noopener noreferrer"
                   className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
                 >
@@ -179,7 +181,7 @@ export function Contact() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
+                <Button aria-label="Enviar mensagem" type="submit" className="w-full bg-primary hover:bg-primary/90">
                   <Send className="mr-2 h-4 w-4" />
                   Enviar Mensagem
                 </Button>
