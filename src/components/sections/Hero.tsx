@@ -93,17 +93,17 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="relative flex justify-center lg:justify-end items-end">
+          <div className="relative flex justify-center lg:justify-end items-end  xl:translate-x-0 mr-[80px]">
             <div className="flex items-end">
               <img
                 src={macbook}
                 alt="Mockup de laptop"
-                className="w-[700px] max-w-full lg:-rotate-1"
+                className="w-[520px] md:w-[580px] lg:w-[620px] xl:w-[680px] 2xl:w-[740px] max-w-full lg:-rotate-1"
               />
               <img
                 src={iphone}
                 alt="Mockup de smartphone"
-                className="hidden md:block w-40 sm:w-48 lg:-rotate-1 -ml-12 md:-ml-16 lg:-ml-20"
+                className="hidden md:block md:w-32 lg:w-36 xl:w-40 2xl:w-44 lg:-rotate-1 md:-ml-10 lg:-ml-16 xl:-ml-20 2xl:-ml-18"
               />
             </div>
             <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-2/3 h-6 bg-black/10 blur-xl rounded-full pointer-events-none" />
