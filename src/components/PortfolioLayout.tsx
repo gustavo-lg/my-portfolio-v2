@@ -26,7 +26,6 @@ export function PortfolioLayout() {
             <Hero />
             <About />
             <Projects />
-            <Skills />
             <Contact />
           </main>
           
@@ -34,8 +33,7 @@ export function PortfolioLayout() {
           <footer className="bg-sidebar text-sidebar-foreground py-8 px-4">
             <div className="max-w-6xl mx-auto text-center">
               <p className="text-sm">
-                © 2025 Portfolio. Desenvolvido com ❤️ usando React, TS e Tailwind CSS.
-              </p>
+              © 2025 Portfolio — Desenvolvido por Gustavo Gonçalves.              </p>
             </div>
           </footer>
         </div>

@@ -1,61 +1,84 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, MapPin, Phone, Send, Github, Linkedin, Twitter } from "lucide-react";
+import { Mail, MapPin, Phone, Instagram } from "lucide-react";
 import { useInView } from "@/hooks/use-in-view";
 import { useState } from "react";
+import whatsappLogo from "@/assets/whatsapp-logo.png";
+import whatsappBlackLogo from "@/assets/whatsapp-logo-black.png";
 
 export function Contact() {
   const { ref, isInView } = useInView({ threshold: 0.1 });
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  const { name, email, subject, message } = formData;
-  const text = `Olá, meu nome é ${name}. Email: ${email}. Assunto: ${subject}. Mensagem: ${message}`;
-  const url = `https://wa.me/5548998155981?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-  setFormData({ name: '', email: '', subject: '', message: '' });
+    e.preventDefault();
+    const { name, email, subject, message } = formData;
+    const text = `Olá, meu nome é ${name}. Email: ${email}. Assunto: ${subject}. Mensagem: ${message}`;
+    const url = `https://wa.me/5548998155981?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+    setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   return (
-    <section ref={ref} id="contact" className="py-20 px-4 bg-secondary/20">
-      <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
-        isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-      }`}>
+    <section
+      ref={ref}
+      id="contact"
+      className="relative overflow-hidden py-20 px-4"
+    >
+      <div
+        className={`max-w-6xl mx-auto transition-all duration-1000 ${
+          isInView
+            ? "animate-fade-in opacity-100 translate-y-0"
+            : "opacity-0 translate-y-10"
+        }`}
+      >
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             Entre em Contato
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Vamos conversar sobre seu próximo projeto. Estou sempre aberto a novas oportunidades!
+            Vamos conversar sobre seu próximo projeto. Estou sempre aberto a
+            novas oportunidades!
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <div className={`space-y-8 transition-all duration-700 ${
-            isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}>
+          <div
+            className={`space-y-8 transition-all duration-700 ${
+              isInView
+                ? "animate-scale-in opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
+          >
             <div>
               <h3 className="text-2xl font-semibold mb-6 text-foreground">
                 Informações de Contato
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-card rounded-lg hover:shadow-md transition-shadow">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -63,7 +86,9 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Email</p>
-                    <p className="text-muted-foreground">guto_leandro95@hotmail.com</p>
+                    <p className="text-muted-foreground">
+                      guto_leandro95@hotmail.com
+                    </p>
                   </div>
                 </div>
 
@@ -83,7 +108,9 @@ export function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Localização</p>
-                    <p className="text-muted-foreground">Santa Catarina, Brasil</p>
+                    <p className="text-muted-foreground">
+                      Santa Catarina, Brasil
+                    </p>
                   </div>
                 </div>
               </div>
@@ -96,36 +123,45 @@ export function Contact() {
               </h4>
               <div className="flex gap-4">
                 <a
-                  href="https://github.com/gustavo-lg "
+                  href="https://wa.me/5548998155981"
                   target="_blank"
-                  aria-label="Acessar perfil no GitHub"
+                  aria-label="Chamar no WhatsApp"
                   rel="noopener noreferrer"
-                  className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
+                  className="p-3 bg-card rounded-lg hover:bg-[#25D366] hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
                 >
-                  <Github className="h-6 w-6" />
+                  <img
+                    src={whatsappBlackLogo}
+                    alt="WhatsApp"
+                    className="h-6 w-6"
+                  />
                 </a>
                 <a
-                  href="https://linkedin.com/in/gustavo-lg"
+                  href="https://www.instagram.com/gu_lg/"
                   target="_blank"
-                  aria-label="Acessar perfil no LinkedIn"
+                  aria-label="Acessar perfil no Instagram"
                   rel="noopener noreferrer"
                   className="p-3 bg-card rounded-lg hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-md"
                 >
-                  <Linkedin className="h-6 w-6" />
+                  <Instagram className="h-6 w-6" />
                 </a>
-                
               </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <Card className={`transition-all duration-700 ${
-            isInView ? 'animate-scale-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`} style={{ animationDelay: '300ms' }}>
+          <Card
+            className={`transition-all duration-700 ${
+              isInView
+                ? "animate-scale-in opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
+            style={{ animationDelay: "300ms" }}
+          >
             <CardHeader>
               <CardTitle>Envie uma Mensagem</CardTitle>
               <CardDescription>
-                Preencha o formulário abaixo e entrarei em contato o mais breve possível.
+                Preencha o formulário abaixo e entrarei em contato o mais breve
+                possível.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -181,9 +217,17 @@ export function Contact() {
                   />
                 </div>
 
-                <Button aria-label="Enviar mensagem" type="submit" className="w-full bg-primary hover:bg-primary/90">
-                  <Send className="mr-2 h-4 w-4" />
-                  Enviar Mensagem
+                <Button
+                  aria-label="Chamar no Whatsapp"
+                  type="submit"
+                  className="w-full bg-[#25D366] hover:bg-primary/90"
+                >
+                  <img
+                    src={whatsappLogo}
+                    alt="WhatsApp"
+                    className="h-5 w-5 mr-2"
+                  />
+                  Chamar no Whatsapp
                 </Button>
               </form>
             </CardContent>

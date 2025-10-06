@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Download, Github, Linkedin } from "lucide-react";
+import { ArrowDown, Instagram } from "lucide-react";
+import whatsappLogo from "@/assets/whatsapp-logo-black.png";
+import macbook from "@/assets/macbook-no-bg.png";
+import iphone from "@/assets/iphone-no-bg.png";
 import { useInView } from "@/hooks/use-in-view";
 
 export function Hero() {
@@ -15,81 +18,96 @@ export function Hero() {
     <section
       ref={ref}
       id="home"
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 px-4"
+      className="relative overflow-hidden min-h-[85vh] flex items-center bg-[#F1F1F1] px-4"
     >
+      <svg
+        className="pointer-events-none absolute -bottom-[10%] left-0 w-[140%] h-[230%]"
+        viewBox="0 0 1440 600"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <path
+          d="M0,520 
+       C480,700 960,300 1440,520 
+       L1440,600 L0,600 Z"
+          className="fill-background"
+        />
+      </svg>
+
       <div
-        className={`text-center max-w-4xl mx-auto transition-all duration-1000 ${
-          isInView
-            ? "animate-fade-in opacity-100 translate-y-0"
-            : "opacity-0 translate-y-10"
+        className={`relative z-10 max-w-6xl mx-auto w-full transition-all duration-1000 ${
+          isInView ? "animate-fade-in opacity-100" : "opacity-0 translate-y-10"
         }`}
       >
-        <div className="mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-            Frontend Developer
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-2">
-            Olá! 👋 Eu sou um{" "}
-            <span className="text-primary font-semibold">
-              Desenvolvedor Frontend
-            </span>
-          </p>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Especializado em criar experiências web modernas e interativas com
-            React, Next.js e JavaScript.
-          </p>
-        </div>
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="text-left">
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 text-foreground mt-[60px] md:mt-0">
+              Desenvolvedor Web
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-xl">
+              Olá! 👋 me chamo{" "}
+              <span className="text-primary font-semibold">Gustavo</span>.
+              <br />
+              Crio e otimizo soluções web inteligentes, escaláveis e de alta
+              performance, incluindo sites, whitelabels e plataformas SaaS.
+              Explore meus projetos e veja como posso transformar ideias em
+              experiências digitais.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                aria-label="Ver meus projetos"
+                className="bg-primary hover:bg-primary/90 px-8 py-6 text-base"
+                onClick={() => handleScroll("projects")}
+              >
+                Ver meus projetos <ArrowDown className="h-6 w-6" />
+              </Button>
+              <Button
+                aria-label="Saber mais"
+                variant="outline"
+                className="px-8 py-6 text-base"
+                onClick={() => handleScroll("about")}
+              >
+                Sobre mim <ArrowDown className="h-6 w-6" />
+              </Button>
+            </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <Button
-            aria-label="Acessar projetos"
-            onClick={() => handleScroll("projects")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg group"
-          >
-            Ver Projetos
-            <ArrowDown className="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform" />
-          </Button>
-          <a
-            href="https://docs.google.com/document/d/1ck0E1ek2Z1FUOsSv_kUi_5NUms76WEQKEFqlQxyf8GQ/edit?tab=t.0#heading=h.my2mq8u1s558"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Acessar CV"
-            className="inline-flex items-center justify-center border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg border rounded-md transition-colors"
-          >
-            <Download className="mr-2 h-5 w-5" />
-            Ver CV
-          </a>
-        </div>
+            <div className="flex gap-4 mt-8">
+              <a
+                href="https://wa.me/5548998155981"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chamar no WhatsApp"
+                className="p-3 rounded-full bg-card hover:bg-[#25D366] hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
+              >
+                <img src={whatsappLogo} alt="WhatsApp" className="h-6 w-6" />
+              </a>
+              <a
+                href="https://www.instagram.com/gu_lg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Acessar perfil no Instagram"
+                className="p-3 rounded-full bg-card hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
+              >
+                <Instagram className="h-6 w-6" />
+              </a>
+            </div>
+          </div>
 
-        <div className="flex justify-center gap-6">
-          <a
-            href="https://github.com/gustavo-lg "
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Acessar perfil no GitHub"
-            className="p-3 rounded-full bg-card hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
-          >
-            <Github className="h-6 w-6" />
-          </a>
-          <a
-            href="https://linkedin.com/in/gustavo-lg"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Acessar perfil no LinkedIn"
-            className="p-3 rounded-full bg-card hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-primary/25"
-          >
-            <Linkedin className="h-6 w-6" />
-          </a>
-        </div>
-
-        <div className="static mt-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <button
-            aria-label="Acessar sobre mim"
-            onClick={() => handleScroll("about")}
-            className="p-2 rounded-full border border-primary/30 hover:border-primary hover:bg-primary/10 transition-colors"
-          >
-            <ArrowDown className="h-5 w-5 text-primary" />
-          </button>
+          <div className="relative flex justify-center lg:justify-end items-end">
+            <div className="flex items-end">
+              <img
+                src={macbook}
+                alt="Mockup de laptop"
+                className="w-[700px] max-w-full lg:-rotate-1"
+              />
+              <img
+                src={iphone}
+                alt="Mockup de smartphone"
+                className="hidden md:block w-40 sm:w-48 lg:-rotate-1 -ml-12 md:-ml-16 lg:-ml-20"
+              />
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-2/3 h-6 bg-black/10 blur-xl rounded-full pointer-events-none" />
+          </div>
         </div>
       </div>
     </section>

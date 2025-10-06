@@ -6,8 +6,8 @@ import { useInView } from "@/hooks/use-in-view";
 export function Skills() {
   const { ref, isInView } = useInView({ threshold: 0.1 });
   const technicalSkills = [
-    { name: "React", level: 90, category: "Frontend" },
-    { name: "Next.js", level: 85, category: "Frontend" },
+    { name: "React", level: 90, category: "Web" },
+    { name: "Next.js", level: 85, category: "Web" },
     { name: "TypeScript", level: 80, category: "Language" },
     { name: "JavaScript", level: 95, category: "Language" },
     { name: "Tailwind CSS", level: 88, category: "Styling" },
@@ -19,7 +19,7 @@ export function Skills() {
 
   const categories = [
     {
-      title: "Frontend Frameworks",
+      title: "Web Frameworks",
       skills: ["React", "Next.js"],
       color: "bg-blue-500"
     },
@@ -52,7 +52,18 @@ export function Skills() {
   ];
 
   return (
-    <section ref={ref} id="skills" className="py-20 px-4 bg-background">
+    <section ref={ref} id="skills" className="relative overflow-hidden py-20 px-4 bg-background">
+      <svg
+        className="pointer-events-none absolute -bottom-[10%] left-0 w-[140%] h-[120%]"
+        viewBox="0 0 1440 600"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <path
+          d="M0,500 C240,620 480,380 720,500 C960,620 1200,420 1440,480 L1440,600 L0,600 Z"
+          className="fill-background"
+        />
+      </svg>
       <div className={`max-w-6xl mx-auto transition-all duration-1000 ${
         isInView ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
       }`}>
