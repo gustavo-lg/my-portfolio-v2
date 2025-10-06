@@ -103,7 +103,7 @@ export function Hero() {
               <img
                 src={iphone}
                 alt="Mockup de smartphone"
-                className="hidden md:block md:w-32 lg:w-36 xl:w-40 2xl:w-44 lg:-rotate-1 md:-ml-10 lg:-ml-16 xl:-ml-20 2xl:-ml-18"
+                className="hidden md:block md:w-30 lg:w-32 xl:w-40 2xl:w-44 lg:-rotate-1 md:-ml-10 lg:-ml-16 xl:-ml-20 2xl:-ml-18"
               />
             </div>
             <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-2/3 h-6 bg-black/10 blur-xl rounded-full pointer-events-none" />
