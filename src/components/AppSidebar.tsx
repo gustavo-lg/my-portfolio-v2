@@ -18,7 +18,6 @@ const navigation = [
   { title: "Início", url: "#home", icon: Home },
   { title: "Sobre", url: "#about", icon: User },
   { title: "Projetos", url: "#projects", icon: Briefcase },
-  { title: "Habilidades", url: "#skills", icon: Code },
   { title: "Contato", url: "#contact", icon: Mail },
 ];
 
@@ -57,10 +56,10 @@ export function AppSidebar() {
             {!isCollapsed && (
               <div>
                 <h3 className="font-semibold text-sidebar-foreground">
-                  Dev Portfolio
+                  Gustavo Gonçalves
                 </h3>
                 <p className="text-xs text-sidebar-foreground/70">
-                  Frontend Developer
+                  Desenvolvedor Web
                 </p>
               </div>
             )}
@@ -91,15 +90,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-2 justify-center w-full">
-          {!isCollapsed && (
-            <span className="text-xs text-sidebar-foreground/70">
-              © 2025 Portfolio
-            </span>
-          )}
-        </div>
-      </SidebarFooter>
+      
     </Sidebar>
   );
 }

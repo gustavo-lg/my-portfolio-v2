@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Github, Code } from "lucide-react";
+import { ExternalLink, Code } from "lucide-react";
+import whatsappLogo from "@/assets/whatsapp-logo-black.png";
 import { useInView } from "@/hooks/use-in-view";
 import projetoImob from "@/assets/projeto-imob.jpg";
 import projetoPokedex from "@/assets/projeto-pokedex.jpg";
@@ -23,16 +24,16 @@ export function Projects() {
     {
       title: "Projeto Imob",
       description:
-        "Desenvolvi um site imobiliário completo e de alta performance, construído com Next.js e otimizado para a experiência do usuário e para o Google. Não é apenas um site, é uma plataforma de negócio otimizada para SEO e performance, com integração flexível a qualquer CRM imobiliário. Com um sistema de variáveis de ambiente configurável, ele se adapta facilmente às necessidades de qualquer cliente.",
+        "Desenvolvi um site imobiliário completo, rápido e fácil de usar, feito para atrair mais clientes e ter destaque no Google. Mais do que um simples site, é uma plataforma de negócios que se adapta a qualquer imobiliária, com integração a sistemas de CRM e possibilidade de enviar automaticamente os leads para outros sistemas. Tudo isso pensado para facilitar a gestão e aumentar as vendas.",
       image: projetoImob,
-      technologies: [
-        "Next.js",
-        "React",
-        "TypeScript",
-        "CSS",
-        "Axios",
-        "MUI",
-        "API Rest",
+      features: [
+        "Alta performance",
+        "Otimizado para o Google",
+        "Contato direto via WhatsApp",
+        "Automação inteligente",
+        "Gestão fácil de imóveis",
+        "Integração com CRM",
+        "Design moderno e responsivo",
       ],
       liveUrl: "https://imobiliario.vercel.app/",
       githubUrl: "#",
@@ -41,20 +42,17 @@ export function Projects() {
     {
       title: "RendO.ia",
       description:
-        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Kiwify para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. ",
+        "Desenvolvi um sistema online moderno e flexível, implantado do zero para atender às necessidades do cliente. A plataforma integra pagamentos via Kiwify, automações inteligentes e atendimento pelo WhatsApp, permitindo uma gestão mais ágil, prática e totalmente automatizada do negócio. ",
       image: projetoRendoia,
-      technologies: [
-        "Vite",
-        "React",
-        "TypeScript",
-        "CSS",
-        "Webhook",
-        "Supabase",
-        "Kiwify",
-        "WhatsApp API",
-        "n8n",
-        "OpenAI",
-        "API Rest",
+      features: [
+        "Sistema rápido e moderno",
+        "Chatbot funcional",
+        "Pagamentos automatizados",
+        "Pagamentos via Kiwify",
+        "Atendimento via WhatsApp",
+        "Automação de tarefas",
+        "Integração com inteligência artificial",
+        "Gestão simples e eficiente",
       ],
       liveUrl: "https://www.rendoia.com.br/",
       githubUrl: "#",
@@ -63,20 +61,20 @@ export function Projects() {
     {
       title: "Jarvis",
       description:
-        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Stripe para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. O projeto inclui dashboard dinâmico, chatbot funcional e layout redesenhado com foco em usabilidade, desempenho e experiência do usuário.",
+        "Desenvolvi uma página de vendas personalizada, integrada à Hotmart para gerenciamento de pagamentos e planos. O sistema conta com um painel dinâmico, chatbot inteligente e automações via WhatsApp, tornando o atendimento e a gestão muito mais rápidos, eficientes e profissionais.",
       image: projetoJarvis,
-      technologies: [
-        "Vite",
-        "React",
-        "TypeScript",
-        "CSS",
-        "Webhook",
-        "Supabase",
-        "Stripe",
-        "WhatsApp API",
-        "n8n",
-        "OpenAI",
-        "API Rest",
+      features: [
+        "Sistema rápido e moderno",
+        "Dashboard dinâmico",
+        "Chatbot funcional",
+        "Layout redesenhado com foco em usabilidade",
+        "Desempenho e experiência do usuário",
+        "Pagamentos automatizados",
+        "Pagamentos via Hotmart",
+        "Atendimento via WhatsApp",
+        "Automação de tarefas",
+        "Integração com inteligência artificial",
+        "Gestão simples e eficiente",
       ],
       liveUrl: "https://www.useojarvis.com/",
       githubUrl: "#",
@@ -85,20 +83,19 @@ export function Projects() {
     {
       title: "Poupe Fácil",
       description:
-        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Stripe para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos.",
+      "Desenvolvi uma página de vendas personalizada, integrada à Hotmart para gerenciamento de pagamentos e planos. O sistema conta com um painel dinâmico, chatbot inteligente e automações via WhatsApp, tornando o atendimento e a gestão muito mais rápidos, eficientes e profissionais.",
       image: projetoPoupeFacil,
-      technologies: [
-        "Vite",
-        "React",
-        "TypeScript",
-        "CSS",
-        "Webhook",
-        "Supabase",
-        "Stripe",
-        "WhatsApp API",
-        "n8n",
-        "OpenAI",
-        "API Rest",
+      features: [
+        "Sistema rápido e moderno",
+        "Chatbot funcional",
+        "Layout redesenhado com foco em usabilidade",
+        "Desempenho e experiência do usuário",
+        "Pagamentos automatizados",
+        "Pagamentos via Hotmart",
+        "Atendimento via WhatsApp",
+        "Automação de tarefas",
+        "Integração com inteligência artificial",
+        "Gestão simples e eficiente",
       ],
       liveUrl: "https://poupefacilia.com.br/",
       githubUrl: "#",
@@ -107,20 +104,19 @@ export function Projects() {
     {
       title: "Guardei App",
       description:
-        "Desenvolvi um sistema web moderno e escalável utilizando Vite, React e TypeScript, totalmente integrado ao Supabase para gerenciamento de dados e à Green para planos de pagamento. Não é apenas uma aplicação, mas uma plataforma inteligente de automação e interação, com integração às APIs do WhatsApp, n8n e OpenAI para automatizar fluxos de mensagens e atendimentos. ",
+      "Desenvolvi um sistema online moderno e flexível, implantado do zero para atender às necessidades do cliente. A plataforma integra pagamentos via Greenn, automações inteligentes e atendimento pelo WhatsApp, permitindo uma gestão mais ágil, prática e totalmente automatizada do negócio. ",
       image: projetoGuardei,
-      technologies: [
-        "Vite",
-        "React",
-        "TypeScript",
-        "CSS",
-        "Webhook",
-        "Supabase",
-        "Greenn",
-        "WhatsApp API",
-        "n8n",
-        "OpenAI",
-        "API Rest",
+      features: [
+        "Sistema rápido e moderno",
+        "Chatbot funcional",
+        "Layout redesenhado com foco em usabilidade",
+        "Desempenho e experiência do usuário",
+        "Pagamentos automatizados",
+        "Pagamentos via Greenn",
+        "Atendimento via WhatsApp",
+        "Automação de tarefas",
+        "Integração com inteligência artificial",
+        "Gestão simples e eficiente",
       ],
       liveUrl: "https://guardei.vercel.app/",
       githubUrl: "#",
@@ -131,7 +127,7 @@ export function Projects() {
       description:
         "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
       image: projetoPokedex,
-      technologies: [
+      features: [
         "Next.js",
         "React",
         "TypeScript",
@@ -149,7 +145,7 @@ export function Projects() {
       description:
         "Meus Repositórios Aplicação desenvolvida com React que consome a API do GitHub para listar repositórios de um usuário e exibir detalhes individuais de cada um deles.",
       image: null,
-      technologies: ["React", "Javascript", "Axios", "API Rest"],
+      features: ["React", "Javascript", "Axios", "API Rest"],
       liveUrl: "https://meus-repositorios-beta.vercel.app/",
       githubUrl: "https://github.com/gustavo-lg/meus-repositorios",
       featured: false,
@@ -159,7 +155,7 @@ export function Projects() {
       description:
         "Plataforma de blog com editor rico, painel integrado com Supabase para gerenciamento de dados e storage.",
       image: null,
-      technologies: ["Next.js", "MDX", "Tailwind"],
+      features: ["Next.js", "MDX", "Tailwind"],
       liveUrl: "https://imobiliario.vercel.app/blog",
       githubUrl: "#",
       featured: false,
@@ -169,7 +165,7 @@ export function Projects() {
       description:
         "Landing page criada para a agência GWD - Global Web Development, utilizando React, TypeScript, SCSS e Material UI para uma interface moderna e responsiva.",
       image: null,
-      technologies: ["React", "TypeScript", "SCSS", "MUI", "HTML"],
+      features: ["React", "TypeScript", "SCSS", "MUI", "HTML"],
       liveUrl: "https://gwd-landingpage.vercel.app/",
       githubUrl: "https://github.com/example",
       featured: false,
@@ -180,7 +176,30 @@ export function Projects() {
   const otherProjects = projects.filter((p) => !p.featured);
 
   return (
-    <section ref={ref} id="projects" className="py-20 px-4 bg-secondary/20">
+    <section ref={ref} id="projects" className="relative overflow-hidden py-20 px-4 bg-[#F1F1F1]">
+      <svg
+        className="pointer-events-none absolute -top-[10%] left-0 w-[140%] h-[120%] rotate-180"
+        viewBox="0 0 1440 600"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <path
+          d="M0,520 C240,590 480,410 720,520 C960,590 1200,450 1440,500 L1440,600 L0,600 Z"
+          className="fill-background"
+        />
+      </svg>
+      <svg
+        className="pointer-events-none absolute -bottom-[10%] left-0 w-[140%] h-[120%]"
+        viewBox="0 0 1440 600"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <path
+          d="M0,520 C240,590 480,410 720,520 C960,590 1200,450 1440,500 L1440,600 L0,600 Z"
+          className="fill-background"
+        />
+      </svg>
+      
       <div
         className={`max-w-6xl mx-auto transition-all duration-1000 ${
           isInView
@@ -228,14 +247,7 @@ export function Projects() {
                       <Code className="h-16 w-16 text-primary/30" />
                     </>
                   )}
-                  <div className="absolute top-2 right-2">
-                    <Badge
-                      variant="secondary"
-                      className="bg-primary/20 text-primary"
-                    >
-                      Destaque
-                    </Badge>
-                  </div>
+                 
                 </div>
                 <CardHeader>
                   <CardTitle className="group-hover:text-primary transition-colors">
@@ -247,7 +259,7 @@ export function Projects() {
                   <div className="mt-auto px-4 pb-4">
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
-                        {project.technologies.map((tech) => (
+                        {project.features.map((tech) => (
                           <Badge
                             key={tech}
                             variant="outline"
@@ -275,36 +287,6 @@ export function Projects() {
                           Ver Projeto
                         </a>
                       </Button>
-                      {project.githubUrl === "#" ? (
-                        <Button
-                          aria-label="Acessar código"
-                          size="sm"
-                          variant="outline"
-                          disabled
-                          className="flex-1 border-primary text-primary opacity-20 cursor-not-allowed"
-                        >
-                          <Github className="mr-2 h-4 w-4" />
-                          Código
-                        </Button>
-                      ) : (
-                        <Button
-                          aria-label="Acessar código"
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                          asChild
-                        >
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Acessar código"
-                          >
-                            <Github className="mr-2 h-4 w-4" />
-                            Código
-                          </a>
-                        </Button>
-                      )}
                     </CardFooter>
                   </div>
                 </div>
@@ -313,7 +295,7 @@ export function Projects() {
           </div>
         </div>
 
-        {/* Other Projects */}
+        {/* Other Projects 
         <div>
           <h3 className="text-2xl font-semibold mb-8 text-foreground flex items-center gap-2">
             <span className="w-2 h-2 bg-secondary rounded-full"></span>
@@ -340,14 +322,14 @@ export function Projects() {
                 </CardHeader>
                 <CardContent className="pb-3">
                   <div className="flex flex-wrap gap-1">
-                    {project.technologies.slice(0, 3).map((tech) => (
+                    {project.features.slice(0, 3).map((tech) => (
                       <Badge key={tech} variant="secondary" className="text-xs">
                         {tech}
                       </Badge>
                     ))}
-                    {project.technologies.length > 3 && (
+                    {project.features.length > 3 && (
                       <Badge variant="secondary" className="text-xs">
-                        +{project.technologies.length - 3}
+                        +{project.features.length - 3}
                       </Badge>
                     )}
                   </div>
@@ -369,39 +351,27 @@ export function Projects() {
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
-                  {project.githubUrl === "#" ? (
-                    <Button
-                      aria-label="Acessar código"
-                      size="sm"
-                      variant="ghost"
-                      className="p-2 cursor-not-allowed"
-                      disabled
+                  <Button
+                    aria-label="Chamar no WhatsApp"
+                    size="sm"
+                    variant="ghost"
+                    className="p-2"
+                    asChild
+                  >
+                    <a
+                      href="https://wa.me/5548998155981"
+                      aria-label="Chamar no WhatsApp"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <Github className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      aria-label="Acessar código"
-                      size="sm"
-                      variant="ghost"
-                      className="p-2"
-                      asChild
-                    >
-                      <a
-                        href={project.githubUrl}
-                        aria-label="Acessar código"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Github className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  )}
+                      <img src={whatsappLogo} alt="WhatsApp" className="h-4 w-4" />
+                    </a>
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
           </div>
-        </div>
+        </div>*/}
       </div>
     </section>
   );
