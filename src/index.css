@@ -54,6 +54,10 @@ All colors MUST be HSL.
     --cyan-bright: 195 100% 50%;
     --gray-light: 0 0% 88%;
     --white-clean: 0 0% 98%;
+
+    /* Orbital experience tokens */
+    --accent-purple: 265 80% 62%;
+    --galaxy-bg: 0 0% 8%;
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
@@ -107,6 +111,9 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 88%;
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 195 100% 50%;
+
+    --accent-purple: 265 80% 62%;
+    --galaxy-bg: 0 0% 8%;
   }
 }
 
