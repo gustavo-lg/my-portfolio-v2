@@ -81,6 +81,16 @@ Desenvolvedor Web
   criar a profundidade azul/roxo da referência BlueYard.
 - Fundo: dark `hsl(0 0% 8–12%)`.
 
+### 3.5 Tipografia (proposta inicial — ajustável)
+
+- **Wordmark + títulos**: `Space Grotesk` (Google Fonts) — grotesca com
+  personalidade "técnica/sistema", combina com a linguagem da referência.
+  No wordmark: peso leve (300/400) com `letter-spacing` aberto.
+- **Corpo de texto** (páginas internas): `Inter` (Google Fonts) — neutra,
+  altíssima legibilidade em dark.
+- Ambas via `@fontsource` ou `<link>` para Google Fonts, com fallback
+  `system-ui`. Decisão final na Fase 2 (núcleo/wordmark).
+
 ### 3.3 Fidelidade — **abordagem de sprites additivos** (sem GLSL/bloom no MVP)
 
 Nebulosa = um único `<Points>` com `BufferGeometry`, textura de sprite circular
@@ -235,7 +245,7 @@ coreografado). A câmera **não** volta ao centro. URL muda.
 
 ### 5.5 Layout de toda página interna
 
-- Back button fixo no canto superior esquerdo (seta + "VOLTAR").
+- Back button fixo no canto superior esquerdo (seta + "VER TUDO").
 - Galáxia visível ao fundo, reenquadrada (não centralizada).
 - Conteúdo principal: título da seção + conteúdo (cards/form shadcn),
   centralizado na área de conteúdo, com scroll interno se necessário.
