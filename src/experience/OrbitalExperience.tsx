@@ -1,9 +1,18 @@
-import { Suspense, lazy, useCallback, useEffect, useRef } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { categories, categoryByPath } from "@/content/categories";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
-import { GalaxyCameraProvider } from "@/experience/galaxy/GalaxyCamera";
+import { GalaxyCameraProvider, useGalaxyCamera } from "@/experience/galaxy/GalaxyCamera";
+import { CursorProvider, useCursor } from "@/experience/cursor/CustomCursor";
+import { ExperienceOverlay } from "@/experience/overlay/ExperienceOverlay";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { ContentPage } from "@/experience/pages/ContentPage";
 import NotFound from "@/pages/NotFound";
@@ -11,16 +20,28 @@ import NotFound from "@/pages/NotFound";
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
 const SETTLE_MS = 700;
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+function anchorScreenPoint(key: string) {
+  const el = document.querySelector(`[data-orbital-label="${key}"]`);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
 
 /**
- * Persistent shell. The WebGL canvas lives here, above <Routes>, so it never
- * unmounts on navigation. The experience state machine drives the intro
- * sequence and (from Phase 4) the navigation choreography.
+ * Persistent shell. Hosts the WebGL canvas (above <Routes>, never unmounts),
+ * the custom cursor, the overlay, and the choreography orchestrator that
+ * sequences GSAP / camera / router off the state machine.
  */
-export function OrbitalExperience() {
+function ExperienceShell() {
   const { ctx, send } = useExperience();
   const { reducedMotion } = useDeviceCapabilities();
+  const camera = useGalaxyCamera();
+  const cursor = useCursor();
   const location = useLocation();
+  const navigate = useNavigate();
+
   const bootstrapped = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -40,24 +61,65 @@ export function OrbitalExperience() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Plain <Link> navigation between pages (choreography arrives in Phase 4).
+  // Keep the machine target aligned when the URL changes by means other than
+  // the choreography (manual URL edit, browser back/forward).
   useEffect(() => {
     const meta = categoryByPath[location.pathname];
     if (meta && ctx.state === "internal-page" && ctx.target !== meta.key) {
       send({ type: "SWITCH_CATEGORY", key: meta.key });
     }
-    if (!meta && location.pathname === "/" && ctx.state === "internal-page") {
-      send({ type: "REQUEST_RETURN" });
-      send({ type: "RETURN_COMPLETE" });
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // Choreography orchestrator.
+  useEffect(() => {
+    let cancelled = false;
+
+    if (ctx.state === "traveling" && ctx.target) {
+      const point = anchorScreenPoint(ctx.target);
+      if (cursor.enabled && !reducedMotion && point) {
+        cursor.travelTo(point).then(() => {
+          if (!cancelled) send({ type: "CURSOR_ARRIVED" });
+        });
+      } else {
+        send({ type: "CURSOR_ARRIVED" });
+      }
+    }
+
+    if (ctx.state === "navigating" && ctx.target) {
+      const meta = categories.find((c) => c.key === ctx.target)!;
+      (async () => {
+        if (!reducedMotion) {
+          await wait(260); // overlay fade-out (CSS)
+          if (cancelled) return;
+          await wait(340); // labels collapse (OrbitalLabels)
+          if (cancelled) return;
+        }
+        await camera.focusSide({ instant: reducedMotion });
+        if (cancelled) return;
+        navigate(meta.path);
+        send({ type: "TRANSITION_COMPLETE" });
+      })();
+    }
+
+    if (ctx.state === "returning") {
+      (async () => {
+        await camera.focusCenter({ instant: reducedMotion });
+        if (cancelled) return;
+        navigate("/");
+        send({ type: "RETURN_COMPLETE" });
+      })();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx.state, ctx.target]);
 
   const handleFormed = useCallback(() => {
     send({ type: "FORM_COMPLETE" });
     clearTimeout(settleTimer.current);
-    // SETTLE_COMPLETE -> `menu-reveal`; OrbitalLabels then staggers in and
-    // dispatches MENU_REVEALED once the labels finish appearing.
     settleTimer.current = setTimeout(() => {
       send({ type: "SETTLE_COMPLETE" });
     }, SETTLE_MS);
@@ -70,32 +132,46 @@ export function OrbitalExperience() {
     location.pathname === "/" &&
     (ctx.state === "menu-reveal" ||
       ctx.state === "idle" ||
-      ctx.state === "traveling");
+      ctx.state === "traveling" ||
+      ctx.state === "navigating");
+
+  return (
+    <div className="relative min-h-screen bg-galaxy-bg text-foreground">
+      <Suspense fallback={null}>
+        <GalaxyCanvas
+          idle={idleMotion}
+          menuActive={menuActive}
+          initialFraming={startAtInternal ? "side" : "center"}
+          onFormed={handleFormed}
+        />
+      </Suspense>
+
+      <ExperienceOverlay state={ctx.state} />
+
+      <Routes>
+        <Route path="/" element={<OrbitalMenu />} />
+        {categories.map((c) => (
+          <Route
+            key={c.key}
+            path={c.path}
+            element={<ContentPage category={c.key} />}
+          />
+        ))}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+}
+
+export function OrbitalExperience() {
+  const { tier } = useDeviceCapabilities();
+  const enabledCursor = useMemo(() => tier.customCursor, [tier.customCursor]);
 
   return (
     <GalaxyCameraProvider>
-      <div className="relative min-h-screen bg-galaxy-bg text-foreground">
-        <Suspense fallback={null}>
-          <GalaxyCanvas
-            idle={idleMotion}
-            menuActive={menuActive}
-            initialFraming={startAtInternal ? "side" : "center"}
-            onFormed={handleFormed}
-          />
-        </Suspense>
-
-        <Routes>
-          <Route path="/" element={<OrbitalMenu />} />
-          {categories.map((c) => (
-            <Route
-              key={c.key}
-              path={c.path}
-              element={<ContentPage category={c.key} />}
-            />
-          ))}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+      <CursorProvider enabled={enabledCursor}>
+        <ExperienceShell />
+      </CursorProvider>
     </GalaxyCameraProvider>
   );
 }

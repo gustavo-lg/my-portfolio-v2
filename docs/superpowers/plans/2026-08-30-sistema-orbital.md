@@ -921,6 +921,16 @@ Full entry sequence: forming → settling → wordmark → staggered labels → 
 - Tests: switch keeps `internal-page` + swaps target + navigates; return reaches `idle` + navigates `/`; deep-link path.
 - Commit `feat: page transitions and return choreography`.
 
+**Implementation note (2026-08-30):** The 3D→2D label projection uses drei
+`<Html>` (already a dep) instead of a hand-rolled `useAnchorProjection` +
+`projectToScreen` — battle-tested, keeps labels as real focusable DOM.
+`PageTransition` is currently an **enter-only** animation (`animate-page-in`
+keyframe on the category-keyed `ContentPage` main), reading as "slides in
+from the left". The simultaneous outgoing zoom-right needs a transition group
+and is deferred to Phase 5 polish. Choreography is sequenced by an async
+orchestrator effect in `ExperienceShell` (awaits over camera Promises +
+timed waits) rather than a single GSAP master timeline.
+
 ### Phase 4 checkpoint
 Full loop: menu → (cursor travel) → choreographed transition → content page → switch between pages → back to menu. Keyboard-only path works. Reduced-motion path is instant throughout.
 

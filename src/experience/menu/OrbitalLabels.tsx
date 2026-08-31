@@ -30,6 +30,29 @@ export function OrbitalLabels({ reducedMotion }: { reducedMotion: boolean }) {
     navigate(meta.path);
   };
 
+  // Collapse (scale/translate/fade down) as the second beat of the navigate
+  // choreography.
+  useEffect(() => {
+    if (ctx.state !== "navigating") return;
+    const els = buttons.current.filter(Boolean) as HTMLButtonElement[];
+    if (!els.length) return;
+    if (reducedMotion) {
+      els.forEach((el) => (el.style.opacity = "0"));
+      return;
+    }
+    const tween = gsap.to(els, {
+      opacity: 0,
+      y: 18,
+      scale: 0.8,
+      duration: 0.32,
+      stagger: 0.05,
+      ease: "power2.in",
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [ctx.state, reducedMotion]);
+
   useEffect(() => {
     const ready = ctx.state === "menu-reveal" || ctx.state === "idle";
     if (revealed.current || !ready) return;

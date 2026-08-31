@@ -34,7 +34,9 @@ describe("OrbitalExperience routing", () => {
     expect(
       screen.getByRole("heading", { name: /stack/i, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /ver tudo/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /ver tudo/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders real project content at /projetos", () => {
