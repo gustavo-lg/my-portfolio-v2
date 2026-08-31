@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { CategoryKey } from "@/content/types";
 import { categories } from "@/content/categories";
 import { useDocumentMeta } from "@/experience/lib/useDocumentMeta";
+import { ExperienceContainer } from "@/experience/layout/ExperienceContainer";
 import { BackButton } from "./BackButton";
 import { BottomNav } from "./BottomNav";
 import { ProjectsView } from "./sections/ProjectsView";
@@ -34,13 +35,15 @@ export function ContentPage({ category }: { category: CategoryKey }) {
       <main
         id="content"
         key={category}
-        className="mx-auto max-w-5xl animate-page-in px-6 pb-28 pt-24"
+        className="animate-page-in pb-28 pt-24"
       >
-        <h1 className="mb-2 font-display text-3xl font-light uppercase tracking-[0.2em] text-foreground md:text-5xl">
-          {meta.label}
-        </h1>
-        <p className="mb-10 text-sm text-muted-foreground">{meta.blurb}</p>
-        <View />
+        <ExperienceContainer>
+          <h1 className="mb-2 font-display text-3xl font-light uppercase tracking-[0.2em] text-foreground md:text-5xl">
+            {meta.label}
+          </h1>
+          <p className="mb-10 text-sm text-muted-foreground">{meta.blurb}</p>
+          <View />
+        </ExperienceContainer>
       </main>
 
       <div

@@ -11,10 +11,10 @@ export function Wordmark() {
       className="pointer-events-none select-none text-center transition-opacity duration-1000"
       style={{ opacity: visible ? 1 : 0 }}
     >
-      <h1 className="font-display text-4xl font-light tracking-[0.22em] text-foreground drop-shadow-[0_2px_24px_hsl(var(--galaxy-bg))] md:text-6xl">
+      <h1 className="whitespace-nowrap font-display text-2xl font-light tracking-[0.16em] text-foreground drop-shadow-[0_2px_24px_hsl(var(--galaxy-bg))] sm:text-3xl md:text-4xl">
         {profile.name}
       </h1>
-      <p className="mt-3 text-[0.7rem] uppercase tracking-[0.4em] text-foreground/70 md:text-xs">
+      <p className="mt-3 text-[0.65rem] uppercase tracking-[0.4em] text-foreground/70 md:text-xs">
         {profile.title}
       </p>
     </div>

@@ -3,6 +3,7 @@ import type { CategoryKey } from "@/content/types";
 import { categories } from "@/content/categories";
 import { categoryIcons } from "@/experience/lib/icons";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
+import { ExperienceContainer } from "@/experience/layout/ExperienceContainer";
 
 /** Fixed bottom bar linking to the other three categories. */
 export function BottomNav({ current }: { current: CategoryKey }) {
@@ -13,8 +14,9 @@ export function BottomNav({ current }: { current: CategoryKey }) {
   return (
     <nav
       aria-label="Outras categorias"
-      className="fixed inset-x-0 bottom-0 z-30 flex justify-center gap-2 border-t border-border bg-background/80 px-4 py-3 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/80 py-3 backdrop-blur"
     >
+      <ExperienceContainer className="flex justify-center gap-2">
       {others.map((c) => {
         const Icon = categoryIcons[c.icon];
         return (
@@ -32,6 +34,7 @@ export function BottomNav({ current }: { current: CategoryKey }) {
           </button>
         );
       })}
+      </ExperienceContainer>
     </nav>
   );
 }

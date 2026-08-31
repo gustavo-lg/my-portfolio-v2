@@ -6,10 +6,10 @@ import type { Vec3 } from "./cameraTargets";
  * slightly tilted ring. Order matches `categories`.
  */
 export const ORBITAL_ANCHORS: Record<CategoryKey, Vec3> = {
-  projetos: [-3.1, 1.7, 0.4],
-  stack: [3.1, 1.7, -0.4],
-  sobre: [-3.1, -1.7, 0.4],
-  contato: [3.1, -1.7, -0.4],
+  projetos: [-4.7, 2.6, 0.5],
+  stack: [4.7, 2.6, -0.5],
+  sobre: [-4.7, -2.6, 0.5],
+  contato: [4.7, -2.6, -0.5],
 };
 
 export const ORBITAL_ORDER: CategoryKey[] = [

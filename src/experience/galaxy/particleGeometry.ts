@@ -15,22 +15,28 @@ function mulberry32(seed: number) {
   };
 }
 
-export const CORE_FRACTION = 0.44;
-export const CORE_RADIUS = 0.85;
-export const HALO_INNER = 2;
-export const HALO_OUTER = 5;
-export const HALO_Y_SQUASH = 0.18;
-export const DISPERSED_RADIUS = 14;
+// Three zones: a tight luminous nucleus, a broad mid cloud, and a sparse
+// outer scatter that reaches the edges of the frame — a volumetric dust
+// cloud rather than a thin disk.
+export const CORE_FRACTION = 0.16;
+export const MID_FRACTION = 0.5;
+export const CORE_RADIUS = 1.1;
+export const MID_INNER = 1.4;
+export const MID_OUTER = 8;
+export const OUTER_INNER = 6;
+export const OUTER_OUTER = 16;
+export const HALO_Y_SQUASH = 0.62;
+export const DISPERSED_RADIUS = 24;
+export const COLOR_RANGE = OUTER_OUTER;
 
-/** Dense central cluster + flattened orbital halo. */
+/** Nucleus + broad mid cloud + sparse outer scatter. */
 export function generateTargetPositions(count: number, seed = 1): Float32Array {
   const rng = mulberry32(seed);
   const out = new Float32Array(count * 3);
   const coreCount = Math.floor(count * CORE_FRACTION);
+  const midCount = coreCount + Math.floor(count * MID_FRACTION);
 
   for (let i = 0; i < count; i++) {
-    const isCore = i < coreCount;
-    // random unit direction
     const u = rng() * 2 - 1;
     const theta = rng() * Math.PI * 2;
     const s = Math.sqrt(1 - u * u);
@@ -38,16 +44,21 @@ export function generateTargetPositions(count: number, seed = 1): Float32Array {
     let y = u;
     let z = s * Math.sin(theta);
 
-    if (isCore) {
-      // Bias strongly toward the centre for a luminous, dense nucleus.
-      const r = CORE_RADIUS * Math.pow(rng(), 1.8);
+    if (i < coreCount) {
+      const r = CORE_RADIUS * Math.pow(rng(), 1.7);
       x *= r;
-      y *= r;
+      y *= r * 0.85;
       z *= r;
-    } else {
-      const r = HALO_INNER + (HALO_OUTER - HALO_INNER) * rng();
+    } else if (i < midCount) {
+      const r = MID_INNER + (MID_OUTER - MID_INNER) * Math.pow(rng(), 0.8);
       x *= r;
       y *= r * HALO_Y_SQUASH;
+      z *= r;
+    } else {
+      // Sparse outer haze — nearly spherical so it fills the corners.
+      const r = OUTER_INNER + (OUTER_OUTER - OUTER_INNER) * Math.pow(rng(), 0.6);
+      x *= r;
+      y *= r * 0.8;
       z *= r;
     }
 
@@ -91,7 +102,7 @@ export function generateColors(
     const y = targets[i * 3 + 1];
     const z = targets[i * 3 + 2];
     const d = Math.sqrt(x * x + y * y + z * z);
-    const t = Math.min(1, d / HALO_OUTER);
+    const t = Math.min(1, d / COLOR_RANGE);
     out[i * 3] = CYAN[0] + (PURPLE[0] - CYAN[0]) * t;
     out[i * 3 + 1] = CYAN[1] + (PURPLE[1] - CYAN[1]) * t;
     out[i * 3 + 2] = CYAN[2] + (PURPLE[2] - CYAN[2]) * t;

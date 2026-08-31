@@ -4,6 +4,7 @@ import { categoryIcons } from "@/experience/lib/icons";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { usePrefersReducedMotion } from "@/experience/lib/useReducedMotion";
 import { useDocumentMeta } from "@/experience/lib/useDocumentMeta";
+import { ExperienceContainer } from "@/experience/layout/ExperienceContainer";
 import { Wordmark } from "./Wordmark";
 
 /**
@@ -19,18 +20,17 @@ export function OrbitalMenu() {
   return (
     <main
       id="content"
-      className="relative z-10 flex min-h-screen flex-col items-center justify-end gap-12 px-6 pb-[16vh]"
+      className="relative z-10 flex min-h-screen flex-col items-center justify-end pb-[11vh]"
     >
-      <Wordmark />
+      <ExperienceContainer className="flex flex-col items-center gap-12">
+        <Wordmark />
 
-      <nav
-        aria-label="Categorias"
-        className={
-          staticGalaxy
-            ? "flex flex-wrap justify-center gap-4"
-            : "sr-only"
-        }
-      >
+        <nav
+          aria-label="Categorias"
+          className={
+            staticGalaxy ? "flex flex-wrap justify-center gap-4" : "sr-only"
+          }
+        >
         {categories.map((c) => {
           const Icon = categoryIcons[c.icon];
           return (
@@ -47,8 +47,9 @@ export function OrbitalMenu() {
               {c.label}
             </Link>
           );
-        })}
-      </nav>
+          })}
+        </nav>
+      </ExperienceContainer>
     </main>
   );
 }
