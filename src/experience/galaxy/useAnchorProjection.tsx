@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useRef } from "react";
+import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { CategoryKey } from "@/content/types";
 import { ORBITAL_ANCHORS, ORBITAL_ORDER } from "./orbitalAnchors";
@@ -21,10 +21,26 @@ export function projectPoint(
   };
 }
 
+/** Below this (in viewport %) a change isn't worth a re-render. */
+const EPSILON = 0.05;
+
+function changed(
+  a: AnchorScreenPositions | null,
+  b: AnchorScreenPositions,
+): boolean {
+  if (!a) return true;
+  return ORBITAL_ORDER.some(
+    (k) =>
+      Math.abs(a[k].xPct - b[k].xPct) > EPSILON ||
+      Math.abs(a[k].yPct - b[k].yPct) > EPSILON,
+  );
+}
+
 /**
- * Rendered INSIDE the Canvas. Recomputes the 2D screen position of each orbital
- * anchor whenever the camera or viewport changes, and hands them to the DOM.
- * The menu camera is static, so this does not need a per-frame update.
+ * Rendered INSIDE the Canvas. Projects each orbital anchor to screen space every
+ * frame and pushes the result to the DOM only when it actually moves — the
+ * camera is static except during the GSAP dolly, so this is a no-op at idle but
+ * keeps the labels glued to the nebula while the camera animates.
  */
 export function AnchorProjector({
   onChange,
@@ -32,16 +48,18 @@ export function AnchorProjector({
   onChange: (positions: AnchorScreenPositions) => void;
 }) {
   const camera = useThree((s) => s.camera);
-  const size = useThree((s) => s.size);
+  const last = useRef<AnchorScreenPositions | null>(null);
 
-  useEffect(() => {
-    camera.updateMatrixWorld();
+  useFrame(() => {
     const next = {} as AnchorScreenPositions;
     for (const key of ORBITAL_ORDER) {
       next[key] = projectPoint(ORBITAL_ANCHORS[key], camera);
     }
-    onChange(next);
-  }, [camera, size.width, size.height, onChange]);
+    if (changed(last.current, next)) {
+      last.current = next;
+      onChange(next);
+    }
+  });
 
   return null;
 }

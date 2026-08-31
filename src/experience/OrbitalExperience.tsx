@@ -20,7 +20,7 @@ import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
-import { ContentArea } from "@/experience/pages/ContentArea";
+import { ContentArea, SWAP_MS } from "@/experience/pages/ContentArea";
 import NotFound from "@/pages/NotFound";
 
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
@@ -121,7 +121,12 @@ function ExperienceShell() {
 
     if (ctx.state === "returning") {
       (async () => {
-        await camera.focusCenter({ instant: reducedMotion });
+        // Content exit animation and camera dolly run together; the content is
+        // gone well before the camera finishes re-centring the nebula.
+        await Promise.all([
+          camera.focusCenter({ instant: reducedMotion }),
+          reducedMotion ? Promise.resolve() : wait(SWAP_MS),
+        ]);
         if (cancelled) return;
         navigate("/");
         send({ type: "RETURN_COMPLETE" });
@@ -181,9 +186,10 @@ function ExperienceShell() {
         <OrbitalLabels positions={anchors} onSelect={handleSelectLabel} />
       )}
 
-      {/* Persistent across category switches so the lateral zoom transition can
-          keep the outgoing section mounted while the new one enters. */}
-      {onCategoryPath && <ContentArea />}
+      {/* Persistent across category switches so the lateral transition can keep
+          the outgoing section mounted while the new one enters. Also kept alive
+          through `returning` so VER TUDO gets the same exit animation. */}
+      {(onCategoryPath || ctx.state === "returning") && <ContentArea />}
 
       <Routes>
         <Route path="/" element={<OrbitalMenu />} />
