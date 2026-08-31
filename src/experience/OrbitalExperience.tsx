@@ -5,17 +5,21 @@ import {
   useEffect,
   useRef,
   useMemo,
+  useState,
 } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import type { CategoryMeta } from "@/content/types";
 import { categories, categoryByPath } from "@/content/categories";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 import { GalaxyCameraProvider, useGalaxyCamera } from "@/experience/galaxy/GalaxyCamera";
+import type { AnchorScreenPositions } from "@/experience/galaxy/useAnchorProjection";
 import { CursorProvider, useCursor } from "@/experience/cursor/CustomCursor";
 import { ExperienceOverlay } from "@/experience/overlay/ExperienceOverlay";
 import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
+import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
 import { ContentPage } from "@/experience/pages/ContentPage";
 import NotFound from "@/pages/NotFound";
 
@@ -46,6 +50,15 @@ function ExperienceShell() {
 
   const bootstrapped = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [anchors, setAnchors] = useState<AnchorScreenPositions | null>(null);
+  const handleAnchors = useCallback(
+    (p: AnchorScreenPositions) => setAnchors(p),
+    [],
+  );
+  const handleSelectLabel = useCallback(
+    (meta: CategoryMeta) => send({ type: "SELECT_CATEGORY", key: meta.key }),
+    [send],
+  );
   const webgl = useMemo(() => isWebGLAvailable(), []);
   const staticGalaxy = !webgl || reducedMotion;
 
@@ -154,14 +167,18 @@ function ExperienceShell() {
         <Suspense fallback={<GalaxyBackdrop pulse />}>
           <GalaxyCanvas
             idle={idleMotion}
-            menuActive={menuActive}
             initialFraming={startAtInternal ? "side" : "center"}
             onFormed={handleFormed}
+            onAnchors={handleAnchors}
           />
         </Suspense>
       )}
 
       <ExperienceOverlay state={ctx.state} />
+
+      {menuActive && !staticGalaxy && (
+        <OrbitalLabels positions={anchors} onSelect={handleSelectLabel} />
+      )}
 
       <Routes>
         <Route path="/" element={<OrbitalMenu />} />

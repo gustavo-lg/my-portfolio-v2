@@ -1,22 +1,25 @@
 import { Canvas } from "@react-three/fiber";
 import { ParticleField } from "./ParticleField";
 import { GalaxyCamera } from "./GalaxyCamera";
-import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
+import {
+  AnchorProjector,
+  type AnchorScreenPositions,
+} from "./useAnchorProjection";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
 interface Props {
   idle: boolean;
-  menuActive: boolean;
   initialFraming?: "center" | "side";
   onFormed?: () => void;
+  onAnchors?: (positions: AnchorScreenPositions) => void;
 }
 
 /** Full-viewport WebGL backdrop. Default export so it can be React.lazy'd. */
 export default function GalaxyCanvas({
   idle,
-  menuActive,
   initialFraming = "center",
   onFormed,
+  onAnchors,
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
 
@@ -34,7 +37,7 @@ export default function GalaxyCanvas({
         idle={idle}
         onFormed={onFormed}
       />
-      {menuActive && <OrbitalLabels reducedMotion={reducedMotion} />}
+      {onAnchors && <AnchorProjector onChange={onAnchors} />}
     </Canvas>
   );
 }
