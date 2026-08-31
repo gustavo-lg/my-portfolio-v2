@@ -13,9 +13,10 @@ type Layer = { key: CategoryKey; anim: "in" | "out" };
 
 /**
  * Persistent internal-page shell. Derives the active category from the URL and
- * runs a mirrored lateral transition when it changes: the outgoing section
- * recedes to the left, shrinking and fading, while the incoming one arrives
- * from the left. Both stay mounted for the duration of the swap.
+ * runs a Star Wars wipe when it changes: the outgoing section recedes into the
+ * distance to the right (shrinking, turning away, no fade) while the incoming
+ * one flies in small from the left and grows to fill the frame. Both stay
+ * mounted for the duration of the swap.
  *
  * On `returning` (the VER TUDO button) the whole area plays the same exit
  * animation before the shell unmounts it.
@@ -84,11 +85,11 @@ export function ContentArea() {
         <BackButton />
       </div>
 
-      {/* `perspective` makes the layers' rotateY read as a page swinging on
-          its vertical axis rather than a flat horizontal squash. */}
+      {/* `perspective` gives the recede/approach its depth — the layers shrink
+          toward a vanishing point instead of just getting smaller. */}
       <div
         className="relative overflow-x-clip pb-36 pt-24"
-        style={{ perspective: "1800px" }}
+        style={{ perspective: "2200px" }}
       >
         {rendered.map((layer) => (
           <div
@@ -99,11 +100,12 @@ export function ContentArea() {
             id={layer.anim === "in" ? "content" : undefined}
             aria-hidden={layer.anim === "out"}
             className={
-              // Mirrored pivots: the incoming page swings in from the right,
-              // the outgoing one swings away to the left.
+              // Mirrored vanishing points: the incoming section grows from a
+              // point on the left, the outgoing one shrinks toward one on the
+              // right. Outgoing sits on top so you watch it recede.
               layer.anim === "in"
-                ? "relative z-10 origin-[35%_30%] animate-page-in motion-reduce:animate-none"
-                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[65%_30%] animate-page-out motion-reduce:hidden"
+                ? "relative z-10 origin-[30%_28%] animate-page-in motion-reduce:animate-none"
+                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[70%_28%] animate-page-out motion-reduce:hidden"
             }
           >
             <CategorySection category={layer.key} />

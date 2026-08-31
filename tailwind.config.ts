@@ -115,33 +115,21 @@ export default {
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
           "100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }
         },
-        // Swings in like a page turning: arrives from the RIGHT, tilted away
-        // on its vertical axis, then settles flat and centred.
+        // Star Wars wipe, no fade. The incoming section holds as a tiny speck
+        // off to the LEFT while the outgoing page is still readable, then rushes
+        // in and grows to fill the frame.
         "page-in": {
-          "0%": {
-            opacity: "0",
-            transform: "translateX(62vw) scale(0.88) rotateY(26deg)"
-          },
-          "8%": { opacity: "0" },
-          "45%": { opacity: "1" },
-          "100%": {
-            opacity: "1",
-            transform: "translateX(0) scale(1) rotateY(0deg)"
-          }
+          "0%": { transform: "translateX(-40vw) scale(0.14) rotateY(40deg)" },
+          "40%": { transform: "translateX(-33vw) scale(0.26) rotateY(32deg)" },
+          "100%": { transform: "translateX(0) scale(1) rotateY(0deg)" }
         },
-        // Time-mirror of page-in: stays legible while it travels, tilting open
-        // and receding all the way out the LEFT edge before it finishes fading.
+        // Mirror: the outgoing section stays readable while it drifts, then
+        // recedes fast into the distance to the RIGHT, shrinking and turning
+        // away until it is a speck and gone.
         "page-out": {
-          "0%": {
-            opacity: "1",
-            transform: "translateX(0) scale(1) rotateY(0deg)"
-          },
-          "55%": { opacity: "1" },
-          "92%": { opacity: "0" },
-          "100%": {
-            opacity: "0",
-            transform: "translateX(-62vw) scale(0.88) rotateY(-26deg)"
-          }
+          "0%": { transform: "translateX(0) scale(1) rotateY(0deg)" },
+          "45%": { transform: "translateX(10vw) scale(0.82) rotateY(-10deg)" },
+          "100%": { transform: "translateX(58vw) scale(0.14) rotateY(-40deg)" }
         }
       },
       animation: {
@@ -151,8 +139,9 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        "page-in": "page-in 2.1s cubic-bezier(0.45, 0.02, 0.25, 1) both",
-        "page-out": "page-out 1.9s cubic-bezier(0.45, 0.02, 0.25, 1) both",
+        // The keyframe % holds do the pacing; a gentle in-out smooths each leg.
+        "page-in": "page-in 1.7s cubic-bezier(0.45, 0, 0.55, 1) both",
+        "page-out": "page-out 1.6s cubic-bezier(0.45, 0, 0.55, 1) both",
       },
     },
   },
