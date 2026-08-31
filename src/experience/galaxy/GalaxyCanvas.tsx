@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ParticleField } from "./ParticleField";
+import { InterstellarDust } from "./InterstellarDust";
 import { GalaxyCamera } from "./GalaxyCamera";
 import {
   AnchorProjector,
@@ -9,6 +10,7 @@ import {
 import {
   generateTargetPositions,
   deformPositions,
+  offsetPositions,
 } from "./particleGeometry";
 import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
@@ -37,6 +39,7 @@ export default function GalaxyCanvas({
     for (const key of SCENE_ORDER) {
       const buf = new Float32Array(count * 3);
       deformPositions(base, SCENES[key].deform, buf);
+      offsetPositions(buf, SCENES[key].center);
       out[key] = buf;
     }
     return out;
@@ -44,19 +47,28 @@ export default function GalaxyCanvas({
 
   const scene = SCENES[activeScene];
 
+  // Dust particle count scales with performance tier
+  const dustCount = tier.particleCount >= 36000 ? 5000
+    : tier.particleCount >= 21000 ? 3000
+    : 1500;
+
   return (
     <Canvas
       dpr={[1, tier.maxDpr]}
-      // Seed the camera from the entry scene so a deep-link doesn't flash the
-      // menu pose for one pre-paint frame before <GalaxyCamera> snaps it.
       camera={{
         fov: SCENES[initialScene].framing.fov,
         position: SCENES[initialScene].framing.position,
+        near: 0.1,
+        far: 200,
       }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
     >
       <GalaxyCamera initial={initialScene} />
+      <InterstellarDust
+        count={dustCount}
+        reducedMotion={reducedMotion}
+      />
       <ParticleField
         count={count}
         reducedMotion={reducedMotion}
@@ -68,9 +80,14 @@ export default function GalaxyCanvas({
         morphDuration={reducedMotion ? 0 : scene.transition.morph.duration}
         morphEase={scene.transition.morph.ease}
         flourish={reducedMotion ? "none" : scene.transition.flourish}
+        colorScheme={scene.colorScheme}
+        glowScale={scene.glowScale}
+        center={scene.center}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}
     </Canvas>
   );
 }
+
+

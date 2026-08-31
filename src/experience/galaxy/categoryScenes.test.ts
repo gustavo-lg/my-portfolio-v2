@@ -9,15 +9,18 @@ describe("SCENES", () => {
     for (const k of KEYS) expect(SCENES[k]).toBeDefined();
   });
 
-  it("menu is the anchor: identity deform, today's framing", () => {
+  it("menu is the anchor: identity deform, anchor framing and center at origin", () => {
     expect(SCENES.menu.deform.scale).toEqual([1, 1, 1]);
-    expect(SCENES.menu.framing.position).toEqual([0, 0, 13]);
+    expect(SCENES.menu.center).toEqual([0, 0, 0]);
+    expect(SCENES.menu.framing.position).toEqual([0, 0, 18]);
     expect(SCENES.menu.transition.flourish).toBe("none");
   });
 
-  it("every scene has a positive fov, finite spin speed, positive point size", () => {
+  it("every scene has a positive fov, finite spin speed, positive point size, valid center", () => {
     for (const k of KEYS) {
       const s = SCENES[k];
+      expect(s.center).toBeDefined();
+      expect(s.center.length).toBe(3);
       expect(s.framing.fov).toBeGreaterThan(0);
       expect(Number.isFinite(s.spin.speed)).toBe(true);
       expect(s.pointSize).toBeGreaterThan(0);
@@ -28,10 +31,12 @@ describe("SCENES", () => {
     }
   });
 
-  it("the 4 pages each have a distinct framing position", () => {
+  it("the 4 pages each have a distinct framing position and distinct center", () => {
     const pages: SceneKey[] = ["projetos", "stack", "sobre", "contato"];
-    const seen = new Set(pages.map((k) => SCENES[k].framing.position.join(",")));
-    expect(seen.size).toBe(4);
+    const seenPositions = new Set(pages.map((k) => SCENES[k].framing.position.join(",")));
+    expect(seenPositions.size).toBe(4);
+    const seenCenters = new Set(pages.map((k) => SCENES[k].center.join(",")));
+    expect(seenCenters.size).toBe(4);
   });
 
   it("each page uses a non-'none' flourish", () => {
@@ -40,3 +45,4 @@ describe("SCENES", () => {
     }
   });
 });
+

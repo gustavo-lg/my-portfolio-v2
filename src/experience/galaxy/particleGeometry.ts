@@ -88,24 +88,42 @@ export function generateDispersedPositions(
   return out;
 }
 
-const CYAN: [number, number, number] = [0, 0.83, 1];
-const PURPLE: [number, number, number] = [0.55, 0.3, 0.92];
+export type ColorScheme = {
+  /** Near-center color [r, g, b] in 0-1 range */
+  inner: [number, number, number];
+  /** Far-from-center color [r, g, b] in 0-1 range */
+  outer: [number, number, number];
+};
 
-/** Per-particle color lerped cyan→purple by distance from origin. */
+const DEFAULT_SCHEME: ColorScheme = {
+  inner: [0, 0.83, 1],    // cyan
+  outer: [0.55, 0.3, 0.92], // purple
+};
+
+/**
+ * Per-particle color lerped inner→outer by distance from the formation's own
+ * centre. `center` defaults to the world origin; pass the scene's `center` when
+ * `targets` has already been offset into world space, otherwise every particle
+ * of an off-origin formation clamps to `outer` and the luminous core is lost.
+ */
 export function generateColors(
   count: number,
   targets: Float32Array,
+  scheme: ColorScheme = DEFAULT_SCHEME,
+  center: [number, number, number] = [0, 0, 0],
 ): Float32Array {
+  const { inner, outer } = scheme;
+  const [cx, cy, cz] = center;
   const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    const x = targets[i * 3];
-    const y = targets[i * 3 + 1];
-    const z = targets[i * 3 + 2];
+    const x = targets[i * 3] - cx;
+    const y = targets[i * 3 + 1] - cy;
+    const z = targets[i * 3 + 2] - cz;
     const d = Math.sqrt(x * x + y * y + z * z);
     const t = Math.min(1, d / COLOR_RANGE);
-    out[i * 3] = CYAN[0] + (PURPLE[0] - CYAN[0]) * t;
-    out[i * 3 + 1] = CYAN[1] + (PURPLE[1] - CYAN[1]) * t;
-    out[i * 3 + 2] = CYAN[2] + (PURPLE[2] - CYAN[2]) * t;
+    out[i * 3]     = inner[0] + (outer[0] - inner[0]) * t;
+    out[i * 3 + 1] = inner[1] + (outer[1] - inner[1]) * t;
+    out[i * 3 + 2] = inner[2] + (outer[2] - inner[2]) * t;
   }
   return out;
 }
@@ -165,4 +183,41 @@ export function deformPositions(
     out[i + 1] = y;
     out[i + 2] = z;
   }
+}
+
+/** Translate every xyz triple in `positions` by `center`. Operates in-place. */
+export function offsetPositions(
+  positions: Float32Array,
+  center: [number, number, number],
+): void {
+  const [cx, cy, cz] = center;
+  for (let i = 0; i < positions.length; i += 3) {
+    positions[i] += cx;
+    positions[i + 1] += cy;
+    positions[i + 2] += cz;
+  }
+}
+
+/**
+ * Sparse interstellar dust spread over a massive volume.
+ * These particles fill the void between formations so the camera
+ * flies through visible dust during scene transitions.
+ */
+export function generateDustPositions(
+  count: number,
+  radius: number,
+  seed = 99,
+): Float32Array {
+  const rng = mulberry32(seed);
+  const out = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const u = rng() * 2 - 1;
+    const theta = rng() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    const r = radius * Math.cbrt(rng());
+    out[i * 3] = s * Math.cos(theta) * r;
+    out[i * 3 + 1] = u * r;
+    out[i * 3 + 2] = s * Math.sin(theta) * r;
+  }
+  return out;
 }
