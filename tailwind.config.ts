@@ -115,15 +115,29 @@ export default {
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
           "100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }
         },
+        // Swings in like a page turning: tilted away on its vertical axis,
+        // off to the left, then settling flat and centred.
         "page-in": {
-          "0%": { opacity: "0", transform: "translateX(-46vw) scale(0.92)" },
+          "0%": {
+            opacity: "0",
+            transform: "translateX(-38vw) scale(0.9) rotateY(26deg)"
+          },
           "25%": { opacity: "0" },
-          "100%": { opacity: "1", transform: "translateX(0) scale(1)" }
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0) scale(1) rotateY(0deg)"
+          }
         },
-        // Mirror of page-in: recede back to the left, shrinking and fading.
+        // Mirror of page-in: tilts back open and recedes to the left, fading.
         "page-out": {
-          "0%": { opacity: "1", transform: "translateX(0) scale(1)" },
-          "100%": { opacity: "0", transform: "translateX(-46vw) scale(0.92)" }
+          "0%": {
+            opacity: "1",
+            transform: "translateX(0) scale(1) rotateY(0deg)"
+          },
+          "100%": {
+            opacity: "0",
+            transform: "translateX(-38vw) scale(0.9) rotateY(26deg)"
+          }
         }
       },
       animation: {

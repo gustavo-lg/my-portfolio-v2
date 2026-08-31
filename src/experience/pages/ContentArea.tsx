@@ -85,7 +85,12 @@ export function ContentArea() {
         <BackButton />
       </div>
 
-      <div className="relative overflow-x-clip pb-36 pt-24">
+      {/* `perspective` makes the layers' rotateY read as a page swinging on
+          its vertical axis rather than a flat horizontal squash. */}
+      <div
+        className="relative overflow-x-clip pb-36 pt-24"
+        style={{ perspective: "1800px" }}
+      >
         {rendered.map((layer) => (
           <div
             // Key by category so the outgoing node is reused (its class flips
@@ -96,8 +101,8 @@ export function ContentArea() {
             aria-hidden={layer.anim === "out"}
             className={
               layer.anim === "in"
-                ? "relative z-10 origin-[50%_18%] animate-page-in motion-reduce:animate-none"
-                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[50%_18%] animate-page-out motion-reduce:hidden"
+                ? "relative z-10 origin-[35%_30%] animate-page-in motion-reduce:animate-none"
+                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[35%_30%] animate-page-out motion-reduce:hidden"
             }
           >
             <CategorySection category={layer.key} />
