@@ -167,11 +167,12 @@ function ExperienceShell() {
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   const idleMotion = ctx.state !== "intro-forming";
+  // Overlay is on only when something is meant to be read over the galaxy:
+  // the settled menu, or a content page that has finished swinging in. It
+  // stays off through every transition AND the return-to-home choreography so
+  // the particle motion is never hidden.
   const overlayVisible =
-    ctx.state === "menu-reveal" ||
-    ctx.state === "idle" ||
-    ctx.state === "returning" ||
-    pageOverlay;
+    ctx.state === "menu-reveal" || ctx.state === "idle" || pageOverlay;
   const onCategoryPath = Boolean(entryMeta);
   const menuActive =
     location.pathname === "/" &&
