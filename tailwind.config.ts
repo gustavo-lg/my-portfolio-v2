@@ -129,15 +129,18 @@ export default {
             transform: "translateX(0) scale(1) rotateY(0deg)"
           }
         },
-        // Leaves the other way: tilts open and recedes to the LEFT, fading.
+        // Time-mirror of page-in: stays legible while it travels, tilting open
+        // and receding all the way out the LEFT edge before it finishes fading.
         "page-out": {
           "0%": {
             opacity: "1",
             transform: "translateX(0) scale(1) rotateY(0deg)"
           },
+          "55%": { opacity: "1" },
+          "92%": { opacity: "0" },
           "100%": {
             opacity: "0",
-            transform: "translateX(-38vw) scale(0.9) rotateY(-26deg)"
+            transform: "translateX(-62vw) scale(0.88) rotateY(-26deg)"
           }
         }
       },
@@ -149,7 +152,7 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
         "page-in": "page-in 3.2s cubic-bezier(0.45, 0.02, 0.25, 1) both",
-        "page-out": "page-out 2.9s cubic-bezier(0.16, 0.8, 0.24, 1) both",
+        "page-out": "page-out 2.9s cubic-bezier(0.45, 0.02, 0.25, 1) both",
       },
     },
   },
