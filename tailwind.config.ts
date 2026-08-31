@@ -130,7 +130,7 @@ export default {
         "page-out": {
           "0%": { transform: "translateX(0) scale(1) rotateY(0deg)" },
           "100%": {
-            transform: "translateX(150vw) scale(1.8) rotateY(-16deg)"
+            transform: "translateX(210vw) scale(2.9) rotateY(-20deg)"
           }
         }
       },
@@ -147,7 +147,7 @@ export default {
         //   accelerates off the right edge. Shorter, since a growing element
         //   has to clear fast.
         "page-in": "page-in 1.6s linear 0.15s both",
-        "page-out": "page-out 1.15s cubic-bezier(0.55, 0, 0.8, 0.35) both",
+        "page-out": "page-out 1.05s cubic-bezier(0.6, 0, 0.82, 0.3) both",
       },
     },
   },
