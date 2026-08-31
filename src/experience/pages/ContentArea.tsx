@@ -3,14 +3,13 @@ import { useLocation } from "react-router-dom";
 import type { CategoryKey } from "@/content/types";
 import { categoryByPath } from "@/content/categories";
 import { useDocumentMeta } from "@/experience/lib/useDocumentMeta";
+import { SWAP_MS } from "./pageTransition";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
 import { CategorySection } from "./CategorySection";
 import { BackButton } from "./BackButton";
 import { BottomNav } from "./BottomNav";
 
 type Layer = { key: CategoryKey; anim: "in" | "out" };
-
-export const SWAP_MS = 1950;
 
 /**
  * Persistent internal-page shell. Derives the active category from the URL and

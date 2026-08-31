@@ -20,7 +20,8 @@ import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
-import { ContentArea, SWAP_MS } from "@/experience/pages/ContentArea";
+import { ContentArea } from "@/experience/pages/ContentArea";
+import { SWAP_MS } from "@/experience/pages/pageTransition";
 import NotFound from "@/pages/NotFound";
 
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));

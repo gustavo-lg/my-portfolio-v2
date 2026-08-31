@@ -1,9 +1,13 @@
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CategoryKey } from "@/content/types";
 import { categories } from "@/content/categories";
 import { categoryIcons } from "@/experience/lib/icons";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
+import { usePrefersReducedMotion } from "@/experience/lib/useReducedMotion";
+import { smoothScrollToTop } from "@/experience/lib/smoothScrollToTop";
 import { ExperienceContainer } from "@/experience/layout/ExperienceContainer";
+import { SWAP_MS } from "./pageTransition";
 
 /**
  * Floating pills for the other three categories. No bar or backdrop — the
@@ -13,7 +17,21 @@ import { ExperienceContainer } from "@/experience/layout/ExperienceContainer";
 export function BottomNav({ current }: { current: CategoryKey }) {
   const navigate = useNavigate();
   const { send } = useExperience();
+  const reducedMotion = usePrefersReducedMotion();
+  const busy = useRef(false);
   const others = categories.filter((c) => c.key !== current);
+
+  const goTo = async (key: CategoryKey, path: string) => {
+    if (busy.current) return;
+    busy.current = true;
+    // Take the reader back to the top before the section swaps.
+    await smoothScrollToTop({ instant: reducedMotion });
+    send({ type: "SWITCH_CATEGORY", key });
+    navigate(path);
+    window.setTimeout(() => {
+      busy.current = false;
+    }, SWAP_MS);
+  };
 
   return (
     <nav
@@ -27,10 +45,7 @@ export function BottomNav({ current }: { current: CategoryKey }) {
             <button
               key={c.key}
               type="button"
-              onClick={() => {
-                send({ type: "SWITCH_CATEGORY", key: c.key });
-                navigate(c.path);
-              }}
+              onClick={() => goTo(c.key, c.path)}
               style={{
                 transition:
                   "color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease",
