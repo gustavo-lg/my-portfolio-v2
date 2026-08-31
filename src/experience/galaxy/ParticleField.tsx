@@ -3,84 +3,120 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import gsap from "gsap";
 import {
-  generateTargetPositions,
   generateDispersedPositions,
   generateColors,
 } from "./particleGeometry";
-import { lerpPositions, idleOffset } from "./particleMath";
+import { idleOffset } from "./particleMath";
+import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
+import type { Spin, Flourish } from "./categoryScenes";
 
 interface Props {
   count: number;
   reducedMotion: boolean;
   idle: boolean;
+  shape: Float32Array;
+  spin: Spin;
+  pointSize: number;
+  pointOpacity: number;
+  morphDuration: number;
+  morphEase: string;
+  flourish: Flourish;
   onFormed?: () => void;
 }
 
-export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
+export function ParticleField({
+  count,
+  reducedMotion,
+  idle,
+  shape,
+  spin,
+  pointSize,
+  pointOpacity,
+  morphDuration,
+  morphEase,
+  flourish,
+  onFormed,
+}: Props) {
   const pointsRef = useRef<THREE.Points>(null);
-  const progress = useRef({ t: reducedMotion ? 1 : 0 });
-  const formedNotified = useRef(false);
 
-  const { target, dispersed, colors } = useMemo(() => {
-    const target = generateTargetPositions(count);
-    return {
-      target,
-      dispersed: generateDispersedPositions(count),
-      colors: generateColors(count, target),
-    };
-  }, [count]);
+  const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
+  // Hue is "by distance from origin" and per-page hue changes are forbidden, so
+  // colours are computed once from the first shape and held (shape omitted from deps).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const colors = useMemo(() => generateColors(count, shape), [count]);
+  const live = useMemo(() => Float32Array.from(dispersed), [dispersed]);
 
-  // Live buffer the geometry actually renders from.
-  const live = useMemo(() => {
-    const arr = new Float32Array(count * 3);
-    lerpPositions(dispersed, target, progress.current.t, arr);
-    return arr;
-  }, [count, dispersed, target]);
+  const fromRef = useRef<Float32Array>(Float32Array.from(dispersed));
+  const overshootRef = useRef<Float32Array>(new Float32Array(count * 3));
+  const targetRef = useRef<Float32Array>(shape);
+  const flourishRef = useRef<Flourish>("none");
+  const morph = useRef({ t: reducedMotion ? 1 : 0 });
+  const formed = useRef(false);
+  const spinSpeed = useRef(0);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
 
+  // Start / restart a morph whenever the target shape changes.
   useEffect(() => {
-    if (reducedMotion) {
-      if (!formedNotified.current) {
-        formedNotified.current = true;
+    const first = !formed.current;
+    targetRef.current = shape;
+    flourishRef.current = first ? "none" : flourish;
+    flourishTarget(shape, flourishRef.current, overshootRef.current);
+    fromRef.current = Float32Array.from(live);
+    morph.current.t = 0;
+    tweenRef.current?.kill();
+
+    const finish = () => {
+      if (!formed.current) {
+        formed.current = true;
         onFormed?.();
       }
+    };
+
+    if (reducedMotion) {
+      morph.current.t = 1;
+      finish();
       return;
     }
-    const tween = gsap.to(progress.current, {
+
+    const durMs = first ? FORMATION_MS : morphDuration;
+    const ease = first ? "power1.inOut" : morphEase;
+    tweenRef.current = gsap.to(morph.current, {
       t: 1,
-      duration: FORMATION_MS / 1000,
-      ease: "power1.inOut",
-      onComplete: () => {
-        if (!formedNotified.current) {
-          formedNotified.current = true;
-          onFormed?.();
-        }
-      },
+      duration: Math.max(0.001, durMs / 1000),
+      ease,
+      overwrite: true,
+      onComplete: finish,
     });
     return () => {
-      tween.kill();
+      tweenRef.current?.kill();
     };
-  }, [reducedMotion, onFormed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shape]);
 
   useFrame((state, delta) => {
     const points = pointsRef.current;
     if (!points) return;
 
-    const formed = progress.current.t >= 1;
-    if (formed && !reducedMotion) {
-      // Slow galaxy spin plus a faint tilt wobble — most of the visible life.
-      points.rotation.z += delta * 0.05;
-      points.rotation.x = Math.sin(state.clock.elapsedTime * 0.12) * 0.06;
-    }
     const attr = points.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
 
-    lerpPositions(dispersed, target, progress.current.t, arr);
+    morphInto(
+      fromRef.current,
+      overshootRef.current,
+      targetRef.current,
+      morph.current.t,
+      flourishRef.current,
+      arr,
+    );
+    live.set(arr);
 
-    if (idle && !reducedMotion && formed) {
+    const atRest = morph.current.t >= 1;
+
+    if (!reducedMotion && atRest && idle) {
       const time = state.clock.elapsedTime;
       for (let i = 0; i < count; i++) {
         const [ox, oy, oz] = idleOffset(i, time, 0);
@@ -89,12 +125,21 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
         arr[i * 3 + 2] += oz;
       }
     }
+
+    if (!reducedMotion && formed.current) {
+      // Ease the spin rate toward the active scene's, don't snap.
+      spinSpeed.current += (spin.speed - spinSpeed.current) * Math.min(1, delta * 1.5);
+      points.rotation[spin.axis] += delta * spinSpeed.current;
+      const w = spin.wobble ?? 0;
+      const other = spin.axis === "y" ? "x" : "y";
+      points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
+    }
+
     attr.needsUpdate = true;
   });
 
   return (
     <group>
-      {/* Volumetric-ish glow standing in for a real bloom pass. */}
       <sprite scale={[7.5, 7.5, 7.5]}>
         <spriteMaterial
           map={getParticleTexture()}
@@ -116,30 +161,30 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
         />
       </sprite>
 
-    <points ref={pointsRef} frustumCulled={false}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[live, 3]}
-          count={count}
+      <points ref={pointsRef} frustumCulled={false}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[live, 3]}
+            count={count}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            args={[colors, 3]}
+            count={count}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={pointSize}
+          sizeAttenuation
+          vertexColors
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          map={getParticleTexture()}
+          opacity={pointOpacity}
         />
-        <bufferAttribute
-          attach="attributes-color"
-          args={[colors, 3]}
-          count={count}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.042}
-        sizeAttenuation
-        vertexColors
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        map={getParticleTexture()}
-        opacity={0.72}
-      />
-    </points>
+      </points>
     </group>
   );
 }
