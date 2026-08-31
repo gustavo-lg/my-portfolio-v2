@@ -13,22 +13,22 @@ export interface PerfTierOptions {
 }
 
 const HIGH: Omit<PerfTier, "customCursor"> = {
-  particleCount: 26000,
+  particleCount: 36000,
   maxDpr: 2,
   bloom: false,
 };
 const MID: Omit<PerfTier, "customCursor"> = {
-  particleCount: 16000,
+  particleCount: 21000,
   maxDpr: 1.75,
   bloom: false,
 };
 const LOW: Omit<PerfTier, "customCursor"> = {
-  particleCount: 7000,
+  particleCount: 8000,
   maxDpr: 1.5,
   bloom: false,
 };
 const REDUCED: Omit<PerfTier, "customCursor"> = {
-  particleCount: 5000,
+  particleCount: 6000,
   maxDpr: 1.5,
   bloom: false,
 };

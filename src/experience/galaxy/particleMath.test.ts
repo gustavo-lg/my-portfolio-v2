@@ -35,9 +35,9 @@ describe("idleOffset", () => {
   it("stays within bounds", () => {
     for (let i = 0; i < 200; i++) {
       const [x, y, z] = idleOffset(i, i * 0.13, 3);
-      expect(Math.abs(x)).toBeLessThan(0.06);
-      expect(Math.abs(y)).toBeLessThan(0.06);
-      expect(Math.abs(z)).toBeLessThan(0.06);
+      expect(Math.abs(x)).toBeLessThan(0.12);
+      expect(Math.abs(y)).toBeLessThan(0.12);
+      expect(Math.abs(z)).toBeLessThan(0.12);
     }
   });
 

@@ -13,7 +13,7 @@ export function lerpPositions(
   }
 }
 
-/** Small bounded pseudo-noise displacement for idle "breathing". |offset| < 0.06 */
+/** Bounded pseudo-noise displacement for the idle "breathing". |offset| < 0.12 */
 export function idleOffset(
   i: number,
   time: number,
@@ -21,8 +21,8 @@ export function idleOffset(
 ): [number, number, number] {
   const a = i * 12.9898 + seed;
   return [
-    Math.sin(time * 0.24 + a) * 0.05,
-    Math.sin(time * 0.19 + a * 1.7) * 0.05,
-    Math.sin(time * 0.28 + a * 2.3) * 0.05,
+    Math.sin(time * 0.33 + a) * 0.09,
+    Math.sin(time * 0.27 + a * 1.7) * 0.09,
+    Math.sin(time * 0.38 + a * 2.3) * 0.09,
   ];
 }

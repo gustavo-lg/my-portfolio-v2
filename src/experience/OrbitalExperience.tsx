@@ -52,6 +52,7 @@ function ExperienceShell() {
   const bootstrapped = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
   const [anchors, setAnchors] = useState<AnchorScreenPositions | null>(null);
+  const [pageOverlay, setPageOverlay] = useState(false);
   const handleAnchors = useCallback(
     (p: AnchorScreenPositions) => setAnchors(p),
     [],
@@ -140,6 +141,21 @@ function ExperienceShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx.state, ctx.target]);
 
+  // The dimming overlay comes back only once the incoming page has finished
+  // its swing-in, and drops again the moment another swap starts.
+  useEffect(() => {
+    if (ctx.state !== "internal-page") {
+      setPageOverlay(false);
+      return;
+    }
+    setPageOverlay(false);
+    const t = window.setTimeout(
+      () => setPageOverlay(true),
+      reducedMotion ? 0 : SWAP_MS + 300,
+    );
+    return () => window.clearTimeout(t);
+  }, [ctx.state, ctx.target, reducedMotion]);
+
   const handleFormed = useCallback(() => {
     send({ type: "FORM_COMPLETE" });
     clearTimeout(settleTimer.current);
@@ -151,6 +167,11 @@ function ExperienceShell() {
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   const idleMotion = ctx.state !== "intro-forming";
+  const overlayVisible =
+    ctx.state === "menu-reveal" ||
+    ctx.state === "idle" ||
+    ctx.state === "returning" ||
+    pageOverlay;
   const onCategoryPath = Boolean(entryMeta);
   const menuActive =
     location.pathname === "/" &&
@@ -181,7 +202,7 @@ function ExperienceShell() {
         </Suspense>
       )}
 
-      <ExperienceOverlay state={ctx.state} />
+      <ExperienceOverlay visible={overlayVisible} />
 
       {menuActive && !staticGalaxy && (
         <OrbitalLabels positions={anchors} onSelect={handleSelectLabel} />

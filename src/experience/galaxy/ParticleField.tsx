@@ -63,9 +63,16 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
     };
   }, [reducedMotion, onFormed]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const points = pointsRef.current;
     if (!points) return;
+
+    const formed = progress.current.t >= 1;
+    if (formed && !reducedMotion) {
+      // Slow galaxy spin plus a faint tilt wobble — most of the visible life.
+      points.rotation.z += delta * 0.05;
+      points.rotation.x = Math.sin(state.clock.elapsedTime * 0.12) * 0.06;
+    }
     const attr = points.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
@@ -73,7 +80,7 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
 
     lerpPositions(dispersed, target, progress.current.t, arr);
 
-    if (idle && !reducedMotion && progress.current.t >= 1) {
+    if (idle && !reducedMotion && formed) {
       const time = state.clock.elapsedTime;
       for (let i = 0; i < count; i++) {
         const [ox, oy, oz] = idleOffset(i, time, 0);
@@ -123,14 +130,14 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.05}
+        size={0.042}
         sizeAttenuation
         vertexColors
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         map={getParticleTexture()}
-        opacity={0.7}
+        opacity={0.72}
       />
     </points>
     </group>
