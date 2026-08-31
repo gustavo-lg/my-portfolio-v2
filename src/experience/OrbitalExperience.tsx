@@ -20,7 +20,7 @@ import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
-import { ContentPage } from "@/experience/pages/ContentPage";
+import { ContentArea } from "@/experience/pages/ContentArea";
 import NotFound from "@/pages/NotFound";
 
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
@@ -145,6 +145,7 @@ function ExperienceShell() {
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   const idleMotion = ctx.state !== "intro-forming";
+  const onCategoryPath = Boolean(entryMeta);
   const menuActive =
     location.pathname === "/" &&
     (ctx.state === "menu-reveal" ||
@@ -180,14 +181,14 @@ function ExperienceShell() {
         <OrbitalLabels positions={anchors} onSelect={handleSelectLabel} />
       )}
 
+      {/* Persistent across category switches so the lateral zoom transition can
+          keep the outgoing section mounted while the new one enters. */}
+      {onCategoryPath && <ContentArea />}
+
       <Routes>
         <Route path="/" element={<OrbitalMenu />} />
         {categories.map((c) => (
-          <Route
-            key={c.key}
-            path={c.path}
-            element={<ContentPage category={c.key} />}
-          />
+          <Route key={c.key} path={c.path} element={null} />
         ))}
         <Route path="*" element={<NotFound />} />
       </Routes>
