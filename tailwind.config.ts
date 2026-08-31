@@ -120,9 +120,10 @@ export default {
         "page-in": {
           "0%": {
             opacity: "0",
-            transform: "translateX(38vw) scale(0.9) rotateY(26deg)"
+            transform: "translateX(62vw) scale(0.88) rotateY(26deg)"
           },
-          "25%": { opacity: "0" },
+          "8%": { opacity: "0" },
+          "45%": { opacity: "1" },
           "100%": {
             opacity: "1",
             transform: "translateX(0) scale(1) rotateY(0deg)"
@@ -147,7 +148,7 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        "page-in": "page-in 3.2s cubic-bezier(0.16, 0.8, 0.24, 1) both",
+        "page-in": "page-in 3.2s cubic-bezier(0.45, 0.02, 0.25, 1) both",
         "page-out": "page-out 2.9s cubic-bezier(0.16, 0.8, 0.24, 1) both",
       },
     },
