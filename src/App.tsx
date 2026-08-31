@@ -1,27 +1,20 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
+import { BrowserRouter } from "react-router-dom";
+import { ExperienceProvider } from "@/experience/machine/useExperienceMachine";
+import { OrbitalExperience } from "@/experience/OrbitalExperience";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+  <TooltipProvider>
+    <Toaster />
+    <Sonner />
+    <ExperienceProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <OrbitalExperience />
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    </ExperienceProvider>
+  </TooltipProvider>
 );
 
 export default App;
