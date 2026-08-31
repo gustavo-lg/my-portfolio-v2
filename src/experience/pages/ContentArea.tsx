@@ -10,7 +10,7 @@ import { BottomNav } from "./BottomNav";
 
 type Layer = { key: CategoryKey; anim: "in" | "out" };
 
-export const SWAP_MS = 1950;
+export const SWAP_MS = 2950;
 
 /**
  * Persistent internal-page shell. Derives the active category from the URL and
