@@ -1,3 +1,4 @@
+import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ParticleField } from "./ParticleField";
 import { GalaxyCamera } from "./GalaxyCamera";
@@ -5,11 +6,16 @@ import {
   AnchorProjector,
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
+import {
+  generateTargetPositions,
+  deformPositions,
+} from "./particleGeometry";
+import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
 interface Props {
   idle: boolean;
-  initialFraming?: "center" | "side";
+  activeScene: SceneKey;
   onFormed?: () => void;
   onAnchors?: (positions: AnchorScreenPositions) => void;
 }
@@ -17,24 +23,46 @@ interface Props {
 /** Full-viewport WebGL backdrop. Default export so it can be React.lazy'd. */
 export default function GalaxyCanvas({
   idle,
-  initialFraming = "center",
+  activeScene,
   onFormed,
   onAnchors,
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
+  const count = tier.particleCount;
+  const initialScene = useRef(activeScene).current;
+
+  const shapes = useMemo(() => {
+    const base = generateTargetPositions(count);
+    const out = {} as Record<SceneKey, Float32Array>;
+    for (const key of SCENE_ORDER) {
+      const buf = new Float32Array(count * 3);
+      deformPositions(base, SCENES[key].deform, buf);
+      out[key] = buf;
+    }
+    return out;
+  }, [count]);
+
+  const scene = SCENES[activeScene];
 
   return (
     <Canvas
       dpr={[1, tier.maxDpr]}
-      camera={{ fov: 55, position: [0, 0, 9] }}
+      camera={{ fov: SCENES[initialScene].framing.fov, position: [0, 0, 13] }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
     >
-      <GalaxyCamera initial={initialFraming} />
+      <GalaxyCamera initial={initialScene} />
       <ParticleField
-        count={tier.particleCount}
+        count={count}
         reducedMotion={reducedMotion}
         idle={idle}
+        shape={shapes[activeScene]}
+        spin={scene.spin}
+        pointSize={scene.pointSize}
+        pointOpacity={scene.pointOpacity}
+        morphDuration={reducedMotion ? 0 : scene.transition.morph.duration}
+        morphEase={scene.transition.morph.ease}
+        flourish={reducedMotion ? "none" : scene.transition.flourish}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}

@@ -13,6 +13,7 @@ import { categories, categoryByPath } from "@/content/categories";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 import { GalaxyCameraProvider, useGalaxyCamera } from "@/experience/galaxy/GalaxyCamera";
+import { SCENES, type SceneKey } from "@/experience/galaxy/categoryScenes";
 import type { AnchorScreenPositions } from "@/experience/galaxy/useAnchorProjection";
 import { CursorProvider, useCursor } from "@/experience/cursor/CustomCursor";
 import { ExperienceOverlay } from "@/experience/overlay/ExperienceOverlay";
@@ -65,7 +66,23 @@ function ExperienceShell() {
   const staticGalaxy = !webgl || reducedMotion;
 
   const entryMeta = categoryByPath[location.pathname];
-  const startAtInternal = Boolean(entryMeta);
+
+  const initialScene: SceneKey = entryMeta ? entryMeta.key : "menu";
+  const [activeScene, setActiveScene] = useState<SceneKey>(initialScene);
+  const activeSceneRef = useRef<SceneKey>(initialScene);
+
+  const goToScene = useCallback(
+    (key: SceneKey) => {
+      activeSceneRef.current = key;
+      setActiveScene(key);
+      return camera.flyTo(SCENES[key].framing, {
+        duration: reducedMotion ? 0 : SCENES[key].transition.camera.duration,
+        ease: SCENES[key].transition.camera.ease,
+        instant: reducedMotion,
+      });
+    },
+    [camera, reducedMotion],
+  );
 
   // Bootstrap the machine once from the entry URL.
   useEffect(() => {
@@ -114,7 +131,7 @@ function ExperienceShell() {
           await wait(620); // labels collapse (OrbitalLabels)
           if (cancelled) return;
         }
-        await camera.focusSide({ instant: reducedMotion });
+        await goToScene(ctx.target);
         if (cancelled) return;
         navigate(meta.path);
         send({ type: "TRANSITION_COMPLETE" });
@@ -126,7 +143,7 @@ function ExperienceShell() {
         // Content exit animation and camera dolly run together; the content is
         // gone well before the camera finishes re-centring the nebula.
         await Promise.all([
-          camera.focusCenter({ instant: reducedMotion }),
+          goToScene("menu"),
           reducedMotion ? Promise.resolve() : wait(SWAP_MS),
         ]);
         if (cancelled) return;
@@ -135,11 +152,19 @@ function ExperienceShell() {
       })();
     }
 
+    if (
+      ctx.state === "internal-page" &&
+      ctx.target &&
+      ctx.target !== activeSceneRef.current
+    ) {
+      goToScene(ctx.target);
+    }
+
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctx.state, ctx.target]);
+  }, [ctx.state, ctx.target, goToScene]);
 
   // The dimming overlay comes back only once the incoming page has finished
   // its swing-in, and drops again the moment another swap starts.
@@ -196,7 +221,7 @@ function ExperienceShell() {
         <Suspense fallback={<GalaxyBackdrop pulse />}>
           <GalaxyCanvas
             idle={idleMotion}
-            initialFraming={startAtInternal ? "side" : "center"}
+            activeScene={activeScene}
             onFormed={handleFormed}
             onAnchors={handleAnchors}
           />
