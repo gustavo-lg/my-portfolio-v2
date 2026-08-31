@@ -50,11 +50,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   projetos: {
-    framing: { position: [-7, 1.2, 19], lookAt: [-3.5, 0, 0], fov: 58 },
-    deform: { scale: [1.5, 0.55, 1.1] },
+    framing: { position: [-5.5, 1.6, 15.5], lookAt: [-2.5, 0, 0], fov: 58 },
+    deform: { scale: [1.75, 0.48, 1.15] },
     spin: { axis: "z", speed: 0.07, wobble: 0.03 },
-    pointSize: 0.04,
-    pointOpacity: 0.68,
+    pointSize: 0.041,
+    pointOpacity: 0.72,
     transition: {
       camera: { duration: 2400, ease: "power3.out" },
       morph: { duration: 2400, ease: "power2.out" },
@@ -63,11 +63,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   stack: {
-    framing: { position: [0, 0.5, 9.5], lookAt: [0, 0.5, 0], fov: 42 },
-    deform: { scale: [0.6, 1.7, 0.6] },
+    framing: { position: [0, 0.5, 9], lookAt: [0, 0.5, 0], fov: 40 },
+    deform: { scale: [0.5, 1.95, 0.5] },
     spin: { axis: "y", speed: 0.12, wobble: 0.02 },
     pointSize: 0.046,
-    pointOpacity: 0.78,
+    pointOpacity: 0.8,
     transition: {
       camera: { duration: 2600, ease: "power2.inOut" },
       morph: { duration: 2600, ease: "power2.inOut" },
@@ -76,8 +76,8 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   sobre: {
-    framing: { position: [2.5, -4, 13], lookAt: [0, 1.5, 0], fov: 55 },
-    deform: { scale: [1.05, 1.6, 1.05], tilt: [0.18, 0, 0] },
+    framing: { position: [2.5, -5, 12.5], lookAt: [0, 2, 0], fov: 56 },
+    deform: { scale: [1.15, 1.5, 1.15], tilt: [0.3, 0, 0] },
     spin: { axis: "y", speed: 0.04, wobble: 0.08 },
     pointSize: 0.044,
     pointOpacity: 0.74,
@@ -89,11 +89,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   contato: {
-    framing: { position: [6.5, 1.5, 15], lookAt: [-2, 0, 0], fov: 60 },
-    deform: { scale: [1.2, 0.8, 1.2], shearXY: 0.4, tilt: [0, 0, 0.3] },
+    framing: { position: [7, 1.5, 14], lookAt: [-2.5, 0, 0], fov: 60 },
+    deform: { scale: [1.25, 0.72, 1.2], shearXY: 0.55, tilt: [0, 0, 0.4] },
     spin: { axis: "z", speed: 0.1, wobble: 0.04 },
     pointSize: 0.041,
-    pointOpacity: 0.7,
+    pointOpacity: 0.74,
     transition: {
       camera: { duration: 2200, ease: "power2.out" },
       morph: { duration: 2200, ease: "power2.out" },
