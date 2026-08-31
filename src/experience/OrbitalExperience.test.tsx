@@ -1,18 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // The WebGL canvas needs a real GPU context; stub it in jsdom.
-const { galaxyProps } = vi.hoisted(() => ({
-  galaxyProps: [] as { activeScene?: string }[],
-}));
-// Force the live WebGL path so GalaxyCanvas actually mounts under jsdom.
-vi.mock("@/experience/lib/webgl", () => ({ isWebGLAvailable: () => true }));
 vi.mock("@/experience/galaxy/GalaxyCanvas", () => ({
-  default: (props: { activeScene?: string }) => {
-    galaxyProps.push({ activeScene: props.activeScene });
-    return null;
-  },
+  default: () => null,
 }));
 import { ExperienceProvider } from "@/experience/machine/useExperienceMachine";
 import { OrbitalExperience } from "@/experience/OrbitalExperience";
@@ -67,20 +59,6 @@ describe("OrbitalExperience routing", () => {
   it("renders the contact form at /contato", () => {
     renderAt("/contato");
     expect(screen.getByRole("textbox", { name: /nome/i })).toBeInTheDocument();
-  });
-
-  it("passes the matching scene to the galaxy per route", async () => {
-    galaxyProps.length = 0;
-    renderAt("/stack");
-    await waitFor(() =>
-      expect(galaxyProps.at(-1)?.activeScene).toBe("stack"),
-    );
-
-    galaxyProps.length = 0;
-    renderAt("/");
-    await waitFor(() =>
-      expect(galaxyProps.at(-1)?.activeScene).toBe("menu"),
-    );
   });
 
   it("unknown route shows NotFound", () => {

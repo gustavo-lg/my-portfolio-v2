@@ -47,6 +47,8 @@ export default function GalaxyCanvas({
   return (
     <Canvas
       dpr={[1, tier.maxDpr]}
+      // Seed is intentionally the menu pose; <GalaxyCamera initial={initialScene}>
+      // snaps to the real framing on mount (matters for deep-link entries).
       camera={{ fov: SCENES[initialScene].framing.fov, position: [0, 0, 13] }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
