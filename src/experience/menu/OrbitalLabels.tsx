@@ -11,7 +11,7 @@ const metaByKey = Object.fromEntries(categories.map((c) => [c.key, c])) as Recor
   CategoryMeta
 >;
 
-const REVEAL_TOTAL_MS = 500 + ORBITAL_ORDER.length * 90;
+const REVEAL_TOTAL_MS = 950 + ORBITAL_ORDER.length * 170;
 
 /**
  * Plain DOM, rendered as a sibling of <Routes> (above the page `<main>`).

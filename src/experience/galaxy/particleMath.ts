@@ -21,8 +21,8 @@ export function idleOffset(
 ): [number, number, number] {
   const a = i * 12.9898 + seed;
   return [
-    Math.sin(time * 0.6 + a) * 0.05,
-    Math.sin(time * 0.5 + a * 1.7) * 0.05,
-    Math.sin(time * 0.7 + a * 2.3) * 0.05,
+    Math.sin(time * 0.24 + a) * 0.05,
+    Math.sin(time * 0.19 + a * 1.7) * 0.05,
+    Math.sin(time * 0.28 + a * 2.3) * 0.05,
   ];
 }

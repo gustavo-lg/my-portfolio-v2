@@ -8,7 +8,7 @@ export function Wordmark() {
 
   return (
     <div
-      className="pointer-events-none select-none text-center transition-opacity duration-1000"
+      className="pointer-events-none select-none text-center transition-opacity duration-[1800ms] ease-out"
       style={{ opacity: visible ? 1 : 0 }}
     >
       <h1 className="whitespace-nowrap font-display text-2xl font-light tracking-[0.16em] text-foreground drop-shadow-[0_2px_24px_hsl(var(--galaxy-bg))] sm:text-3xl md:text-4xl">

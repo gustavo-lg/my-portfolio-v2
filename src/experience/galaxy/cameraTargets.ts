@@ -16,5 +16,5 @@ export const CAMERA_FRAMINGS: {
   side: { position: [-6, 0.8, 17], lookAt: [-3, 0, 0] },
 };
 
-export const FORMATION_MS = 2400;
-export const CAMERA_MS = 1200;
+export const FORMATION_MS = 4400;
+export const CAMERA_MS = 2200;

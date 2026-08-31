@@ -113,7 +113,7 @@ function CursorRing({
     const tick = () => {
       const target =
         mode.current === "travel" ? travelTarget.current : pointer.current;
-      const ease = mode.current === "travel" ? 0.16 : 0.18;
+      const ease = mode.current === "travel" ? 0.075 : 0.085;
       pos.current = lerp2d(pos.current, target, ease);
 
       if (
@@ -141,7 +141,7 @@ function CursorRing({
     <div
       ref={ringRef}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[100] h-8 w-8 rounded-full border border-primary/80 mix-blend-screen transition-[background-color,border-color] duration-200"
+      className="pointer-events-none fixed left-0 top-0 z-[100] h-8 w-8 rounded-full border border-primary/80 mix-blend-screen transition-[background-color,border-color] duration-500"
       style={{
         backgroundColor: hovering
           ? "hsl(var(--primary) / 0.18)"

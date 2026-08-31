@@ -14,7 +14,7 @@ export function ExperienceOverlay({ state }: { state: ExperienceState }) {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[1] transition-opacity duration-500"
+      className="pointer-events-none fixed inset-0 z-[1] transition-opacity duration-1000"
       style={{
         opacity: dim ? 1 : 0,
         background:

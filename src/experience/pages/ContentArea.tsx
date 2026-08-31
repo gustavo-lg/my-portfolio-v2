@@ -10,7 +10,7 @@ import { BottomNav } from "./BottomNav";
 
 type Layer = { key: CategoryKey; anim: "in" | "out" };
 
-export const SWAP_MS = 740;
+export const SWAP_MS = 1250;
 
 /**
  * Persistent internal-page shell. Derives the active category from the URL and
@@ -65,7 +65,7 @@ export function ContentArea() {
   }, [routeKey]);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowNav(true), 500);
+    const t = setTimeout(() => setShowNav(true), 850);
     return () => clearTimeout(t);
   }, []);
 
@@ -79,7 +79,7 @@ export function ContentArea() {
   return (
     <div className="relative z-10 min-h-screen">
       <div
-        className="transition-opacity duration-300"
+        className="transition-opacity duration-700"
         style={{ opacity: exiting ? 0 : 1 }}
       >
         <BackButton />
@@ -106,7 +106,7 @@ export function ContentArea() {
       </div>
 
       <div
-        className="transition-opacity duration-300"
+        className="transition-opacity duration-700"
         style={{ opacity: showNav && !exiting ? 1 : 0 }}
       >
         <BottomNav current={current} />

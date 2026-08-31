@@ -50,7 +50,7 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
     const tween = gsap.to(progress.current, {
       t: 1,
       duration: FORMATION_MS / 1000,
-      ease: "power2.inOut",
+      ease: "power1.inOut",
       onComplete: () => {
         if (!formedNotified.current) {
           formedNotified.current = true;

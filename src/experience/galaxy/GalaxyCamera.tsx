@@ -67,7 +67,7 @@ export function GalaxyCamera({ initial = "center" }: { initial?: "center" | "sid
           y: f.position[1],
           z: f.position[2],
           duration: CAMERA_MS / 1000,
-          ease: "power3.inOut",
+          ease: "power2.inOut",
           onUpdate: () => camera.lookAt(lookAt.current),
         });
         gsap.to(lookAt.current, {
@@ -75,7 +75,7 @@ export function GalaxyCamera({ initial = "center" }: { initial?: "center" | "sid
           y: f.lookAt[1],
           z: f.lookAt[2],
           duration: CAMERA_MS / 1000,
-          ease: "power3.inOut",
+          ease: "power2.inOut",
           onUpdate: () => camera.lookAt(lookAt.current),
           onComplete: () => resolve(),
         });

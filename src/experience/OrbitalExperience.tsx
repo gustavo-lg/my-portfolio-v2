@@ -25,7 +25,7 @@ import NotFound from "@/pages/NotFound";
 
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
-const SETTLE_MS = 700;
+const SETTLE_MS = 1200;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function anchorScreenPoint(key: string) {
@@ -107,9 +107,9 @@ function ExperienceShell() {
       const meta = categories.find((c) => c.key === ctx.target)!;
       (async () => {
         if (!reducedMotion) {
-          await wait(260); // overlay fade-out (CSS)
+          await wait(520); // overlay fade-out (CSS)
           if (cancelled) return;
-          await wait(340); // labels collapse (OrbitalLabels)
+          await wait(620); // labels collapse (OrbitalLabels)
           if (cancelled) return;
         }
         await camera.focusSide({ instant: reducedMotion });

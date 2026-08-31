@@ -117,7 +117,7 @@ export default {
         },
         "page-in": {
           "0%": { opacity: "0", transform: "translateX(-46vw) scale(0.92)" },
-          "22%": { opacity: "0" },
+          "25%": { opacity: "0" },
           "100%": { opacity: "1", transform: "translateX(0) scale(1)" }
         },
         // Mirror of page-in: recede back to the left, shrinking and fading.
@@ -133,8 +133,8 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        "page-in": "page-in 0.8s ease-out both",
-        "page-out": "page-out 0.7s ease-out both",
+        "page-in": "page-in 1.35s cubic-bezier(0.16, 0.8, 0.24, 1) both",
+        "page-out": "page-out 1.2s cubic-bezier(0.16, 0.8, 0.24, 1) both",
       },
     },
   },

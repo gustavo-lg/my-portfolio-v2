@@ -25,9 +25,12 @@ export function OrbitalLabel({ meta, index, phase, onSelect }: Props) {
       style={{
         opacity: visible ? 1 : 0,
         transform: phase === "out" ? OUT : visible ? IN : HIDDEN,
+        // Inline `transition` overrides any class, so the hover colours are
+        // listed here too.
         transition:
-          "opacity 0.5s ease, transform 0.5s cubic-bezier(0.34,1.56,0.64,1)",
-        transitionDelay: phase === "in" ? `${index * 90}ms` : "0ms",
+          "opacity 0.95s ease, transform 0.95s cubic-bezier(0.22,1.12,0.36,1)," +
+          " color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease",
+        transitionDelay: phase === "in" ? `${index * 170}ms` : "0ms",
       }}
       className="group flex items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-background/40 px-4 py-2 text-xs uppercase tracking-[0.22em] text-foreground backdrop-blur-sm hover:border-primary hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
