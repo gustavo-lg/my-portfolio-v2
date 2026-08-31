@@ -46,18 +46,18 @@ export function BottomNav({ current }: { current: CategoryKey }) {
               key={c.key}
               type="button"
               onClick={() => goTo(c.key, c.path)}
-              style={{
-                transition:
-                  "color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease",
-              }}
-              className="pointer-events-auto flex items-center gap-2 rounded-full border border-border/70 bg-background/40 px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm hover:border-primary hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="group pointer-events-auto relative flex items-center gap-2 rounded-full border border-border/70 bg-background/50 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/80 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95"
             >
-              <Icon className="h-4 w-4" aria-hidden />
-              {c.label}
+              <Icon
+                className="h-4 w-4 text-muted-foreground transition-transform duration-300 ease-out group-hover:scale-110 group-hover:text-primary"
+                aria-hidden
+              />
+              <span>{c.label}</span>
             </button>
           );
         })}
       </ExperienceContainer>
+
     </nav>
   );
 }

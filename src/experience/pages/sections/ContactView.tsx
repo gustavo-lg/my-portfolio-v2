@@ -52,53 +52,54 @@ export function ContactView() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">Nome</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Nome</span>
           <input
             name="name"
             value={form.name}
             onChange={onChange}
             required
-            className="w-full rounded border border-border bg-background px-3 py-2 text-foreground"
+            className="w-full rounded-lg border border-border/80 bg-background/50 px-3.5 py-2 text-foreground backdrop-blur-sm transition-all duration-200 focus:border-primary focus:bg-background/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">Email</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</span>
           <input
             name="email"
             type="email"
             value={form.email}
             onChange={onChange}
             required
-            className="w-full rounded border border-border bg-background px-3 py-2 text-foreground"
+            className="w-full rounded-lg border border-border/80 bg-background/50 px-3.5 py-2 text-foreground backdrop-blur-sm transition-all duration-200 focus:border-primary focus:bg-background/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">Assunto</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Assunto</span>
           <input
             name="subject"
             value={form.subject}
             onChange={onChange}
             required
-            className="w-full rounded border border-border bg-background px-3 py-2 text-foreground"
+            className="w-full rounded-lg border border-border/80 bg-background/50 px-3.5 py-2 text-foreground backdrop-blur-sm transition-all duration-200 focus:border-primary focus:bg-background/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">Mensagem</span>
+          <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Mensagem</span>
           <textarea
             name="message"
             value={form.message}
             onChange={onChange}
             required
-            className="min-h-[120px] w-full rounded border border-border bg-background px-3 py-2 text-foreground"
+            className="min-h-[120px] w-full rounded-lg border border-border/80 bg-background/50 px-3.5 py-2 text-foreground backdrop-blur-sm transition-all duration-200 focus:border-primary focus:bg-background/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
         </label>
         <button
           type="submit"
-          className="w-full rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className="group relative w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold tracking-wider text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:scale-[1.015] hover:bg-primary/95 hover:shadow-[0_0_28px_hsl(var(--primary)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.98]"
         >
           Chamar no WhatsApp
         </button>
       </form>
+
     </div>
   );
 }

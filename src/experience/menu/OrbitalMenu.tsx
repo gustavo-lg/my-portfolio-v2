@@ -39,15 +39,21 @@ export function OrbitalMenu() {
               to={c.path}
               className={
                 staticGalaxy
-                  ? "flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm uppercase tracking-[0.2em] text-foreground transition-colors hover:border-primary hover:text-primary"
+                  ? "group flex items-center gap-2.5 rounded-full border border-border/80 bg-background/50 px-5 py-2.5 text-sm font-medium uppercase tracking-[0.2em] text-foreground/90 backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/80 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95"
                   : ""
               }
             >
-              {staticGalaxy && <Icon className="h-4 w-4" aria-hidden />}
-              {c.label}
+              {staticGalaxy && (
+                <Icon
+                  className="h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:scale-110 group-hover:text-primary"
+                  aria-hidden
+                />
+              )}
+              <span>{c.label}</span>
             </Link>
           );
-          })}
+        })}
+
         </nav>
       </ExperienceContainer>
     </main>

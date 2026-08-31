@@ -24,12 +24,16 @@ export function BackButton() {
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 rounded-full border border-border bg-background/70 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="group relative flex items-center gap-2 rounded-full border border-border/70 bg-background/60 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-foreground/90 backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/85 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          Ver tudo
+          <ArrowLeft
+            className="h-4 w-4 transition-transform duration-300 ease-out group-hover:-translate-x-1"
+            aria-hidden
+          />
+          <span>Ver tudo</span>
         </button>
       </ExperienceContainer>
     </div>
   );
+
 }
