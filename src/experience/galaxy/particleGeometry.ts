@@ -109,3 +109,60 @@ export function generateColors(
   }
   return out;
 }
+
+export interface Deformation {
+  scale: [number, number, number];
+  shearXY?: number;
+  shearZX?: number;
+  tilt?: [number, number, number];
+}
+
+/** base nebula positions -> a per-page deformed shape. Pure, no three.js. */
+export function deformPositions(
+  base: Float32Array,
+  d: Deformation,
+  out: Float32Array,
+): void {
+  const [sx, sy, sz] = d.scale;
+  const shearXY = d.shearXY ?? 0;
+  const shearZX = d.shearZX ?? 0;
+  const [tx, ty, tz] = d.tilt ?? [0, 0, 0];
+  const cx = Math.cos(tx),
+    sxx = Math.sin(tx);
+  const cy = Math.cos(ty),
+    syy = Math.sin(ty);
+  const cz = Math.cos(tz),
+    szz = Math.sin(tz);
+
+  for (let i = 0; i < base.length; i += 3) {
+    const x0 = base[i];
+    const y0 = base[i + 1];
+    const z0 = base[i + 2];
+
+    let x = x0 * sx + shearXY * y0;
+    let y = y0 * sy;
+    let z = z0 * sz + shearZX * x0;
+
+    if (tx || ty || tz) {
+      // Z
+      let nx = x * cz - y * szz;
+      let ny = x * szz + y * cz;
+      x = nx;
+      y = ny;
+      // Y
+      nx = x * cy + z * syy;
+      let nz = -x * syy + z * cy;
+      x = nx;
+      z = nz;
+      // X
+      ny = y * cx - z * sxx;
+      nz = y * sxx + z * cx;
+      y = ny;
+      z = nz;
+    }
+
+    out[i] = x;
+    out[i + 1] = y;
+    out[i + 2] = z;
+  }
+}

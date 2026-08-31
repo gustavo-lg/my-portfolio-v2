@@ -6,6 +6,8 @@ import {
   CORE_FRACTION,
   CORE_RADIUS,
   DISPERSED_RADIUS,
+  deformPositions,
+  type Deformation,
 } from "./particleGeometry";
 
 const N = 3000;
@@ -75,5 +77,48 @@ describe("generateColors", () => {
       expect(v).toBeGreaterThanOrEqual(0);
       expect(v).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+describe("deformPositions", () => {
+  const base = new Float32Array([1, 2, 3, -4, 0, 5]);
+
+  it("scales each axis independently", () => {
+    const out = new Float32Array(6);
+    deformPositions(base, { scale: [2, 0.5, 3] }, out);
+    expect(Array.from(out)).toEqual([2, 1, 9, -8, 0, 15]);
+  });
+
+  it("applies shearXY using the original y before scaling of x", () => {
+    const out = new Float32Array(6);
+    deformPositions(base, { scale: [1, 1, 1], shearXY: 0.5 }, out);
+    // particle 0: x = 1*1 + 0.5*2 = 2 ; particle 1: x = -4 + 0.5*0 = -4
+    expect(out[0]).toBeCloseTo(2);
+    expect(out[3]).toBeCloseTo(-4);
+  });
+
+  it("preserves array length and is deterministic", () => {
+    const a = new Float32Array(6);
+    const b = new Float32Array(6);
+    const d: Deformation = { scale: [1.3, 0.7, 1.1], tilt: [0, 0, 0.4] };
+    deformPositions(base, d, a);
+    deformPositions(base, d, b);
+    expect(Array.from(a)).toEqual(Array.from(b));
+    expect(a.length).toBe(base.length);
+  });
+
+  it("identity deform (scale 1,1,1, no shear/tilt) is a copy", () => {
+    const out = new Float32Array(6);
+    deformPositions(base, { scale: [1, 1, 1] }, out);
+    expect(Array.from(out)).toEqual(Array.from(base));
+  });
+
+  it("tilt around Z by PI/2 maps (1,0,0) -> (0,1,0)", () => {
+    const p = new Float32Array([1, 0, 0]);
+    const out = new Float32Array(3);
+    deformPositions(p, { scale: [1, 1, 1], tilt: [0, 0, Math.PI / 2] }, out);
+    expect(out[0]).toBeCloseTo(0);
+    expect(out[1]).toBeCloseTo(1);
+    expect(out[2]).toBeCloseTo(0);
   });
 });
