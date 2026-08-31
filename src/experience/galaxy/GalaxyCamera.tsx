@@ -9,23 +9,21 @@ import {
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import gsap from "gsap";
-import { CAMERA_FRAMINGS, CAMERA_MS, type CameraFraming } from "./cameraTargets";
+import { SCENES, type CameraFraming, type SceneKey } from "./categoryScenes";
 
 export interface GalaxyCameraApi {
-  focusCenter: (opts?: { instant?: boolean }) => Promise<void>;
-  focusSide: (opts?: { instant?: boolean }) => Promise<void>;
+  flyTo: (
+    framing: CameraFraming,
+    opts: { duration: number; ease: string; instant?: boolean },
+  ) => Promise<void>;
 }
 
-const noop: GalaxyCameraApi = {
-  focusCenter: () => Promise.resolve(),
-  focusSide: () => Promise.resolve(),
-};
+const noop: GalaxyCameraApi = { flyTo: () => Promise.resolve() };
 
 const CameraCtx = createContext<React.MutableRefObject<GalaxyCameraApi>>({
   current: noop,
 });
 
-/** Provider lives OUTSIDE the Canvas so DOM components can drive the camera. */
 export function GalaxyCameraProvider({ children }: { children: ReactNode }) {
   const ref = useRef<GalaxyCameraApi>(noop);
   return <CameraCtx.Provider value={ref}>{children}</CameraCtx.Provider>;
@@ -33,65 +31,71 @@ export function GalaxyCameraProvider({ children }: { children: ReactNode }) {
 
 export function useGalaxyCamera(): GalaxyCameraApi {
   const ref = useContext(CameraCtx);
-  return useMemo(
-    () => ({
-      focusCenter: (o) => ref.current.focusCenter(o),
-      focusSide: (o) => ref.current.focusSide(o),
-    }),
-    [ref],
-  );
+  return useMemo(() => ({ flyTo: (f, o) => ref.current.flyTo(f, o) }), [ref]);
 }
 
-/** Rendered INSIDE the Canvas. Registers the imperative API on the shared ref. */
-export function GalaxyCamera({ initial = "center" }: { initial?: "center" | "side" }) {
-  const camera = useThree((s) => s.camera);
+export function GalaxyCamera({ initial = "menu" }: { initial?: SceneKey }) {
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const apiRef = useContext(CameraCtx);
-  const lookAt = useRef(new THREE.Vector3(...CAMERA_FRAMINGS[initial].lookAt));
+  const lookAt = useRef(new THREE.Vector3());
+  const initialRef = useRef(initial);
 
   useEffect(() => {
-    const applyInstant = (f: CameraFraming) => {
+    const apply = (f: CameraFraming) => {
       camera.position.set(...f.position);
       lookAt.current.set(...f.lookAt);
+      camera.fov = f.fov;
+      camera.updateProjectionMatrix();
       camera.lookAt(lookAt.current);
     };
 
-    const animate = (f: CameraFraming, instant?: boolean) =>
+    apply(SCENES[initialRef.current].framing);
+
+    const flyTo: GalaxyCameraApi["flyTo"] = (f, o) =>
       new Promise<void>((resolve) => {
-        if (instant) {
-          applyInstant(f);
+        if (o.instant || o.duration <= 0) {
+          apply(f);
           resolve();
           return;
         }
+        const secs = o.duration / 1000;
+        const sync = () => {
+          camera.updateProjectionMatrix();
+          camera.lookAt(lookAt.current);
+        };
         gsap.to(camera.position, {
           x: f.position[0],
           y: f.position[1],
           z: f.position[2],
-          duration: CAMERA_MS / 1000,
-          ease: "power2.inOut",
-          onUpdate: () => camera.lookAt(lookAt.current),
+          duration: secs,
+          ease: o.ease,
+          overwrite: true,
+          onUpdate: sync,
+        });
+        gsap.to(camera, {
+          fov: f.fov,
+          duration: secs,
+          ease: o.ease,
+          overwrite: true,
+          onUpdate: sync,
         });
         gsap.to(lookAt.current, {
           x: f.lookAt[0],
           y: f.lookAt[1],
           z: f.lookAt[2],
-          duration: CAMERA_MS / 1000,
-          ease: "power2.inOut",
-          onUpdate: () => camera.lookAt(lookAt.current),
+          duration: secs,
+          ease: o.ease,
+          overwrite: true,
+          onUpdate: sync,
           onComplete: () => resolve(),
         });
       });
 
-    applyInstant(CAMERA_FRAMINGS[initial]);
-
-    apiRef.current = {
-      focusCenter: (o) => animate(CAMERA_FRAMINGS.center, o?.instant),
-      focusSide: (o) => animate(CAMERA_FRAMINGS.side, o?.instant),
-    };
-
+    apiRef.current = { flyTo };
     return () => {
       apiRef.current = noop;
     };
-  }, [camera, apiRef, initial]);
+  }, [camera, apiRef]);
 
   return null;
 }
