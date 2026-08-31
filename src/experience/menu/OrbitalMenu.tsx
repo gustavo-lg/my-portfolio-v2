@@ -1,25 +1,21 @@
 import { Link } from "react-router-dom";
 import { categories } from "@/content/categories";
-import { profile } from "@/content/profile";
 import { categoryIcons } from "@/experience/lib/icons";
+import { Wordmark } from "./Wordmark";
 
 /**
- * Phase 0 placeholder: plain DOM wordmark + category links.
- * Replaced by the projected orbital layout in Phase 3.
+ * Phase 2 placeholder: centred wordmark + category links.
+ * The projected orbital layout replaces the link row in Phase 3.
  */
 export function OrbitalMenu() {
   return (
-    <main className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-12 px-6 text-center">
-      <div>
-        <h1 className="font-display text-4xl font-light tracking-[0.2em] text-foreground md:text-6xl">
-          {profile.name}
-        </h1>
-        <p className="mt-3 text-xs uppercase tracking-[0.35em] text-muted-foreground">
-          {profile.title}
-        </p>
-      </div>
+    <main className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-12 px-6">
+      <Wordmark />
 
-      <nav aria-label="Categorias" className="flex flex-wrap justify-center gap-6">
+      <nav
+        aria-label="Categorias"
+        className="flex flex-wrap justify-center gap-4"
+      >
         {categories.map((c) => {
           const Icon = categoryIcons[c.icon];
           return (

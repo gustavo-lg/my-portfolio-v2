@@ -15,8 +15,8 @@ function mulberry32(seed: number) {
   };
 }
 
-export const CORE_FRACTION = 0.35;
-export const CORE_RADIUS = 0.8;
+export const CORE_FRACTION = 0.44;
+export const CORE_RADIUS = 0.85;
 export const HALO_INNER = 2;
 export const HALO_OUTER = 5;
 export const HALO_Y_SQUASH = 0.18;
@@ -39,7 +39,8 @@ export function generateTargetPositions(count: number, seed = 1): Float32Array {
     let z = s * Math.sin(theta);
 
     if (isCore) {
-      const r = CORE_RADIUS * Math.cbrt(rng());
+      // Bias strongly toward the centre for a luminous, dense nucleus.
+      const r = CORE_RADIUS * Math.pow(rng(), 1.8);
       x *= r;
       y *= r;
       z *= r;

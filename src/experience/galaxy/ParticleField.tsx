@@ -86,6 +86,29 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
   });
 
   return (
+    <group>
+      {/* Volumetric-ish glow standing in for a real bloom pass. */}
+      <sprite scale={[6, 6, 6]}>
+        <spriteMaterial
+          map={getParticleTexture()}
+          color="#12d3ff"
+          transparent
+          opacity={0.28}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </sprite>
+      <sprite scale={[2.6, 2.6, 2.6]}>
+        <spriteMaterial
+          map={getParticleTexture()}
+          color="#8f5cff"
+          transparent
+          opacity={0.35}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </sprite>
+
     <points ref={pointsRef} frustumCulled={false}>
       <bufferGeometry>
         <bufferAttribute
@@ -110,5 +133,6 @@ export function ParticleField({ count, reducedMotion, idle, onFormed }: Props) {
         opacity={0.9}
       />
     </points>
+    </group>
   );
 }

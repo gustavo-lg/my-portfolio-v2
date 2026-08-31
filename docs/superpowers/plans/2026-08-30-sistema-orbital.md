@@ -843,6 +843,12 @@ Goal: the nebula forms on load at `/` and breathes in idle. 60fps desktop, ≥30
 - If ≥55fps desktop AND ≥30fps 4x-throttled → keep, enable for high tier only. Else revert the dependency.
 - Document result in the plan file under this task. Commit `feat: optional bloom for high tier` OR `chore: bloom too costly, deferred`.
 
+**Outcome (2026-08-30): DEFERRED.** Not implemented. The glow is provided by
+two additive `<sprite>` halos at the core (`ParticleField.tsx`) — cheap and
+mobile-safe. Real `@react-three/postprocessing` bloom was left out of the MVP
+per the Global Constraints; `PerfTier.bloom` stays `false`. Revisit in Phase 5
+only if the sprite glow proves visually insufficient on real devices.
+
 ### Phase 2 checkpoint
 Core + wordmark visually complete; fonts loading; bloom decision recorded.
 
