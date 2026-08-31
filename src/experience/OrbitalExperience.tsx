@@ -56,15 +56,21 @@ export function OrbitalExperience() {
   const handleFormed = useCallback(() => {
     send({ type: "FORM_COMPLETE" });
     clearTimeout(settleTimer.current);
+    // SETTLE_COMPLETE -> `menu-reveal`; OrbitalLabels then staggers in and
+    // dispatches MENU_REVEALED once the labels finish appearing.
     settleTimer.current = setTimeout(() => {
       send({ type: "SETTLE_COMPLETE" });
-      send({ type: "MENU_REVEALED" });
     }, SETTLE_MS);
   }, [send]);
 
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
   const idleMotion = ctx.state !== "intro-forming";
+  const menuActive =
+    location.pathname === "/" &&
+    (ctx.state === "menu-reveal" ||
+      ctx.state === "idle" ||
+      ctx.state === "traveling");
 
   return (
     <GalaxyCameraProvider>
@@ -72,6 +78,7 @@ export function OrbitalExperience() {
         <Suspense fallback={null}>
           <GalaxyCanvas
             idle={idleMotion}
+            menuActive={menuActive}
             initialFraming={startAtInternal ? "side" : "center"}
             onFormed={handleFormed}
           />
