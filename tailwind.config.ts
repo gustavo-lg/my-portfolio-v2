@@ -115,21 +115,24 @@ export default {
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
           "100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }
         },
-        // Star Wars wipe, no fade. The incoming section holds as a tiny speck
-        // off to the LEFT while the outgoing page is still readable, then rushes
-        // in and grows to fill the frame.
+        // Star Wars wipe, no fade. One continuous curve each — no intermediate
+        // keyframes (those caused a mid-animation velocity hitch). The incoming
+        // section is held as a speck by a short animation-delay instead, so it
+        // doesn't collide with the still-readable outgoing page.
         "page-in": {
-          "0%": { transform: "translateX(-40vw) scale(0.14) rotateY(40deg)" },
-          "40%": { transform: "translateX(-33vw) scale(0.26) rotateY(32deg)" },
+          "0%": { transform: "translateX(-42vw) scale(0.18) rotateY(-28deg)" },
           "100%": { transform: "translateX(0) scale(1) rotateY(0deg)" }
         },
-        // Mirror: the outgoing section stays readable while it drifts, then
-        // recedes fast into the distance to the RIGHT, shrinking and turning
-        // away until it is a speck and gone.
+        // Mirror: the outgoing section recedes toward the upper RIGHT, shrinking
+        // and turning away until it is a speck and gone.
         "page-out": {
-          "0%": { transform: "translateX(0) scale(1) rotateY(0deg)" },
-          "45%": { transform: "translateX(10vw) scale(0.82) rotateY(-10deg)" },
-          "100%": { transform: "translateX(58vw) scale(0.14) rotateY(-40deg)" }
+          "0%": {
+            transform: "translateX(0) translateY(0) scale(1) rotateY(0deg)"
+          },
+          "100%": {
+            transform:
+              "translateX(54vw) translateY(-11vh) scale(0.14) rotateY(28deg)"
+          }
         }
       },
       animation: {
@@ -139,9 +142,13 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        // The keyframe % holds do the pacing; a gentle in-out smooths each leg.
-        "page-in": "page-in 1.7s cubic-bezier(0.45, 0, 0.55, 1) both",
-        "page-out": "page-out 1.6s cubic-bezier(0.45, 0, 0.55, 1) both",
+        // Linear on purpose: with a linear scale ramp the log-scale perception
+        //   makes the incoming self-decelerate into a soft landing and the
+        //   outgoing self-accelerate into a whoosh — a continuous, un-eased
+        //   glide with no lunge or stall anywhere. `page-in` gets a tiny
+        //   speck-hold delay so it doesn't collide with the outgoing page.
+        "page-in": "page-in 1.55s linear 0.15s both",
+        "page-out": "page-out 1.3s linear both",
       },
     },
   },

@@ -100,12 +100,12 @@ export function ContentArea() {
             id={layer.anim === "in" ? "content" : undefined}
             aria-hidden={layer.anim === "out"}
             className={
-              // Mirrored vanishing points: the incoming section grows from a
-              // point on the left, the outgoing one shrinks toward one on the
-              // right. Outgoing sits on top so you watch it recede.
+              // Mirrored vanishing points: the incoming section grows in from
+              // a point on the left; the outgoing one shrinks toward one up on
+              // the right. Outgoing sits on top so you watch it recede.
               layer.anim === "in"
-                ? "relative z-10 origin-[30%_28%] animate-page-in motion-reduce:animate-none"
-                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[70%_28%] animate-page-out motion-reduce:hidden"
+                ? "relative z-10 origin-[34%_45%] animate-page-in motion-reduce:animate-none"
+                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[66%_18%] animate-page-out motion-reduce:hidden"
             }
           >
             <CategorySection category={layer.key} />
