@@ -85,7 +85,7 @@ export function ContentArea() {
         <BackButton />
       </div>
 
-      <div className="relative overflow-x-clip pb-28 pt-24">
+      <div className="relative overflow-x-clip pb-36 pt-24">
         {rendered.map((layer) => (
           <div
             // Key by category so the outgoing node is reused (its class flips
