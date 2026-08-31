@@ -1,6 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+
+// The WebGL canvas needs a real GPU context; stub it in jsdom.
+vi.mock("@/experience/galaxy/GalaxyCanvas", () => ({
+  default: () => null,
+}));
 import { ExperienceProvider } from "@/experience/machine/useExperienceMachine";
 import { OrbitalExperience } from "@/experience/OrbitalExperience";
 
