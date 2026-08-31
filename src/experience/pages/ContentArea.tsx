@@ -101,8 +101,8 @@ export function ContentArea() {
             aria-hidden={layer.anim === "out"}
             className={
               layer.anim === "in"
-                ? "relative z-10 origin-[35%_30%] animate-page-in motion-reduce:animate-none"
-                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[35%_30%] animate-page-out motion-reduce:hidden"
+                ? "relative z-10 origin-[65%_30%] animate-page-in motion-reduce:animate-none"
+                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[65%_30%] animate-page-out motion-reduce:hidden"
             }
           >
             <CategorySection category={layer.key} />

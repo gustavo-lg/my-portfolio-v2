@@ -120,7 +120,7 @@ export default {
         "page-in": {
           "0%": {
             opacity: "0",
-            transform: "translateX(-38vw) scale(0.9) rotateY(26deg)"
+            transform: "translateX(-38vw) scale(0.9) rotateY(-26deg)"
           },
           "25%": { opacity: "0" },
           "100%": {
@@ -136,7 +136,7 @@ export default {
           },
           "100%": {
             opacity: "0",
-            transform: "translateX(-38vw) scale(0.9) rotateY(26deg)"
+            transform: "translateX(-38vw) scale(0.9) rotateY(-26deg)"
           }
         }
       },
