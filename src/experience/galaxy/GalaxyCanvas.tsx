@@ -47,9 +47,12 @@ export default function GalaxyCanvas({
   return (
     <Canvas
       dpr={[1, tier.maxDpr]}
-      // Seed is intentionally the menu pose; <GalaxyCamera initial={initialScene}>
-      // snaps to the real framing on mount (matters for deep-link entries).
-      camera={{ fov: SCENES[initialScene].framing.fov, position: [0, 0, 13] }}
+      // Seed the camera from the entry scene so a deep-link doesn't flash the
+      // menu pose for one pre-paint frame before <GalaxyCamera> snaps it.
+      camera={{
+        fov: SCENES[initialScene].framing.fov,
+        position: SCENES[initialScene].framing.position,
+      }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
     >

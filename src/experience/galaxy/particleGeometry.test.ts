@@ -91,8 +91,10 @@ describe("deformPositions", () => {
 
   it("applies shearXY using the original y before scaling of x", () => {
     const out = new Float32Array(6);
-    deformPositions(base, { scale: [1, 1, 1], shearXY: 0.5 }, out);
-    // particle 0: x = 1*1 + 0.5*2 = 2 ; particle 1: x = -4 + 0.5*0 = -4
+    deformPositions(base, { scale: [1, 2, 1], shearXY: 0.5 }, out);
+    // particle 0 uses the ORIGINAL y (2), not the scaled y (4):
+    //   x = 1*1 + 0.5*2 = 2  (scaled y would give 1 + 0.5*4 = 3)
+    // particle 1: x = -4 + 0.5*0 = -4
     expect(out[0]).toBeCloseTo(2);
     expect(out[3]).toBeCloseTo(-4);
   });

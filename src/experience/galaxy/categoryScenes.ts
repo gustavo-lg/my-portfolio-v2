@@ -64,7 +64,7 @@ export const SCENES: Record<SceneKey, Scene> = {
 
   stack: {
     framing: { position: [0, 0.5, 9], lookAt: [0, 0.5, 0], fov: 40 },
-    deform: { scale: [0.5, 1.95, 0.5] },
+    deform: { scale: [0.5, 1.95, 0.5], tilt: [0.12, 0, 0] },
     spin: { axis: "y", speed: 0.12, wobble: 0.02 },
     pointSize: 0.046,
     pointOpacity: 0.8,

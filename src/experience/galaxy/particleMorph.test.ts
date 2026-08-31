@@ -25,6 +25,11 @@ describe("flourishTarget", () => {
     flourishTarget(shape, "rise", out);
     expect(Array.from(out)).toEqual([1, 5.5, 3]);
   });
+  it("sweep shifts X by +0.5*y, leaves Y and Z", () => {
+    const out = new Float32Array(3);
+    flourishTarget(shape, "sweep", out);
+    expect(Array.from(out)).toEqual([2, 2, 3]);
+  });
 });
 
 describe("morphInto", () => {

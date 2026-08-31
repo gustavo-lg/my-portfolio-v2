@@ -88,6 +88,7 @@ export function GalaxyCamera({ initial = "menu" }: { initial?: SceneKey }) {
           overwrite: true,
           onUpdate: sync,
           onComplete: () => resolve(),
+          onInterrupt: () => resolve(),
         });
       });
 

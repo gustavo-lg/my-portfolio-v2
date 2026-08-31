@@ -46,6 +46,9 @@ export function ParticleField({
   // colours are computed once from the first shape and held (shape omitted from deps).
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const colors = useMemo(() => generateColors(count, shape), [count]);
+  // `live` IS the buffer R3F builds the position BufferAttribute from, so in
+  // useFrame `attr.array === live`: writing `arr` there and snapshotting `live`
+  // on a scene change both operate on this same buffer, intentionally.
   const live = useMemo(() => Float32Array.from(dispersed), [dispersed]);
 
   const fromRef = useRef<Float32Array>(Float32Array.from(dispersed));
@@ -62,6 +65,11 @@ export function ParticleField({
     const first = !formed.current;
     targetRef.current = shape;
     flourishRef.current = first ? "none" : flourish;
+    // `count` can change without a remount (pointer-fine media query flips the
+    // tier); keep the overshoot buffer sized to the current shape.
+    if (overshootRef.current.length !== shape.length) {
+      overshootRef.current = new Float32Array(shape.length);
+    }
     flourishTarget(shape, flourishRef.current, overshootRef.current);
     fromRef.current = Float32Array.from(live);
     morph.current.t = 0;
@@ -112,7 +120,6 @@ export function ParticleField({
       flourishRef.current,
       arr,
     );
-    live.set(arr);
 
     const atRest = morph.current.t >= 1;
 
@@ -131,7 +138,7 @@ export function ParticleField({
       spinSpeed.current += (spin.speed - spinSpeed.current) * Math.min(1, delta * 1.5);
       points.rotation[spin.axis] += delta * spinSpeed.current;
       const w = spin.wobble ?? 0;
-      const other = spin.axis === "y" ? "x" : "y";
+      const other = spin.axis === "x" ? "y" : "x";
       points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
     }
 

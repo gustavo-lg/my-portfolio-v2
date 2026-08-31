@@ -8,29 +8,31 @@ export function flourishTarget(
   kind: Flourish,
   out: Float32Array,
 ): void {
+  const n = Math.min(shape.length, out.length);
   switch (kind) {
     case "fling":
-      for (let i = 0; i < shape.length; i++) out[i] = shape[i] * 1.35;
+      for (let i = 0; i < n; i++) out[i] = shape[i] * 1.35;
       return;
     case "gather":
-      for (let i = 0; i < shape.length; i++) out[i] = shape[i] * 0.6;
+      for (let i = 0; i < n; i++) out[i] = shape[i] * 0.6;
       return;
     case "rise":
-      for (let i = 0; i < shape.length; i += 3) {
+      for (let i = 0; i < n; i += 3) {
         out[i] = shape[i];
         out[i + 1] = shape[i + 1] + 3.5;
         out[i + 2] = shape[i + 2];
       }
       return;
     case "sweep":
-      for (let i = 0; i < shape.length; i += 3) {
+      for (let i = 0; i < n; i += 3) {
         out[i] = shape[i] + 0.5 * shape[i + 1];
         out[i + 1] = shape[i + 1];
         out[i + 2] = shape[i + 2];
       }
       return;
     default:
-      out.set(shape);
+      if (shape.length <= out.length) out.set(shape);
+      else out.set(shape.subarray(0, out.length));
   }
 }
 
