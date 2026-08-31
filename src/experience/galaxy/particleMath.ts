@@ -1,5 +1,28 @@
 /** Pure helpers for animating the particle buffer. No three.js. */
 
+import type { Wave } from "./categoryScenes";
+
+const AXIS = { x: 0, y: 1, z: 2 } as const;
+
+/**
+ * Layer a continuous sine ripple onto an already-positioned buffer, in place.
+ * `strength` (0→1) ramps the effect in so it doesn't fight the formation morph.
+ */
+export function applyWave(
+  pos: Float32Array,
+  wave: Wave,
+  time: number,
+  strength: number,
+): void {
+  if (strength <= 0 || wave.amplitude === 0) return;
+  const d = AXIS[wave.drive];
+  const p = AXIS[wave.displace];
+  const a = wave.amplitude * (strength > 1 ? 1 : strength);
+  for (let i = 0; i < pos.length; i += 3) {
+    pos[i + p] += a * Math.sin(pos[i + d] * wave.frequency + time * wave.speed);
+  }
+}
+
 /** Linear interpolation of every component from `from`→`to` at `t`, into `out`. */
 export function lerpPositions(
   from: Float32Array,

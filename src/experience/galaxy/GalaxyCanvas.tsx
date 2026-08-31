@@ -1,17 +1,12 @@
 import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ParticleField } from "./ParticleField";
-import { InterstellarDust } from "./InterstellarDust";
 import { GalaxyCamera } from "./GalaxyCamera";
 import {
   AnchorProjector,
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
-import {
-  generateTargetPositions,
-  deformPositions,
-  offsetPositions,
-} from "./particleGeometry";
+import { generateTargetPositions, deformPositions } from "./particleGeometry";
 import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
@@ -39,7 +34,6 @@ export default function GalaxyCanvas({
     for (const key of SCENE_ORDER) {
       const buf = new Float32Array(count * 3);
       deformPositions(base, SCENES[key].deform, buf);
-      offsetPositions(buf, SCENES[key].center);
       out[key] = buf;
     }
     return out;
@@ -47,34 +41,24 @@ export default function GalaxyCanvas({
 
   const scene = SCENES[activeScene];
 
-  // Dust particle count scales with performance tier
-  const dustCount = tier.particleCount >= 36000 ? 5000
-    : tier.particleCount >= 21000 ? 3000
-    : 1500;
-
   return (
     <Canvas
       dpr={[1, tier.maxDpr]}
       camera={{
         fov: SCENES[initialScene].framing.fov,
         position: SCENES[initialScene].framing.position,
-        near: 0.1,
-        far: 200,
       }}
       gl={{ antialias: false, alpha: true }}
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
     >
       <GalaxyCamera initial={initialScene} />
-      <InterstellarDust
-        count={dustCount}
-        reducedMotion={reducedMotion}
-      />
       <ParticleField
         count={count}
         reducedMotion={reducedMotion}
         idle={idle}
         shape={shapes[activeScene]}
         spin={scene.spin}
+        wave={scene.wave}
         pointSize={scene.pointSize}
         pointOpacity={scene.pointOpacity}
         morphDuration={reducedMotion ? 0 : scene.transition.morph.duration}
@@ -82,12 +66,9 @@ export default function GalaxyCanvas({
         flourish={reducedMotion ? "none" : scene.transition.flourish}
         colorScheme={scene.colorScheme}
         glowScale={scene.glowScale}
-        center={scene.center}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}
     </Canvas>
   );
 }
-
-

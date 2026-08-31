@@ -7,11 +7,11 @@ import {
   generateColors,
   type ColorScheme,
 } from "./particleGeometry";
-import { idleOffset, lerpPositions } from "./particleMath";
+import { applyWave, idleOffset, lerpPositions } from "./particleMath";
 import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
-import type { Spin, Flourish } from "./categoryScenes";
+import type { Spin, Flourish, Wave } from "./categoryScenes";
 
 interface Props {
   count: number;
@@ -19,6 +19,7 @@ interface Props {
   idle: boolean;
   shape: Float32Array;
   spin: Spin;
+  wave: Wave;
   pointSize: number;
   pointOpacity: number;
   morphDuration: number;
@@ -26,7 +27,6 @@ interface Props {
   flourish: Flourish;
   colorScheme: ColorScheme;
   glowScale: number;
-  center?: [number, number, number];
   onFormed?: () => void;
 }
 
@@ -36,6 +36,7 @@ export function ParticleField({
   idle,
   shape,
   spin,
+  wave,
   pointSize,
   pointOpacity,
   morphDuration,
@@ -43,7 +44,6 @@ export function ParticleField({
   flourish,
   colorScheme,
   glowScale,
-  center = [0, 0, 0],
   onFormed,
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
@@ -53,7 +53,7 @@ export function ParticleField({
   const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
   // Initial color buffer
   const initialColors = useMemo(
-    () => generateColors(count, shape, colorScheme, center),
+    () => generateColors(count, shape, colorScheme),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count],
   );
@@ -71,19 +71,17 @@ export function ParticleField({
   const spinSpeed = useRef(0);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
-  // Target glow colors & position that we lerp toward each frame
+  // Target glow colors that we lerp toward each frame
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
   const targetCoreColor = useRef(new THREE.Color(...colorScheme.outer));
-  const targetCenter = useRef(new THREE.Vector3(...center));
 
-  // Start / restart a morph whenever the target shape, colorScheme, or center changes.
+  // Start / restart a morph whenever the target shape or colorScheme changes.
   useEffect(() => {
     const first = !formed.current;
     targetRef.current = shape;
-    targetColorsRef.current = generateColors(count, shape, colorScheme, center);
+    targetColorsRef.current = generateColors(count, shape, colorScheme);
     targetGlowColor.current.setRGB(...colorScheme.inner);
     targetCoreColor.current.setRGB(...colorScheme.outer);
-    targetCenter.current.set(...center);
     flourishRef.current = first ? "none" : flourish;
 
     if (overshootRef.current.length !== shape.length) {
@@ -135,7 +133,7 @@ export function ParticleField({
       tweenRef.current?.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shape, colorScheme, center]);
+  }, [shape, colorScheme]);
 
   useFrame((state, delta) => {
     const points = pointsRef.current;
@@ -177,6 +175,13 @@ export function ParticleField({
       }
     }
 
+    // Continuous sine ripple over the formed shape — ramps in over the last
+    // 40% of the morph so it never fights the formation itself.
+    if (!reducedMotion) {
+      const waveStrength = (morph.current.t - 0.6) / 0.4;
+      applyWave(posArr, wave, state.clock.elapsedTime, waveStrength);
+    }
+
     if (!reducedMotion && formed.current) {
       spinSpeed.current += (spin.speed - spinSpeed.current) * Math.min(1, delta * 1.5);
       points.rotation[spin.axis] += delta * spinSpeed.current;
@@ -185,20 +190,18 @@ export function ParticleField({
       points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
     }
 
-    // Smoothly lerp background glow sprites toward the active scene's color, scale and position
+    // Smoothly lerp background glow sprites toward the active scene's color and scale
     const lerpSpeed = Math.min(1, delta * 2.0);
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetGlowColor.current, lerpSpeed);
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
-      glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
     if (coreRef.current) {
       const mat = coreRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetCoreColor.current, lerpSpeed);
       const coreScale = glowScale * 0.37;
       coreRef.current.scale.lerp(new THREE.Vector3(coreScale, coreScale, coreScale), lerpSpeed);
-      coreRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
 
     // Smoothly lerp point size and opacity
@@ -213,10 +216,9 @@ export function ParticleField({
 
   return (
     <group>
-      {/* Outer ambient bloom — color and position animate to match the active scene */}
+      {/* Outer ambient bloom — color animates to match the active scene */}
       <sprite
         ref={glowRef}
-        position={center}
         scale={[glowScale, glowScale, glowScale]}
       >
         <spriteMaterial
@@ -231,7 +233,6 @@ export function ParticleField({
       {/* Inner concentrated core */}
       <sprite
         ref={coreRef}
-        position={center}
         scale={[glowScale * 0.37, glowScale * 0.37, glowScale * 0.37]}
       >
         <spriteMaterial

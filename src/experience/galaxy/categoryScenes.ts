@@ -16,7 +16,20 @@ export interface Spin {
   wobble?: number;
 }
 
-export type Flourish = "none" | "fling" | "gather" | "rise" | "sweep" | "explode" | "vortex";
+export type Flourish = "none" | "fling" | "gather" | "rise" | "sweep";
+
+/**
+ * Continuous sine ripple layered on top of the formed shape. Each frame the
+ * `displace` axis of every particle is nudged by
+ * `amplitude * sin(pos[drive] * frequency + time * speed)`.
+ */
+export interface Wave {
+  drive: "x" | "y" | "z";
+  displace: "x" | "y" | "z";
+  amplitude: number;
+  frequency: number;
+  speed: number;
+}
 
 export interface SceneTransition {
   camera: { duration: number; ease: string };
@@ -25,11 +38,10 @@ export interface SceneTransition {
 }
 
 export interface Scene {
-  /** World-space origin of this formation */
-  center: Vec3;
   framing: CameraFraming;
   deform: Deformation;
   spin: Spin;
+  wave: Wave;
   pointSize: number;
   pointOpacity: number;
   glowScale: number;
@@ -37,114 +49,97 @@ export interface Scene {
   transition: SceneTransition;
 }
 
+/** One blue-forward palette for the whole galaxy — saturated blue core, faint violet edge. */
+const BLUE: ColorScheme = {
+  inner: [0.12, 0.44, 1.0],
+  outer: [0.34, 0.26, 0.95],
+};
+
 const CALM: SceneTransition = {
   camera: { duration: CAMERA_MS, ease: "power2.inOut" },
   morph: { duration: 2200, ease: "power2.inOut" },
   flourish: "none",
 };
 
+const PAGE_TRANSITION = {
+  camera: { duration: 2800, ease: "power2.inOut" },
+  morph: { duration: 2600, ease: "power2.inOut" },
+};
+
 export const SCENES: Record<SceneKey, Scene> = {
   /** ── HOME ──────────────────────────────────────────────────────────
-   *  Dense nebula at the heart of the galaxy. The calm anchor.        */
+   *  Dense nebula at the heart of the galaxy. The calm anchor. Every page
+   *  is a dive INTO this same cloud from a different angle.            */
   menu: {
-    center: [0, 0, 0],
     framing: { position: [0, 0, 18], lookAt: [0, 0, 0], fov: 55 },
     deform: { scale: [1, 1, 1] },
     spin: { axis: "z", speed: 0.05, wobble: 0.06 },
+    wave: { drive: "y", displace: "x", amplitude: 0.16, frequency: 0.3, speed: 0.5 },
     pointSize: 0.042,
     pointOpacity: 0.72,
     glowScale: 7.5,
-    colorScheme: {
-      inner: [0, 0.83, 1],       // cyan
-      outer: [0.55, 0.3, 0.92],  // purple
-    },
+    colorScheme: BLUE,
     transition: CALM,
   },
 
   /** ── PROJETOS ───────────────────────────────────────────────────────
-   *  Amber/orange impact disk — its own region far to the left. The camera
-   *  flies ~40 units across the void to reach it, but frames it as tightly
-   *  as home frames the nebula so the cloud keeps its density.          */
+   *  The camera dives in from the left; the cloud flattens into a wide
+   *  horizontal sheet that ripples vertically like a banner.           */
   projetos: {
-    center: [-45, 5, 10],
-    framing: { position: [-48, 6.6, 25.5], lookAt: [-45, 5, 10], fov: 58 },
-    deform: { scale: [1.75, 0.48, 1.15] },
-    spin: { axis: "z", speed: 0.07, wobble: 0.03 },
-    pointSize: 0.042,
-    pointOpacity: 0.74,
+    framing: { position: [-9, 2, 12.5], lookAt: [-1, 0, 0], fov: 60 },
+    deform: { scale: [1.95, 0.42, 1.25] },
+    spin: { axis: "z", speed: 0.06, wobble: 0.03 },
+    wave: { drive: "x", displace: "y", amplitude: 1.3, frequency: 0.5, speed: 1.4 },
+    pointSize: 0.043,
+    pointOpacity: 0.76,
     glowScale: 8,
-    colorScheme: {
-      inner: [1, 0.85, 0.1],    // bright amber
-      outer: [0.9, 0.35, 0.0],  // deep orange
-    },
-    transition: {
-      camera: { duration: 3200, ease: "power2.inOut" },
-      morph: { duration: 2800, ease: "power2.inOut" },
-      flourish: "fling",
-    },
+    colorScheme: BLUE,
+    transition: { ...PAGE_TRANSITION, flourish: "fling" },
   },
 
   /** ── STACK ─────────────────────────────────────────────────────────
-   *  Green column — its region is high above and deep in negative Z.    */
+   *  The camera rises; the cloud stretches into a tall column that
+   *  undulates side to side up its length.                            */
   stack: {
-    center: [0, 40, -20],
-    framing: { position: [0, 40.5, -11], lookAt: [0, 40, -20], fov: 40 },
-    deform: { scale: [0.5, 1.95, 0.5], tilt: [0.12, 0, 0] },
+    framing: { position: [0, 6, 11], lookAt: [0, 1.5, 0], fov: 42 },
+    deform: { scale: [0.42, 2.6, 0.42], tilt: [0.1, 0, 0] },
     spin: { axis: "y", speed: 0.12, wobble: 0.02 },
+    wave: { drive: "y", displace: "x", amplitude: 1.5, frequency: 0.55, speed: 1.6 },
     pointSize: 0.046,
     pointOpacity: 0.82,
-    glowScale: 6.5,
-    colorScheme: {
-      inner: [0.4, 1, 0.55],    // bright mint-green
-      outer: [0.0, 0.55, 0.45], // deep teal
-    },
-    transition: {
-      camera: { duration: 3200, ease: "power2.inOut" },
-      morph: { duration: 2800, ease: "power2.inOut" },
-      flourish: "rise",
-    },
+    glowScale: 6,
+    colorScheme: BLUE,
+    transition: { ...PAGE_TRANSITION, flourish: "rise" },
   },
 
   /** ── SOBRE ─────────────────────────────────────────────────────────
-   *  Violet/pink swirl — lower-right region, forward in Z.              */
+   *  The camera drops and banks; the cloud tilts into a swirling
+   *  vortex whose depth ripples with height.                          */
   sobre: {
-    center: [30, -35, 25],
-    framing: { position: [32.5, -42, 37.5], lookAt: [30, -33, 25], fov: 56 },
-    deform: { scale: [1.15, 1.5, 1.15], tilt: [0.3, 0, 0] },
-    spin: { axis: "y", speed: 0.04, wobble: 0.08 },
+    framing: { position: [3, -6, 12.5], lookAt: [0, 1, 0], fov: 58 },
+    deform: { scale: [1.5, 1.4, 1.0], shearXY: 0.4, tilt: [0.5, 0.2, 0.35] },
+    spin: { axis: "y", speed: 0.05, wobble: 0.1 },
+    wave: { drive: "y", displace: "z", amplitude: 0.9, frequency: 0.7, speed: 1.2 },
     pointSize: 0.044,
-    pointOpacity: 0.76,
-    glowScale: 7.5,
-    colorScheme: {
-      inner: [0.85, 0.3, 1.0],  // vivid violet
-      outer: [1.0, 0.25, 0.6],  // hot pink
-    },
-    transition: {
-      camera: { duration: 3200, ease: "power2.inOut" },
-      morph: { duration: 2800, ease: "power2.inOut" },
-      flourish: "gather",
-    },
+    pointOpacity: 0.78,
+    glowScale: 8,
+    colorScheme: BLUE,
+    transition: { ...PAGE_TRANSITION, flourish: "gather" },
   },
 
   /** ── CONTATO ────────────────────────────────────────────────────────
-   *  Golden comet — far-right region, elevated, deep negative Z.        */
+   *  The camera swings in from the right; the cloud shears into a
+   *  streaking comet with a trailing ripple.                          */
   contato: {
-    center: [40, 15, -40],
-    framing: { position: [49.5, 16.5, -26], lookAt: [37.5, 15, -40], fov: 60 },
-    deform: { scale: [1.25, 0.72, 1.2], shearXY: 0.55, tilt: [0, 0, 0.4] },
+    framing: { position: [8, 3, 13], lookAt: [-1, 0, 0], fov: 60 },
+    deform: { scale: [1.7, 0.6, 1.1], shearXY: 1.0, tilt: [0, 0, 0.4] },
     spin: { axis: "z", speed: 0.1, wobble: 0.04 },
-    pointSize: 0.042,
-    pointOpacity: 0.76,
+    wave: { drive: "x", displace: "y", amplitude: 0.75, frequency: 0.55, speed: 1.8 },
+    pointSize: 0.043,
+    pointOpacity: 0.78,
     glowScale: 8,
-    colorScheme: {
-      inner: [1.0, 0.95, 0.55],  // warm gold / near-white
-      outer: [0.85, 0.6, 0.0],   // deep amber-gold
-    },
-    transition: {
-      camera: { duration: 3200, ease: "power2.inOut" },
-      morph: { duration: 2800, ease: "power2.inOut" },
-      flourish: "sweep",
-    },
+    colorScheme: BLUE,
+    transition: { ...PAGE_TRANSITION, flourish: "sweep" },
   },
 };
 
@@ -155,5 +150,3 @@ export const SCENE_ORDER: SceneKey[] = [
   "sobre",
   "contato",
 ];
-
-
