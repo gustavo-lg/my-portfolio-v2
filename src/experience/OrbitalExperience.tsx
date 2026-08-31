@@ -13,6 +13,8 @@ import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 import { GalaxyCameraProvider, useGalaxyCamera } from "@/experience/galaxy/GalaxyCamera";
 import { CursorProvider, useCursor } from "@/experience/cursor/CustomCursor";
 import { ExperienceOverlay } from "@/experience/overlay/ExperienceOverlay";
+import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
+import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { ContentPage } from "@/experience/pages/ContentPage";
 import NotFound from "@/pages/NotFound";
@@ -44,6 +46,8 @@ function ExperienceShell() {
 
   const bootstrapped = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const webgl = useMemo(() => isWebGLAvailable(), []);
+  const staticGalaxy = !webgl || reducedMotion;
 
   const entryMeta = categoryByPath[location.pathname];
   const startAtInternal = Boolean(entryMeta);
@@ -54,7 +58,7 @@ function ExperienceShell() {
     bootstrapped.current = true;
     if (entryMeta) {
       send({ type: "DEEP_LINK", key: entryMeta.key });
-    } else if (reducedMotion && location.pathname === "/") {
+    } else if (staticGalaxy && location.pathname === "/") {
       send({ type: "SKIP_INTRO" });
       send({ type: "MENU_REVEALED" });
     }
@@ -137,14 +141,25 @@ function ExperienceShell() {
 
   return (
     <div className="relative min-h-screen bg-galaxy-bg text-foreground">
-      <Suspense fallback={null}>
-        <GalaxyCanvas
-          idle={idleMotion}
-          menuActive={menuActive}
-          initialFraming={startAtInternal ? "side" : "center"}
-          onFormed={handleFormed}
-        />
-      </Suspense>
+      <a
+        href="#content"
+        className="sr-only z-[200] rounded bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Pular para o conteúdo
+      </a>
+
+      {staticGalaxy ? (
+        <GalaxyBackdrop />
+      ) : (
+        <Suspense fallback={<GalaxyBackdrop pulse />}>
+          <GalaxyCanvas
+            idle={idleMotion}
+            menuActive={menuActive}
+            initialFraming={startAtInternal ? "side" : "center"}
+            onFormed={handleFormed}
+          />
+        </Suspense>
+      )}
 
       <ExperienceOverlay state={ctx.state} />
 

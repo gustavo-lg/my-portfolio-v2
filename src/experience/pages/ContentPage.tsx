@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CategoryKey } from "@/content/types";
 import { categories } from "@/content/categories";
+import { useDocumentMeta } from "@/experience/lib/useDocumentMeta";
 import { BackButton } from "./BackButton";
 import { BottomNav } from "./BottomNav";
 import { ProjectsView } from "./sections/ProjectsView";
@@ -19,6 +20,7 @@ export function ContentPage({ category }: { category: CategoryKey }) {
   const meta = categories.find((c) => c.key === category)!;
   const View = views[category];
   const [showNav, setShowNav] = useState(false);
+  useDocumentMeta(category);
 
   useEffect(() => {
     const t = setTimeout(() => setShowNav(true), 450);
