@@ -123,15 +123,14 @@ export default {
           "0%": { transform: "translateX(-42vw) scale(0.18) rotateY(-28deg)" },
           "100%": { transform: "translateX(0) scale(1) rotateY(0deg)" }
         },
-        // Mirror: the outgoing section recedes toward the upper RIGHT, shrinking
-        // and turning away until it is a speck and gone.
+        // The outgoing section zooms TOWARD the viewer — growing, banking
+        // slightly — and flies off past the RIGHT edge. Fully opaque; it just
+        // scales past the camera. translateX is large enough that the enlarged
+        // element fully clears the viewport (the rest is clipped).
         "page-out": {
-          "0%": {
-            transform: "translateX(0) translateY(0) scale(1) rotateY(0deg)"
-          },
+          "0%": { transform: "translateX(0) scale(1) rotateY(0deg)" },
           "100%": {
-            transform:
-              "translateX(54vw) translateY(-11vh) scale(0.14) rotateY(28deg)"
+            transform: "translateX(150vw) scale(1.8) rotateY(-16deg)"
           }
         }
       },
@@ -142,13 +141,13 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        // Linear on purpose: with a linear scale ramp the log-scale perception
-        //   makes the incoming self-decelerate into a soft landing and the
-        //   outgoing self-accelerate into a whoosh — a continuous, un-eased
-        //   glide with no lunge or stall anywhere. `page-in` gets a tiny
-        //   speck-hold delay so it doesn't collide with the outgoing page.
-        "page-in": "page-in 1.55s linear 0.15s both",
-        "page-out": "page-out 1.3s linear both",
+        // `page-in`: linear scale ramp + a tiny speck-hold delay — the
+        //   log-scale perception makes it self-decelerate into a soft landing.
+        // `page-out`: ease-in — lingers readable a beat, then the zoom-past
+        //   accelerates off the right edge. Shorter, since a growing element
+        //   has to clear fast.
+        "page-in": "page-in 1.6s linear 0.15s both",
+        "page-out": "page-out 1.15s cubic-bezier(0.55, 0, 0.8, 0.35) both",
       },
     },
   },
