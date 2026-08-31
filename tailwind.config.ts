@@ -116,13 +116,14 @@ export default {
           "100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }
         },
         "page-in": {
-          "0%": { opacity: "0", transform: "translateX(-52vw) scale(0.98)" },
-          "16%": { opacity: "0" },
+          "0%": { opacity: "0", transform: "translateX(-46vw) scale(0.92)" },
+          "22%": { opacity: "0" },
           "100%": { opacity: "1", transform: "translateX(0) scale(1)" }
         },
+        // Mirror of page-in: recede back to the left, shrinking and fading.
         "page-out": {
           "0%": { opacity: "1", transform: "translateX(0) scale(1)" },
-          "100%": { opacity: "0", transform: "translateX(55vw) scale(1.04)" }
+          "100%": { opacity: "0", transform: "translateX(-46vw) scale(0.92)" }
         }
       },
       animation: {
