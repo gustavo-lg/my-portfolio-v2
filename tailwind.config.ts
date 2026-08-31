@@ -116,12 +116,13 @@ export default {
           "100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }
         },
         "page-in": {
-          "0%": { opacity: "0", transform: "translateX(-14%) scale(0.82)" },
+          "0%": { opacity: "0", transform: "translateX(-52vw) scale(0.98)" },
+          "16%": { opacity: "0" },
           "100%": { opacity: "1", transform: "translateX(0) scale(1)" }
         },
         "page-out": {
           "0%": { opacity: "1", transform: "translateX(0) scale(1)" },
-          "100%": { opacity: "0", transform: "translateX(14%) scale(1.2)" }
+          "100%": { opacity: "0", transform: "translateX(55vw) scale(1.04)" }
         }
       },
       animation: {
@@ -131,8 +132,8 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        "page-in": "page-in 0.62s cubic-bezier(0.33, 1, 0.68, 1) both",
-        "page-out": "page-out 0.62s cubic-bezier(0.33, 0, 0.67, 0) both",
+        "page-in": "page-in 0.8s ease-out both",
+        "page-out": "page-out 0.7s ease-out both",
       },
     },
   },
