@@ -75,6 +75,7 @@ All colors MUST be HSL.
   }
 
   .dark {
+    color-scheme: dark;
     --background: 0 0% 12%;
     --foreground: 0 0% 98%;
 
@@ -122,7 +123,17 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    /* Always reserve the scrollbar gutter. Without it the viewport width
+       changes by ~15px between the (non-scrolling) menu and the scrolling
+       content pages, which resizes the fixed WebGL canvas mid-navigation and
+       makes the galaxy jump at the end of the camera move. */
+    scrollbar-gutter: stable;
+    background-color: hsl(var(--galaxy-bg));
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: hsl(var(--galaxy-bg));
   }
 }
