@@ -11,7 +11,8 @@ const metaByKey = Object.fromEntries(categories.map((c) => [c.key, c])) as Recor
   CategoryMeta
 >;
 
-const REVEAL_TOTAL_MS = 950 + ORBITAL_ORDER.length * 170;
+// Matches OrbitalLabel: 140ms base + 150ms stagger + 1600ms transition.
+const REVEAL_TOTAL_MS = 140 + ORBITAL_ORDER.length * 150 + 1600;
 
 /**
  * Plain DOM, rendered as a sibling of <Routes> (above the page `<main>`).
