@@ -100,8 +100,10 @@ export function ContentArea() {
             id={layer.anim === "in" ? "content" : undefined}
             aria-hidden={layer.anim === "out"}
             className={
+              // Mirrored pivots: the incoming page swings in from the right,
+              // the outgoing one swings away to the left.
               layer.anim === "in"
-                ? "relative z-10 origin-[65%_30%] animate-page-in motion-reduce:animate-none"
+                ? "relative z-10 origin-[35%_30%] animate-page-in motion-reduce:animate-none"
                 : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[65%_30%] animate-page-out motion-reduce:hidden"
             }
           >
