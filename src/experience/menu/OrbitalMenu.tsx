@@ -19,7 +19,7 @@ export function OrbitalMenu() {
   return (
     <main
       id="content"
-      className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-12 px-6"
+      className="relative z-10 flex min-h-screen flex-col items-center justify-end gap-12 px-6 pb-[16vh]"
     >
       <Wordmark />
 
