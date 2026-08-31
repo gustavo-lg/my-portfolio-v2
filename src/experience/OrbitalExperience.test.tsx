@@ -46,7 +46,14 @@ describe("OrbitalExperience routing", () => {
 
   it("renders about pillars at /sobre", () => {
     renderAt("/sobre");
-    expect(screen.getByText("Código Limpo")).toBeInTheDocument();
+    expect(screen.getByText("Diagnóstico até a causa raiz")).toBeInTheDocument();
+  });
+
+  it("renders stack groups and tools at /stack", () => {
+    renderAt("/stack");
+    expect(screen.getByText("Qualidade & Automação de Testes")).toBeInTheDocument();
+    expect(screen.getByText("Playwright")).toBeInTheDocument();
+    expect(screen.getByText("Zendesk")).toBeInTheDocument();
   });
 
   it("renders the contact form at /contato", () => {

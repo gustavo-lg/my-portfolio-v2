@@ -20,12 +20,6 @@ export interface Project {
   featured: boolean;
 }
 
-export interface SkillBar {
-  name: string;
-  level: number;
-  category: string;
-}
-
 export interface SkillCategory {
   title: string;
   skills: string[];
