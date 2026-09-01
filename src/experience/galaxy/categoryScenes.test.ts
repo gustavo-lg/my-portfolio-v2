@@ -9,15 +9,13 @@ describe("SCENES", () => {
     for (const k of KEYS) expect(SCENES[k]).toBeDefined();
   });
 
-  it("menu is the anchor: identity deform, centred, anchor framing", () => {
-    expect(SCENES.menu.deform.scale).toEqual([1, 1, 1]);
+  it("menu is the anchor: centred at the origin, framed head-on", () => {
     expect(SCENES.menu.center).toEqual([0, 0, 0]);
-    expect(SCENES.menu.framing.position).toEqual([0, 0, 13]);
     expect(SCENES.menu.framing.lookAt).toEqual([0, 0, 0]);
     expect(SCENES.menu.transition.flourish).toBe("none");
   });
 
-  it("every scene has a positive fov, finite spin speed, positive point size, and a wave", () => {
+  it("every scene has a valid disk, positive fov, finite spin, point size and wave", () => {
     for (const k of KEYS) {
       const s = SCENES[k];
       expect(s.framing.fov).toBeGreaterThan(0);
@@ -26,7 +24,10 @@ describe("SCENES", () => {
       expect(s.pointOpacity).toBeGreaterThan(0);
       expect(s.transition.camera.duration).toBeGreaterThan(0);
       expect(s.transition.morph.duration).toBeGreaterThan(0);
-      expect(s.deform.scale.every((v) => v > 0)).toBe(true);
+      expect(s.disk.inner).toBeGreaterThan(0);
+      expect(s.disk.outer).toBeGreaterThan(s.disk.inner);
+      expect(s.disk.arms).toBeGreaterThanOrEqual(1);
+      expect(s.disk.tilt.length).toBe(3);
       expect(["x", "y", "z"]).toContain(s.wave.drive);
       expect(["x", "y", "z"]).toContain(s.wave.displace);
       expect(Number.isFinite(s.wave.amplitude)).toBe(true);
@@ -44,7 +45,7 @@ describe("SCENES", () => {
     }
   });
 
-  it("every scene shares the same blue colour scheme", () => {
+  it("every scene shares the same accretion colour scheme", () => {
     for (const k of KEYS) {
       expect(SCENES[k].colorScheme).toEqual(SCENES.menu.colorScheme);
     }

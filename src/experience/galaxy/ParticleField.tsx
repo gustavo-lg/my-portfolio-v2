@@ -28,6 +28,7 @@ interface Props {
   colorScheme: ColorScheme;
   glowScale: number;
   center?: [number, number, number];
+  holeRadius: number;
   onFormed?: () => void;
 }
 
@@ -46,6 +47,7 @@ export function ParticleField({
   colorScheme,
   glowScale,
   center = [0, 0, 0],
+  holeRadius,
   onFormed,
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
@@ -72,8 +74,10 @@ export function ParticleField({
   const spinSpeed = useRef(0);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
-  // Soft violet ambient wash that sits on the active pocket of the nebula.
-  const targetGlowColor = useRef(new THREE.Color(...colorScheme.outer));
+  const holeRef = useRef<THREE.Mesh>(null);
+
+  // Hot ring glow that sits on the active black hole.
+  const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
   const targetCenter = useRef(new THREE.Vector3(...center));
 
   // Start / restart a morph whenever the target shape, colorScheme or centre changes.
@@ -81,7 +85,7 @@ export function ParticleField({
     const first = !formed.current;
     targetRef.current = shape;
     targetColorsRef.current = generateColors(count, shape, colorScheme, center);
-    targetGlowColor.current.setRGB(...colorScheme.outer);
+    targetGlowColor.current.setRGB(...colorScheme.inner);
     targetCenter.current.set(...center);
     flourishRef.current = first ? "none" : flourish;
 
@@ -191,13 +195,18 @@ export function ParticleField({
       points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
     }
 
-    // Soft ambient wash follows the active pocket's colour, scale and position.
+    // Hot ring glow and the dark event horizon follow the active black hole.
     const lerpSpeed = Math.min(1, delta * 2.0);
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetGlowColor.current, lerpSpeed);
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
       glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
+    }
+    if (holeRef.current) {
+      const hs = holeRadius * 0.8;
+      holeRef.current.scale.lerp(new THREE.Vector3(hs, hs, hs), lerpSpeed);
+      holeRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
 
     // Smoothly lerp point size and opacity
@@ -212,8 +221,14 @@ export function ParticleField({
 
   return (
     <group>
-      {/* Soft violet ambient wash — no hard nucleus, just a gentle glow that
-          rides the active pocket of the cloud. */}
+      {/* Dark event horizon — an opaque sphere that swallows whatever is
+          behind it, so the disk reads as a real black hole. */}
+      <mesh ref={holeRef} position={center} renderOrder={-1}>
+        <sphereGeometry args={[holeRadius * 0.8, 32, 32]} />
+        <meshBasicMaterial color="#000000" toneMapped={false} />
+      </mesh>
+
+      {/* Hot ring glow that rides the active black hole. */}
       <sprite
         ref={glowRef}
         position={center}
@@ -221,9 +236,9 @@ export function ParticleField({
       >
         <spriteMaterial
           map={getParticleTexture()}
-          color={new THREE.Color(...colorScheme.outer)}
+          color={new THREE.Color(...colorScheme.inner)}
           transparent
-          opacity={0.16}
+          opacity={0.8}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />

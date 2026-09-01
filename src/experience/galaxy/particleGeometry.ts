@@ -27,9 +27,8 @@ export const OUTER_INNER = 5;
 export const OUTER_OUTER = 15;
 export const HALO_Y_SQUASH = 0.62;
 export const DISPERSED_RADIUS = 24;
-// Colour lerps blue→violet by distance from the formation centre; kept short
-// so most of the dust takes the violet hue.
-export const COLOR_RANGE = 9;
+// Radius at which the 3-stop colour ramp reaches its cool outer arm colour.
+export const COLOR_RANGE = 5.5;
 
 // Most of the dust condenses onto soft overlapping knots, so the field reads
 // as thick nebula clouds and density lanes rather than a thin sparkle field.
@@ -134,18 +133,36 @@ export function generateDispersedPositions(
 }
 
 export type ColorScheme = {
-  /** Near-center color [r, g, b] in 0-1 range */
+  /** Hot centre color [r, g, b] in 0-1 range */
   inner: [number, number, number];
-  /** Far-from-center color [r, g, b] in 0-1 range */
+  /** Optional mid-radius color; defaults to the inner/outer average */
+  mid?: [number, number, number];
+  /** Cool outer-arm color [r, g, b] in 0-1 range */
   outer: [number, number, number];
 };
 
 const DEFAULT_SCHEME: ColorScheme = {
-  inner: [0, 0.83, 1],    // cyan
-  outer: [0.55, 0.3, 0.92], // purple
+  inner: [1.0, 0.85, 0.75],
+  mid: [0.95, 0.3, 0.35],
+  outer: [0.32, 0.4, 1.0],
 };
 
-/** Per-particle color lerped inner→outer by distance from the formation centre. */
+function lerp3(
+  a: [number, number, number],
+  b: [number, number, number],
+  t: number,
+): [number, number, number] {
+  return [
+    a[0] + (b[0] - a[0]) * t,
+    a[1] + (b[1] - a[1]) * t,
+    a[2] + (b[2] - a[2]) * t,
+  ];
+}
+
+/**
+ * Per-particle color across a 3-stop ramp (hot centre → mid → cool arm) by
+ * distance from the formation centre.
+ */
 export function generateColors(
   count: number,
   targets: Float32Array,
@@ -153,6 +170,8 @@ export function generateColors(
   center: [number, number, number] = [0, 0, 0],
 ): Float32Array {
   const { inner, outer } = scheme;
+  const mid =
+    scheme.mid ?? lerp3(inner, outer, 0.5);
   const [cx, cy, cz] = center;
   const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
@@ -161,10 +180,126 @@ export function generateColors(
     const z = targets[i * 3 + 2] - cz;
     const d = Math.sqrt(x * x + y * y + z * z);
     const t = Math.min(1, d / COLOR_RANGE);
-    out[i * 3]     = inner[0] + (outer[0] - inner[0]) * t;
-    out[i * 3 + 1] = inner[1] + (outer[1] - inner[1]) * t;
-    out[i * 3 + 2] = inner[2] + (outer[2] - inner[2]) * t;
+    const c =
+      t < 0.5 ? lerp3(inner, mid, t / 0.5) : lerp3(mid, outer, (t - 0.5) / 0.5);
+    out[i * 3] = c[0];
+    out[i * 3 + 1] = c[1];
+    out[i * 3 + 2] = c[2];
   }
+  return out;
+}
+
+export interface DiskParams {
+  /** Radius of the empty event horizon — no particles inside. */
+  inner: number;
+  /** Outer edge of the disk. */
+  outer: number;
+  /** Vertical half-thickness of the disk sheet. */
+  thickness: number;
+  /** Number of spiral arms. */
+  arms: number;
+  /** Total winding (radians) from inner edge to outer edge. */
+  twist: number;
+  /** 0 = uniform ring, 1 = particles hug the spiral arms tightly. */
+  armStrength: number;
+  /** Vertical S-warp amplitude toward the rim. */
+  warp: number;
+  /** Euler tilt [x, y, z] applied after the disk is built in the XZ plane. */
+  tilt: [number, number, number];
+}
+
+function rotateEuler(
+  x: number,
+  y: number,
+  z: number,
+  tilt: [number, number, number],
+): [number, number, number] {
+  const [tx, ty, tz] = tilt;
+  let c = Math.cos(tz),
+    s = Math.sin(tz);
+  let nx = x * c - y * s;
+  let ny = x * s + y * c;
+  x = nx;
+  y = ny;
+  c = Math.cos(ty);
+  s = Math.sin(ty);
+  nx = x * c + z * s;
+  let nz = -x * s + z * c;
+  x = nx;
+  z = nz;
+  c = Math.cos(tx);
+  s = Math.sin(tx);
+  ny = y * c - z * s;
+  nz = y * s + z * c;
+  return [x, ny, nz];
+}
+
+/**
+ * A black-hole accretion disk: a thin spiralling sheet of particles with an
+ * empty core, wound into `arms` arms and tilted. Built in the XZ plane around
+ * the origin, then rotated by `tilt`. Pure math.
+ */
+export function blackHoleDisk(
+  count: number,
+  p: DiskParams,
+  seed = 1,
+): Float32Array {
+  const rng = mulberry32(seed);
+  const out = new Float32Array(count * 3);
+  const span = p.outer - p.inner;
+  const armStep = (Math.PI * 2) / Math.max(1, p.arms);
+  // The first slice of particles packs into a bright, thin inner ring right at
+  // the event horizon; the rest fan out along the spiral arms.
+  const ringCount = Math.floor(count * 0.24);
+  for (let i = 0; i < count; i++) {
+    const ring = i < ringCount;
+    const rt = ring
+      ? 0.02 + 0.12 * rng()
+      : Math.pow(rng(), 1.4);
+    const r = p.inner + span * (0.05 + 0.95 * rt);
+    const wind = p.twist * rt;
+    let ang = rng() * Math.PI * 2;
+    // Pull the angle toward the nearest spiral arm at this radius.
+    const armTarget = Math.round((ang - wind) / armStep) * armStep + wind;
+    ang += (armTarget - ang) * (ring ? p.armStrength * 0.3 : p.armStrength);
+    ang += (rng() - 0.5) * (ring ? 0.5 : 0.3 + rt * 1.2);
+    let x = Math.cos(ang) * r;
+    let z = Math.sin(ang) * r;
+    let y =
+      (rng() - 0.5) * 2 * p.thickness * (ring ? 0.25 : 0.35 + 0.65 * (1 - rt)) +
+      Math.sin(ang + wind) * p.warp * rt;
+    const turb = (ring ? 0.16 : 0.5) * (0.3 + rt);
+    x += (rng() - 0.5) * turb;
+    z += (rng() - 0.5) * turb;
+    y += (rng() - 0.5) * turb * 0.5;
+    const [rx, ry, rz] = rotateEuler(x, y, z, p.tilt);
+    out[i * 3] = rx;
+    out[i * 3 + 1] = ry;
+    out[i * 3 + 2] = rz;
+  }
+  return out;
+}
+
+/**
+ * The HOME scene: one big disk at the origin plus a small disk at each mini
+ * black hole around it, all packed into a single buffer.
+ */
+export function blackHoleLayout(
+  count: number,
+  main: DiskParams,
+  minis: { params: DiskParams; center: [number, number, number] }[],
+): Float32Array {
+  const out = new Float32Array(count * 3);
+  const miniCount = Math.floor((count * 0.095) / 1);
+  const mainCount = count - miniCount * minis.length;
+  out.set(blackHoleDisk(mainCount, main, 1), 0);
+  let offset = mainCount * 3;
+  minis.forEach((m, idx) => {
+    const buf = blackHoleDisk(miniCount, m.params, 21 + idx);
+    offsetPositions(buf, m.center);
+    out.set(buf, offset);
+    offset += buf.length;
+  });
   return out;
 }
 

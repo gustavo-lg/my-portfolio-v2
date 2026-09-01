@@ -3,11 +3,14 @@ import {
   generateTargetPositions,
   generateDispersedPositions,
   generateColors,
+  blackHoleDisk,
+  blackHoleLayout,
   CORE_FRACTION,
   CORE_RADIUS,
   DISPERSED_RADIUS,
   deformPositions,
   type Deformation,
+  type DiskParams,
 } from "./particleGeometry";
 
 const N = 3000;
@@ -122,5 +125,74 @@ describe("deformPositions", () => {
     expect(out[0]).toBeCloseTo(0);
     expect(out[1]).toBeCloseTo(1);
     expect(out[2]).toBeCloseTo(0);
+  });
+});
+
+describe("blackHoleDisk", () => {
+  const P: DiskParams = {
+    inner: 1.5,
+    outer: 9,
+    thickness: 0.4,
+    arms: 2,
+    twist: 3,
+    armStrength: 0.6,
+    warp: 0.5,
+    tilt: [0.9, 0.1, 0.2],
+  };
+
+  it("returns count*3 floats and is deterministic per seed", () => {
+    expect(blackHoleDisk(N, P, 4).length).toBe(N * 3);
+    expect(Array.from(blackHoleDisk(500, P, 4))).toEqual(
+      Array.from(blackHoleDisk(500, P, 4)),
+    );
+  });
+
+  it("keeps an empty core — few particles near the event horizon", () => {
+    const p = blackHoleDisk(N, P, 4);
+    let inside = 0;
+    for (let i = 0; i < N; i++) {
+      const d = Math.hypot(p[i * 3], p[i * 3 + 1], p[i * 3 + 2]);
+      if (d < P.inner * 0.85) inside++;
+    }
+    expect(inside / N).toBeLessThan(0.05);
+  });
+
+  it("stays within the outer radius (plus turbulence/warp slack)", () => {
+    const p = blackHoleDisk(N, P, 4);
+    for (let i = 0; i < N; i++) {
+      const d = Math.hypot(p[i * 3], p[i * 3 + 1], p[i * 3 + 2]);
+      expect(d).toBeLessThan(P.outer + 2);
+    }
+  });
+});
+
+describe("blackHoleLayout", () => {
+  const P: DiskParams = {
+    inner: 1.2,
+    outer: 8,
+    thickness: 0.4,
+    arms: 2,
+    twist: 3,
+    armStrength: 0.5,
+    warp: 0.6,
+    tilt: [0.9, 0, 0.1],
+  };
+
+  it("returns count*3 floats and places minis around their centres", () => {
+    const minis = [
+      { params: P, center: [20, 0, 0] as [number, number, number] },
+      { params: P, center: [-20, 0, 0] as [number, number, number] },
+    ];
+    const buf = blackHoleLayout(3000, P, minis);
+    expect(buf.length).toBe(3000 * 3);
+    // Some particles must have landed near each mini centre.
+    let nearRight = 0;
+    let nearLeft = 0;
+    for (let i = 0; i < 3000; i++) {
+      if (buf[i * 3] > 12) nearRight++;
+      if (buf[i * 3] < -12) nearLeft++;
+    }
+    expect(nearRight).toBeGreaterThan(0);
+    expect(nearLeft).toBeGreaterThan(0);
   });
 });

@@ -1,5 +1,5 @@
 import type { CategoryKey } from "@/content/types";
-import type { Deformation, ColorScheme } from "./particleGeometry";
+import type { DiskParams, ColorScheme } from "./particleGeometry";
 import { CAMERA_MS, type Vec3 } from "./cameraTargets";
 
 export type SceneKey = CategoryKey | "menu";
@@ -38,23 +38,26 @@ export interface SceneTransition {
 }
 
 export interface Scene {
-  /** Which pocket of the nebula this page's formation sits in (world space). */
+  /** World-space position of this scene's black hole. */
   center: Vec3;
   framing: CameraFraming;
-  deform: Deformation;
+  /** Accretion-disk shape for this scene's black hole. */
+  disk: DiskParams;
   spin: Spin;
   wave: Wave;
   pointSize: number;
   pointOpacity: number;
+  /** Size of the hot ring glow sprite. */
   glowScale: number;
   colorScheme: ColorScheme;
   transition: SceneTransition;
 }
 
-/** One palette for the whole galaxy — blue near a formation's heart, deep violet out in the dust. */
-const BLUE: ColorScheme = {
-  inner: [0.22, 0.5, 1.0],
-  outer: [0.5, 0.14, 0.9],
+/** Shared accretion palette — hot orange-white core, crimson mid, blue arms. */
+const ACCRETION: ColorScheme = {
+  inner: [1.0, 0.72, 0.42],
+  mid: [1.0, 0.24, 0.32],
+  outer: [0.3, 0.46, 1.0],
 };
 
 const CALM: SceneTransition = {
@@ -64,88 +67,125 @@ const CALM: SceneTransition = {
 };
 
 const PAGE_TRANSITION = {
-  camera: { duration: 2800, ease: "power2.inOut" },
-  morph: { duration: 2600, ease: "power2.inOut" },
+  camera: { duration: 3000, ease: "power2.inOut" },
+  morph: { duration: 2800, ease: "power2.inOut" },
 };
 
 export const SCENES: Record<SceneKey, Scene> = {
   /** ── HOME ──────────────────────────────────────────────────────────
-   *  Dense nebula at the heart of the galaxy. The calm anchor. Every page
-   *  is a dive INTO this same cloud from a different angle.            */
+   *  The main black hole fills the frame; the four mini black holes sit
+   *  out around it, one toward each label.                             */
   menu: {
     center: [0, 0, 0],
-    framing: { position: [0, 0, 13], lookAt: [0, 0, 0], fov: 58 },
-    deform: { scale: [1, 1, 1] },
-    spin: { axis: "z", speed: 0.05, wobble: 0.06 },
-    wave: { drive: "y", displace: "x", amplitude: 0.16, frequency: 0.3, speed: 0.5 },
-    pointSize: 0.05,
-    pointOpacity: 0.6,
-    glowScale: 9,
-    colorScheme: BLUE,
+    framing: { position: [0, 1, 16], lookAt: [0, 0, 0], fov: 64 },
+    disk: {
+      inner: 1.15,
+      outer: 6.6,
+      thickness: 0.45,
+      arms: 2,
+      twist: 3.4,
+      armStrength: 0.5,
+      warp: 0.85,
+      tilt: [0.95, 0.15, 0.18],
+    },
+    spin: { axis: "z", speed: 0.08, wobble: 0.04 },
+    wave: { drive: "y", displace: "x", amplitude: 0.14, frequency: 0.3, speed: 0.5 },
+    pointSize: 0.045,
+    pointOpacity: 1.0,
+    glowScale: 3,
+    colorScheme: ACCRETION,
     transition: CALM,
   },
 
-  /** ── PROJETOS ───────────────────────────────────────────────────────
-   *  The camera dives past the core, off to the left, toward a pocket
-   *  that flattens into a wide sheet rippling like a banner.           */
+  /** ── PROJETOS ── wide, many-armed disk, seen from low on the left. */
   projetos: {
-    center: [8, 1.5, 3],
-    framing: { position: [-7, -2, 16], lookAt: [8, 1.5, 3], fov: 60 },
-    deform: { scale: [1.95, 0.42, 1.25] },
-    spin: { axis: "z", speed: 0.06, wobble: 0.03 },
-    wave: { drive: "x", displace: "y", amplitude: 1.3, frequency: 0.5, speed: 1.4 },
-    pointSize: 0.048,
-    pointOpacity: 0.57,
-    glowScale: 8,
-    colorScheme: BLUE,
+    center: [-7.8, 4.3, 0.8],
+    framing: { position: [-2.5, 8, 10], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
+    disk: {
+      inner: 1.4,
+      outer: 9,
+      thickness: 0.34,
+      arms: 3,
+      twist: 4.6,
+      armStrength: 0.72,
+      warp: 0.4,
+      tilt: [1.15, 0.1, 0.32],
+    },
+    spin: { axis: "z", speed: 0.12, wobble: 0.03 },
+    wave: { drive: "x", displace: "y", amplitude: 0.6, frequency: 0.4, speed: 1.1 },
+    pointSize: 0.042,
+    pointOpacity: 1.0,
+    glowScale: 3.4,
+    colorScheme: ACCRETION,
     transition: { ...PAGE_TRANSITION, flourish: "fling" },
   },
 
-  /** ── STACK ─────────────────────────────────────────────────────────
-   *  The camera climbs into a high pocket and looks up a tall column
-   *  that undulates side to side up its length.                       */
+  /** ── STACK ── steep, near edge-on disk, seen from the side. */
   stack: {
-    center: [-4, 5, -8],
-    framing: { position: [-4, -4, 8], lookAt: [-4, 6, -8], fov: 46 },
-    deform: { scale: [0.42, 2.6, 0.42], tilt: [0.1, 0, 0] },
-    spin: { axis: "y", speed: 0.12, wobble: 0.02 },
-    wave: { drive: "y", displace: "x", amplitude: 1.5, frequency: 0.55, speed: 1.6 },
-    pointSize: 0.05,
-    pointOpacity: 0.6,
-    glowScale: 7,
-    colorScheme: BLUE,
+    center: [7.8, 4.3, -0.8],
+    framing: { position: [12.5, 1.5, 5], lookAt: [7.8, 4.3, -0.8], fov: 54 },
+    disk: {
+      inner: 1.1,
+      outer: 8.5,
+      thickness: 0.42,
+      arms: 2,
+      twist: 2.6,
+      armStrength: 0.5,
+      warp: 1.5,
+      tilt: [0.2, 0.1, 1.42],
+    },
+    spin: { axis: "y", speed: 0.14, wobble: 0.02 },
+    wave: { drive: "y", displace: "x", amplitude: 0.7, frequency: 0.5, speed: 1.3 },
+    pointSize: 0.042,
+    pointOpacity: 1.0,
+    glowScale: 3,
+    colorScheme: ACCRETION,
     transition: { ...PAGE_TRANSITION, flourish: "rise" },
   },
 
-  /** ── SOBRE ─────────────────────────────────────────────────────────
-   *  The camera drops and banks toward a lower-right pocket that tilts
-   *  into a swirling vortex whose depth ripples with height.          */
+  /** ── SOBRE ── near face-on, many tight arms, seen from below. */
   sobre: {
-    center: [7, -3, 6],
-    framing: { position: [-3, -11, 15], lookAt: [7, -2, 6], fov: 56 },
-    deform: { scale: [1.5, 1.4, 1.0], shearXY: 0.4, tilt: [0.5, 0.2, 0.35] },
-    spin: { axis: "y", speed: 0.05, wobble: 0.1 },
-    wave: { drive: "y", displace: "z", amplitude: 0.9, frequency: 0.7, speed: 1.2 },
-    pointSize: 0.048,
-    pointOpacity: 0.57,
-    glowScale: 8,
-    colorScheme: BLUE,
+    center: [-7.8, -4.3, 0.8],
+    framing: { position: [-3, -8, 10], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
+    disk: {
+      inner: 1.6,
+      outer: 8,
+      thickness: 0.85,
+      arms: 4,
+      twist: 6.2,
+      armStrength: 0.8,
+      warp: 0.25,
+      tilt: [0.32, 0.4, 0.15],
+    },
+    spin: { axis: "y", speed: 0.06, wobble: 0.08 },
+    wave: { drive: "y", displace: "z", amplitude: 0.55, frequency: 0.6, speed: 1.0 },
+    pointSize: 0.042,
+    pointOpacity: 1.0,
+    glowScale: 3.6,
+    colorScheme: ACCRETION,
     transition: { ...PAGE_TRANSITION, flourish: "gather" },
   },
 
-  /** ── CONTATO ────────────────────────────────────────────────────────
-   *  The camera swings in from the upper right toward a far pocket that
-   *  shears into a streaking comet with a trailing ripple.            */
+  /** ── CONTATO ── tight fast spiral, tilted, seen from the upper right. */
   contato: {
-    center: [-8, 4, -5],
-    framing: { position: [8, 9, 12], lookAt: [-8, 4, -5], fov: 60 },
-    deform: { scale: [1.7, 0.6, 1.1], shearXY: 1.0, tilt: [0, 0, 0.4] },
-    spin: { axis: "z", speed: 0.1, wobble: 0.04 },
-    wave: { drive: "x", displace: "y", amplitude: 0.75, frequency: 0.55, speed: 1.8 },
-    pointSize: 0.048,
-    pointOpacity: 0.57,
-    glowScale: 8,
-    colorScheme: BLUE,
+    center: [7.8, -4.3, -0.8],
+    framing: { position: [12.5, -1.5, 5], lookAt: [7.8, -4.3, -0.8], fov: 58 },
+    disk: {
+      inner: 0.95,
+      outer: 9,
+      thickness: 0.3,
+      arms: 2,
+      twist: 5.6,
+      armStrength: 0.76,
+      warp: 0.9,
+      tilt: [1.0, 0.0, 0.7],
+    },
+    spin: { axis: "z", speed: 0.16, wobble: 0.04 },
+    wave: { drive: "x", displace: "y", amplitude: 0.5, frequency: 0.55, speed: 1.5 },
+    pointSize: 0.042,
+    pointOpacity: 1.0,
+    glowScale: 3.2,
+    colorScheme: ACCRETION,
     transition: { ...PAGE_TRANSITION, flourish: "sweep" },
   },
 };

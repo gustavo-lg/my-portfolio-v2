@@ -8,12 +8,25 @@ import {
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
 import {
-  generateTargetPositions,
-  deformPositions,
+  blackHoleDisk,
+  blackHoleLayout,
   offsetPositions,
+  type DiskParams,
 } from "./particleGeometry";
 import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
+import { ORBITAL_ORDER } from "./orbitalAnchors";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
+
+/** A page's disk shrunk to a mini black hole for the home layout. */
+function miniDisk(d: DiskParams): DiskParams {
+  return {
+    ...d,
+    inner: d.inner * 0.32,
+    outer: d.outer * 0.32,
+    thickness: d.thickness * 0.42,
+    warp: d.warp * 0.4,
+  };
+}
 
 interface Props {
   idle: boolean;
@@ -35,14 +48,23 @@ export default function GalaxyCanvas({
   const initialScene = useRef(activeScene).current;
 
   const shapes = useMemo(() => {
-    const base = generateTargetPositions(count);
     const out = {} as Record<SceneKey, Float32Array>;
-    for (const key of SCENE_ORDER) {
-      const buf = new Float32Array(count * 3);
-      deformPositions(base, SCENES[key].deform, buf);
+    // Home: the main black hole plus a mini one toward each label.
+    out.menu = blackHoleLayout(
+      count,
+      SCENES.menu.disk,
+      ORBITAL_ORDER.map((k) => ({
+        params: miniDisk(SCENES[k].disk),
+        center: SCENES[k].center,
+      })),
+    );
+    // Each page: that black hole's full disk, at its world position.
+    SCENE_ORDER.forEach((key, i) => {
+      if (key === "menu") return;
+      const buf = blackHoleDisk(count, SCENES[key].disk, 3 + i);
       offsetPositions(buf, SCENES[key].center);
       out[key] = buf;
-    }
+    });
     return out;
   }, [count]);
 
@@ -75,6 +97,7 @@ export default function GalaxyCanvas({
         colorScheme={scene.colorScheme}
         glowScale={scene.glowScale}
         center={scene.center}
+        holeRadius={scene.disk.inner}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}
