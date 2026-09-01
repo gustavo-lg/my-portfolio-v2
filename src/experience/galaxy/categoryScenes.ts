@@ -109,7 +109,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   /** ── PROJETOS ── Andromeda-type spiral, steeply inclined. */
   projetos: {
     center: [-7.8, 4.3, 0.8],
-    framing: { position: [-4, 6, 9], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
+    framing: { position: [-6.3, 5, 4.1], lookAt: [-7.8, 4.3, 0.8], fov: 62 },
     approach: { position: [-1.3, 7, 14.7], lookAt: [-7.8, 4.3, 0.8], fov: 62 },
     disk: {
       bulge: 2.2,
@@ -133,7 +133,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   /** ── STACK ── Andromeda-type spiral seen almost edge-on and rolled. */
   stack: {
     center: [7.8, 4.3, -0.8],
-    framing: { position: [12, 3, 6], lookAt: [7.8, 4.3, -0.8], fov: 56 },
+    framing: { position: [9.5, 3.8, 1.9], lookAt: [7.8, 4.3, -0.8], fov: 58 },
     approach: { position: [15, 2, 10.8], lookAt: [7.8, 4.3, -0.8], fov: 58 },
     disk: {
       bulge: 2.0,
@@ -157,7 +157,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   /** ── SOBRE ── Andromeda-type spiral, banked, slow reverse churn. */
   sobre: {
     center: [-7.8, -4.3, 0.8],
-    framing: { position: [-4, -7, 9], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
+    framing: { position: [-6.3, -5.4, 4.1], lookAt: [-7.8, -4.3, 0.8], fov: 62 },
     approach: { position: [-1.3, -8.9, 14.7], lookAt: [-7.8, -4.3, 0.8], fov: 62 },
     disk: {
       bulge: 2.5,
@@ -181,7 +181,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   /** ── CONTATO ── Andromeda-type spiral, tilted hard, fast churn. */
   contato: {
     center: [7.8, -4.3, -0.8],
-    framing: { position: [12, -2, 6], lookAt: [7.8, -4.3, -0.8], fov: 58 },
+    framing: { position: [9.5, -3.4, 1.9], lookAt: [7.8, -4.3, -0.8], fov: 60 },
     approach: { position: [15, -0.4, 10.8], lookAt: [7.8, -4.3, -0.8], fov: 60 },
     disk: {
       bulge: 1.9,
