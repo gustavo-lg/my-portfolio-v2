@@ -204,6 +204,8 @@ export interface DiskParams {
   armStrength: number;
   /** Vertical S-warp amplitude toward the rim. */
   warp: number;
+  /** Central bar: stretch factor along X for the bulge and inner disk (1 = none). */
+  bar?: number;
   /** Euler tilt [x, y, z] applied after the disk is built in the XZ plane. */
   tilt: [number, number, number];
 }
@@ -246,39 +248,42 @@ export function galaxyDisk(
 ): Float32Array {
   const rng = mulberry32(seed);
   const out = new Float32Array(count * 3);
-  const bulgeCount = Math.floor(count * 0.14);
-  const haloCount = Math.floor(count * 0.05);
+  const bulgeCount = Math.floor(count * 0.18);
+  const haloCount = Math.floor(count * 0.04);
   const diskEnd = count - haloCount;
   const armStep = (Math.PI * 2) / Math.max(1, p.arms);
   const diskInner = p.bulge * 0.55;
   const diskSpan = p.outer - diskInner;
+  const bar = p.bar ?? 1;
   for (let i = 0; i < count; i++) {
     let x: number;
     let y: number;
     let z: number;
     if (i < bulgeCount) {
-      // Flattened ellipsoid bulge, packed toward the centre.
-      const rr = p.bulge * Math.pow(rng(), 0.75);
+      // Flattened ellipsoid bulge, packed hard toward the centre.
+      const rr = p.bulge * Math.pow(rng(), 1.2);
       const u = rng() * 2 - 1;
       const th = rng() * Math.PI * 2;
       const s = Math.sqrt(1 - u * u);
-      x = s * Math.cos(th) * rr;
+      x = s * Math.cos(th) * rr * bar;
       z = s * Math.sin(th) * rr;
       y = u * rr * 0.5;
     } else if (i < diskEnd) {
-      const rt = Math.pow(rng(), 1.35); // denser toward the inner disk
+      const rt = Math.pow(rng(), 1.45); // denser toward the inner disk
       const r = diskInner + diskSpan * rt;
       const wind = p.twist * rt;
       let ang = rng() * Math.PI * 2;
       const armTarget = Math.round((ang - wind) / armStep) * armStep + wind;
       ang += (armTarget - ang) * p.armStrength;
-      ang += (rng() - 0.5) * (0.22 + rt * 0.9);
+      ang += (rng() - 0.5) * (0.18 + rt * 0.85);
       x = Math.cos(ang) * r;
       z = Math.sin(ang) * r;
+      // The bar fades out over the inner third of the disk.
+      if (bar !== 1 && rt < 0.33) x *= 1 + (bar - 1) * (1 - rt / 0.33);
       y =
         (rng() - 0.5) * 2 * p.thickness * (0.3 + 0.7 * (1 - rt)) +
         Math.sin(ang + wind) * p.warp * rt;
-      const turb = 0.32 * (0.4 + rt);
+      const turb = 0.24 * (0.4 + rt);
       x += (rng() - 0.5) * turb;
       z += (rng() - 0.5) * turb;
       y += (rng() - 0.5) * turb * 0.4;

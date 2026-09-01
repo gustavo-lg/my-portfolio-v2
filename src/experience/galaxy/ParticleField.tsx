@@ -50,6 +50,7 @@ export function ParticleField({
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
   const glowRef = useRef<THREE.Sprite>(null);
+  const coreRef = useRef<THREE.Sprite>(null);
 
   const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
   // Initial color buffer
@@ -209,6 +210,11 @@ export function ParticleField({
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
       glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
+    if (coreRef.current) {
+      const cs = glowScale * 0.34;
+      coreRef.current.scale.lerp(new THREE.Vector3(cs, cs, cs), lerpSpeed);
+      coreRef.current.position.lerp(targetCenter.current, lerpSpeed);
+    }
 
     // Smoothly lerp point size and opacity
     const ptsMat = points.material as THREE.PointsMaterial;
@@ -222,7 +228,7 @@ export function ParticleField({
 
   return (
     <group>
-      {/* Bright core-bulge glow that rides the active galaxy. */}
+      {/* Soft core-bulge halo. */}
       <sprite
         ref={glowRef}
         position={center}
@@ -233,6 +239,21 @@ export function ParticleField({
           color={new THREE.Color(...colorScheme.inner)}
           transparent
           opacity={0.5}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </sprite>
+      {/* Intense white pinpoint at the very centre — the galaxy's bright core. */}
+      <sprite
+        ref={coreRef}
+        position={center}
+        scale={[glowScale * 0.34, glowScale * 0.34, glowScale * 0.34]}
+      >
+        <spriteMaterial
+          map={getParticleTexture()}
+          color="#ffffff"
+          transparent
+          opacity={0.95}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
