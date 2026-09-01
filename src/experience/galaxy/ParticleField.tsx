@@ -11,14 +11,14 @@ import { applyWave, idleOffset, lerpPositions } from "./particleMath";
 import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
-import type { Spin, Flourish, Wave } from "./categoryScenes";
+import type { Swirl, Flourish, Wave } from "./categoryScenes";
 
 interface Props {
   count: number;
   reducedMotion: boolean;
   idle: boolean;
   shape: Float32Array;
-  spin: Spin;
+  swirl: Swirl;
   wave: Wave;
   pointSize: number;
   pointOpacity: number;
@@ -28,7 +28,6 @@ interface Props {
   colorScheme: ColorScheme;
   glowScale: number;
   center?: [number, number, number];
-  holeRadius: number;
   onFormed?: () => void;
 }
 
@@ -37,7 +36,7 @@ export function ParticleField({
   reducedMotion,
   idle,
   shape,
-  spin,
+  swirl,
   wave,
   pointSize,
   pointOpacity,
@@ -47,7 +46,6 @@ export function ParticleField({
   colorScheme,
   glowScale,
   center = [0, 0, 0],
-  holeRadius,
   onFormed,
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
@@ -71,12 +69,9 @@ export function ParticleField({
   const flourishRef = useRef<Flourish>("none");
   const morph = useRef({ t: reducedMotion ? 1 : 0 });
   const formed = useRef(false);
-  const spinSpeed = useRef(0);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const holeRef = useRef<THREE.Mesh>(null);
-
-  // Hot ring glow that sits on the active black hole.
+  // Bright core-bulge glow that sits on the active galaxy.
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
   const targetCenter = useRef(new THREE.Vector3(...center));
 
@@ -180,6 +175,25 @@ export function ParticleField({
       }
     }
 
+    // Differential rotation: every star orbits the galaxy centre on the world
+    // Y axis, inner stars faster. The galaxy stays put; only the stars move.
+    // A pure function of clock time — no drift. Ramps in with the morph.
+    if (!reducedMotion && swirl.speed !== 0) {
+      const s = swirl.speed * Math.min(1, morph.current.t);
+      const now = state.clock.elapsedTime;
+      const [cx, , cz] = center;
+      for (let i = 0; i < count; i++) {
+        const dx = posArr[i * 3] - cx;
+        const dz = posArr[i * 3 + 2] - cz;
+        const rr = Math.sqrt(dx * dx + dz * dz);
+        const a = (now * s) / (0.7 + rr * 0.4);
+        const ca = Math.cos(a);
+        const sa = Math.sin(a);
+        posArr[i * 3] = cx + dx * ca - dz * sa;
+        posArr[i * 3 + 2] = cz + dx * sa + dz * ca;
+      }
+    }
+
     // Continuous sine ripple over the formed shape — ramps in over the last
     // 40% of the morph so it never fights the formation itself.
     if (!reducedMotion) {
@@ -187,26 +201,13 @@ export function ParticleField({
       applyWave(posArr, wave, state.clock.elapsedTime, waveStrength);
     }
 
-    if (!reducedMotion && formed.current) {
-      spinSpeed.current += (spin.speed - spinSpeed.current) * Math.min(1, delta * 1.5);
-      points.rotation[spin.axis] += delta * spinSpeed.current;
-      const w = spin.wobble ?? 0;
-      const other = spin.axis === "x" ? "y" : "x";
-      points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
-    }
-
-    // Hot ring glow and the dark event horizon follow the active black hole.
+    // Bright core glow follows the active galaxy's centre, colour and scale.
     const lerpSpeed = Math.min(1, delta * 2.0);
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetGlowColor.current, lerpSpeed);
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
       glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
-    }
-    if (holeRef.current) {
-      const hs = holeRadius * 0.8;
-      holeRef.current.scale.lerp(new THREE.Vector3(hs, hs, hs), lerpSpeed);
-      holeRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
 
     // Smoothly lerp point size and opacity
@@ -221,14 +222,7 @@ export function ParticleField({
 
   return (
     <group>
-      {/* Dark event horizon — an opaque sphere that swallows whatever is
-          behind it, so the disk reads as a real black hole. */}
-      <mesh ref={holeRef} position={center} renderOrder={-1}>
-        <sphereGeometry args={[holeRadius * 0.8, 32, 32]} />
-        <meshBasicMaterial color="#000000" toneMapped={false} />
-      </mesh>
-
-      {/* Hot ring glow that rides the active black hole. */}
+      {/* Bright core-bulge glow that rides the active galaxy. */}
       <sprite
         ref={glowRef}
         position={center}
@@ -238,7 +232,7 @@ export function ParticleField({
           map={getParticleTexture()}
           color={new THREE.Color(...colorScheme.inner)}
           transparent
-          opacity={0.8}
+          opacity={0.5}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />

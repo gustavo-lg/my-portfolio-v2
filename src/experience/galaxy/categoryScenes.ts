@@ -10,10 +10,12 @@ export interface CameraFraming {
   fov: number;
 }
 
-export interface Spin {
-  axis: "x" | "y" | "z";
+/**
+ * Differential rotation of the stars WITHIN a galaxy — the galaxy itself never
+ * moves. `speed` sign sets the spin direction; inner stars orbit faster.
+ */
+export interface Swirl {
   speed: number;
-  wobble?: number;
 }
 
 export type Flourish = "none" | "fling" | "gather" | "rise" | "sweep";
@@ -38,26 +40,26 @@ export interface SceneTransition {
 }
 
 export interface Scene {
-  /** World-space position of this scene's black hole. */
+  /** World-space position of this scene's galaxy. */
   center: Vec3;
   framing: CameraFraming;
-  /** Accretion-disk shape for this scene's black hole. */
+  /** Spiral-galaxy shape for this scene. */
   disk: DiskParams;
-  spin: Spin;
+  swirl: Swirl;
   wave: Wave;
   pointSize: number;
   pointOpacity: number;
-  /** Size of the hot ring glow sprite. */
+  /** Size of the bright core bulge glow. */
   glowScale: number;
   colorScheme: ColorScheme;
   transition: SceneTransition;
 }
 
-/** Shared accretion palette — hot orange-white core, crimson mid, blue arms. */
-const ACCRETION: ColorScheme = {
-  inner: [1.0, 0.72, 0.42],
-  mid: [1.0, 0.24, 0.32],
-  outer: [0.3, 0.46, 1.0],
+/** Shared palette — cool-white core, lilac mid, deep blue arms. */
+const GALAXY: ColorScheme = {
+  inner: [0.85, 0.9, 1.0],
+  mid: [0.45, 0.28, 0.95],
+  outer: [0.13, 0.3, 1.0],
 };
 
 const CALM: SceneTransition = {
@@ -73,119 +75,119 @@ const PAGE_TRANSITION = {
 
 export const SCENES: Record<SceneKey, Scene> = {
   /** ── HOME ──────────────────────────────────────────────────────────
-   *  The main black hole fills the frame; the four mini black holes sit
-   *  out around it, one toward each label.                             */
+   *  The central spiral galaxy, with a small distant galaxy toward each
+   *  label.                                                            */
   menu: {
     center: [0, 0, 0],
     framing: { position: [0, 1, 16], lookAt: [0, 0, 0], fov: 64 },
     disk: {
-      inner: 1.15,
-      outer: 6.6,
-      thickness: 0.45,
+      bulge: 1.6,
+      outer: 5.5,
+      thickness: 0.4,
       arms: 2,
-      twist: 3.4,
-      armStrength: 0.5,
-      warp: 0.85,
-      tilt: [0.95, 0.15, 0.18],
+      twist: 3.6,
+      armStrength: 0.6,
+      warp: 0.8,
+      tilt: [1.05, 0.15, 0.2],
     },
-    spin: { axis: "z", speed: 0.08, wobble: 0.04 },
-    wave: { drive: "y", displace: "x", amplitude: 0.14, frequency: 0.3, speed: 0.5 },
-    pointSize: 0.045,
-    pointOpacity: 1.0,
-    glowScale: 3,
-    colorScheme: ACCRETION,
+    swirl: { speed: 0.5 },
+    wave: { drive: "y", displace: "x", amplitude: 0.12, frequency: 0.3, speed: 0.5 },
+    pointSize: 0.044,
+    pointOpacity: 0.72,
+    glowScale: 2.6,
+    colorScheme: GALAXY,
     transition: CALM,
   },
 
-  /** ── PROJETOS ── wide, many-armed disk, seen from low on the left. */
+  /** ── PROJETOS ── grand-design 3-arm spiral, near face-on. */
   projetos: {
     center: [-7.8, 4.3, 0.8],
-    framing: { position: [-2.5, 8, 10], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
+    framing: { position: [-4, 6, 9], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
     disk: {
-      inner: 1.4,
+      bulge: 1.5,
       outer: 9,
-      thickness: 0.34,
+      thickness: 0.3,
       arms: 3,
-      twist: 4.6,
-      armStrength: 0.72,
-      warp: 0.4,
-      tilt: [1.15, 0.1, 0.32],
+      twist: 5,
+      armStrength: 0.6,
+      warp: 0.3,
+      tilt: [0.5, 0.2, 0.3],
     },
-    spin: { axis: "z", speed: 0.12, wobble: 0.03 },
-    wave: { drive: "x", displace: "y", amplitude: 0.6, frequency: 0.4, speed: 1.1 },
-    pointSize: 0.042,
-    pointOpacity: 1.0,
-    glowScale: 3.4,
-    colorScheme: ACCRETION,
+    swirl: { speed: 0.85 },
+    wave: { drive: "x", displace: "y", amplitude: 0.45, frequency: 0.4, speed: 1.0 },
+    pointSize: 0.044,
+    pointOpacity: 0.72,
+    glowScale: 2.6,
+    colorScheme: GALAXY,
     transition: { ...PAGE_TRANSITION, flourish: "fling" },
   },
 
-  /** ── STACK ── steep, near edge-on disk, seen from the side. */
+  /** ── STACK ── edge-on galaxy; the stars stream along its length. */
   stack: {
     center: [7.8, 4.3, -0.8],
-    framing: { position: [12.5, 1.5, 5], lookAt: [7.8, 4.3, -0.8], fov: 54 },
+    framing: { position: [12, 3, 6], lookAt: [7.8, 4.3, -0.8], fov: 56 },
     disk: {
-      inner: 1.1,
-      outer: 8.5,
-      thickness: 0.42,
+      bulge: 1.8,
+      outer: 10,
+      thickness: 0.45,
       arms: 2,
-      twist: 2.6,
-      armStrength: 0.5,
-      warp: 1.5,
-      tilt: [0.2, 0.1, 1.42],
+      twist: 2.2,
+      armStrength: 0.4,
+      warp: 1.6,
+      tilt: [0.08, 0.0, 1.5],
     },
-    spin: { axis: "y", speed: 0.14, wobble: 0.02 },
-    wave: { drive: "y", displace: "x", amplitude: 0.7, frequency: 0.5, speed: 1.3 },
-    pointSize: 0.042,
-    pointOpacity: 1.0,
-    glowScale: 3,
-    colorScheme: ACCRETION,
+    swirl: { speed: 0.35 },
+    wave: { drive: "y", displace: "x", amplitude: 0.8, frequency: 0.45, speed: 1.4 },
+    pointSize: 0.044,
+    pointOpacity: 0.72,
+    glowScale: 2.4,
+    colorScheme: GALAXY,
     transition: { ...PAGE_TRANSITION, flourish: "rise" },
   },
 
-  /** ── SOBRE ── near face-on, many tight arms, seen from below. */
+  /** ── SOBRE ── barred spiral, slow churn, seen from below. */
   sobre: {
     center: [-7.8, -4.3, 0.8],
-    framing: { position: [-3, -8, 10], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
+    framing: { position: [-4, -7, 9], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
     disk: {
-      inner: 1.6,
+      bulge: 2.6,
       outer: 8,
-      thickness: 0.85,
-      arms: 4,
-      twist: 6.2,
-      armStrength: 0.8,
-      warp: 0.25,
-      tilt: [0.32, 0.4, 0.15],
+      thickness: 0.7,
+      arms: 2,
+      twist: 6.5,
+      armStrength: 0.68,
+      warp: 0.2,
+      tilt: [0.4, 0.5, 0.15],
     },
-    spin: { axis: "y", speed: 0.06, wobble: 0.08 },
-    wave: { drive: "y", displace: "z", amplitude: 0.55, frequency: 0.6, speed: 1.0 },
-    pointSize: 0.042,
-    pointOpacity: 1.0,
-    glowScale: 3.6,
-    colorScheme: ACCRETION,
+    swirl: { speed: -0.28 },
+    wave: { drive: "y", displace: "z", amplitude: 0.5, frequency: 0.55, speed: 0.9 },
+    pointSize: 0.044,
+    pointOpacity: 0.72,
+    glowScale: 2.4,
+    colorScheme: GALAXY,
     transition: { ...PAGE_TRANSITION, flourish: "gather" },
   },
 
-  /** ── CONTATO ── tight fast spiral, tilted, seen from the upper right. */
+  /** ── CONTATO ── irregular starburst; scattered, pulsing stars. */
   contato: {
     center: [7.8, -4.3, -0.8],
-    framing: { position: [12.5, -1.5, 5], lookAt: [7.8, -4.3, -0.8], fov: 58 },
+    framing: { position: [12, -2, 6], lookAt: [7.8, -4.3, -0.8], fov: 58 },
     disk: {
-      inner: 0.95,
+      bulge: 1.2,
       outer: 9,
-      thickness: 0.3,
-      arms: 2,
-      twist: 5.6,
-      armStrength: 0.76,
-      warp: 0.9,
-      tilt: [1.0, 0.0, 0.7],
+      thickness: 1.4,
+      arms: 5,
+      twist: 3,
+      armStrength: 0.35,
+      warp: 1.2,
+      tilt: [0.9, 0.3, 0.6],
     },
-    spin: { axis: "z", speed: 0.16, wobble: 0.04 },
-    wave: { drive: "x", displace: "y", amplitude: 0.5, frequency: 0.55, speed: 1.5 },
-    pointSize: 0.042,
-    pointOpacity: 1.0,
-    glowScale: 3.2,
-    colorScheme: ACCRETION,
+    swirl: { speed: 1.15 },
+    wave: { drive: "x", displace: "y", amplitude: 0.9, frequency: 0.7, speed: 1.8 },
+    pointSize: 0.044,
+    pointOpacity: 0.72,
+    glowScale: 2.2,
+    colorScheme: GALAXY,
     transition: { ...PAGE_TRANSITION, flourish: "sweep" },
   },
 };

@@ -8,8 +8,8 @@ import {
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
 import {
-  blackHoleDisk,
-  blackHoleLayout,
+  galaxyDisk,
+  galaxyField,
   offsetPositions,
   type DiskParams,
 } from "./particleGeometry";
@@ -17,11 +17,11 @@ import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { ORBITAL_ORDER } from "./orbitalAnchors";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
-/** A page's disk shrunk to a mini black hole for the home layout. */
-function miniDisk(d: DiskParams): DiskParams {
+/** A page's galaxy shrunk to a small distant one for the home layout. */
+function miniGalaxy(d: DiskParams): DiskParams {
   return {
     ...d,
-    inner: d.inner * 0.32,
+    bulge: d.bulge * 0.34,
     outer: d.outer * 0.32,
     thickness: d.thickness * 0.42,
     warp: d.warp * 0.4,
@@ -44,24 +44,24 @@ export default function GalaxyCanvas({
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
   const count = tier.particleCount;
-  const dustCount = Math.round(count * 0.32);
+  const dustCount = Math.round(count * 0.42);
   const initialScene = useRef(activeScene).current;
 
   const shapes = useMemo(() => {
     const out = {} as Record<SceneKey, Float32Array>;
-    // Home: the main black hole plus a mini one toward each label.
-    out.menu = blackHoleLayout(
+    // Home: the central galaxy plus a small distant one toward each label.
+    out.menu = galaxyField(
       count,
       SCENES.menu.disk,
       ORBITAL_ORDER.map((k) => ({
-        params: miniDisk(SCENES[k].disk),
+        params: miniGalaxy(SCENES[k].disk),
         center: SCENES[k].center,
       })),
     );
-    // Each page: that black hole's full disk, at its world position.
+    // Each page: that galaxy's full form, at its world position.
     SCENE_ORDER.forEach((key, i) => {
       if (key === "menu") return;
-      const buf = blackHoleDisk(count, SCENES[key].disk, 3 + i);
+      const buf = galaxyDisk(count, SCENES[key].disk, 3 + i);
       offsetPositions(buf, SCENES[key].center);
       out[key] = buf;
     });
@@ -87,7 +87,7 @@ export default function GalaxyCanvas({
         reducedMotion={reducedMotion}
         idle={idle}
         shape={shapes[activeScene]}
-        spin={scene.spin}
+        swirl={scene.swirl}
         wave={scene.wave}
         pointSize={scene.pointSize}
         pointOpacity={scene.pointOpacity}
@@ -97,7 +97,6 @@ export default function GalaxyCanvas({
         colorScheme={scene.colorScheme}
         glowScale={scene.glowScale}
         center={scene.center}
-        holeRadius={scene.disk.inner}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}

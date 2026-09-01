@@ -3,8 +3,8 @@ import {
   generateTargetPositions,
   generateDispersedPositions,
   generateColors,
-  blackHoleDisk,
-  blackHoleLayout,
+  galaxyDisk,
+  galaxyField,
   CORE_FRACTION,
   CORE_RADIUS,
   DISPERSED_RADIUS,
@@ -128,9 +128,9 @@ describe("deformPositions", () => {
   });
 });
 
-describe("blackHoleDisk", () => {
+describe("galaxyDisk", () => {
   const P: DiskParams = {
-    inner: 1.5,
+    bulge: 1.5,
     outer: 9,
     thickness: 0.4,
     arms: 2,
@@ -141,34 +141,38 @@ describe("blackHoleDisk", () => {
   };
 
   it("returns count*3 floats and is deterministic per seed", () => {
-    expect(blackHoleDisk(N, P, 4).length).toBe(N * 3);
-    expect(Array.from(blackHoleDisk(500, P, 4))).toEqual(
-      Array.from(blackHoleDisk(500, P, 4)),
+    expect(galaxyDisk(N, P, 4).length).toBe(N * 3);
+    expect(Array.from(galaxyDisk(500, P, 4))).toEqual(
+      Array.from(galaxyDisk(500, P, 4)),
     );
   });
 
-  it("keeps an empty core — few particles near the event horizon", () => {
-    const p = blackHoleDisk(N, P, 4);
-    let inside = 0;
+  it("packs a dense bulge near the centre", () => {
+    const p = galaxyDisk(N, P, 4);
+    let inBulge = 0;
     for (let i = 0; i < N; i++) {
       const d = Math.hypot(p[i * 3], p[i * 3 + 1], p[i * 3 + 2]);
-      if (d < P.inner * 0.85) inside++;
+      if (d < P.bulge) inBulge++;
     }
-    expect(inside / N).toBeLessThan(0.05);
+    // The bulge slice alone is ~20% of the points.
+    expect(inBulge / N).toBeGreaterThan(0.12);
   });
 
-  it("stays within the outer radius (plus turbulence/warp slack)", () => {
-    const p = blackHoleDisk(N, P, 4);
+  it("halo stars reach past the disk but stay bounded", () => {
+    const p = galaxyDisk(N, P, 4);
+    let maxD = 0;
     for (let i = 0; i < N; i++) {
       const d = Math.hypot(p[i * 3], p[i * 3 + 1], p[i * 3 + 2]);
-      expect(d).toBeLessThan(P.outer + 2);
+      maxD = Math.max(maxD, d);
+      expect(d).toBeLessThan(P.outer * 2);
     }
+    expect(maxD).toBeGreaterThan(P.outer);
   });
 });
 
-describe("blackHoleLayout", () => {
+describe("galaxyField", () => {
   const P: DiskParams = {
-    inner: 1.2,
+    bulge: 1.2,
     outer: 8,
     thickness: 0.4,
     arms: 2,
@@ -183,7 +187,7 @@ describe("blackHoleLayout", () => {
       { params: P, center: [20, 0, 0] as [number, number, number] },
       { params: P, center: [-20, 0, 0] as [number, number, number] },
     ];
-    const buf = blackHoleLayout(3000, P, minis);
+    const buf = galaxyField(3000, P, minis);
     expect(buf.length).toBe(3000 * 3);
     // Some particles must have landed near each mini centre.
     let nearRight = 0;

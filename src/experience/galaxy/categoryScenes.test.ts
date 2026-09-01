@@ -15,17 +15,17 @@ describe("SCENES", () => {
     expect(SCENES.menu.transition.flourish).toBe("none");
   });
 
-  it("every scene has a valid disk, positive fov, finite spin, point size and wave", () => {
+  it("every scene has a valid galaxy disk, positive fov, finite swirl, point size and wave", () => {
     for (const k of KEYS) {
       const s = SCENES[k];
       expect(s.framing.fov).toBeGreaterThan(0);
-      expect(Number.isFinite(s.spin.speed)).toBe(true);
+      expect(Number.isFinite(s.swirl.speed)).toBe(true);
       expect(s.pointSize).toBeGreaterThan(0);
       expect(s.pointOpacity).toBeGreaterThan(0);
       expect(s.transition.camera.duration).toBeGreaterThan(0);
       expect(s.transition.morph.duration).toBeGreaterThan(0);
-      expect(s.disk.inner).toBeGreaterThan(0);
-      expect(s.disk.outer).toBeGreaterThan(s.disk.inner);
+      expect(s.disk.bulge).toBeGreaterThan(0);
+      expect(s.disk.outer).toBeGreaterThan(s.disk.bulge);
       expect(s.disk.arms).toBeGreaterThanOrEqual(1);
       expect(s.disk.tilt.length).toBe(3);
       expect(["x", "y", "z"]).toContain(s.wave.drive);
