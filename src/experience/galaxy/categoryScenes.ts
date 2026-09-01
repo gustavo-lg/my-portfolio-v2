@@ -49,10 +49,10 @@ export interface Scene {
   transition: SceneTransition;
 }
 
-/** One blue-forward palette for the whole galaxy — saturated blue core, faint violet edge. */
+/** One palette for the whole galaxy — a blue nucleus fading into deep violet dust. */
 const BLUE: ColorScheme = {
-  inner: [0.12, 0.44, 1.0],
-  outer: [0.34, 0.26, 0.95],
+  inner: [0.22, 0.5, 1.0],
+  outer: [0.5, 0.14, 0.9],
 };
 
 const CALM: SceneTransition = {
@@ -71,13 +71,13 @@ export const SCENES: Record<SceneKey, Scene> = {
    *  Dense nebula at the heart of the galaxy. The calm anchor. Every page
    *  is a dive INTO this same cloud from a different angle.            */
   menu: {
-    framing: { position: [0, 0, 18], lookAt: [0, 0, 0], fov: 55 },
+    framing: { position: [0, 0, 13], lookAt: [0, 0, 0], fov: 58 },
     deform: { scale: [1, 1, 1] },
     spin: { axis: "z", speed: 0.05, wobble: 0.06 },
     wave: { drive: "y", displace: "x", amplitude: 0.16, frequency: 0.3, speed: 0.5 },
-    pointSize: 0.042,
-    pointOpacity: 0.72,
-    glowScale: 7.5,
+    pointSize: 0.05,
+    pointOpacity: 0.6,
+    glowScale: 9,
     colorScheme: BLUE,
     transition: CALM,
   },
@@ -90,8 +90,8 @@ export const SCENES: Record<SceneKey, Scene> = {
     deform: { scale: [1.95, 0.42, 1.25] },
     spin: { axis: "z", speed: 0.06, wobble: 0.03 },
     wave: { drive: "x", displace: "y", amplitude: 1.3, frequency: 0.5, speed: 1.4 },
-    pointSize: 0.043,
-    pointOpacity: 0.76,
+    pointSize: 0.048,
+    pointOpacity: 0.57,
     glowScale: 8,
     colorScheme: BLUE,
     transition: { ...PAGE_TRANSITION, flourish: "fling" },
@@ -105,9 +105,9 @@ export const SCENES: Record<SceneKey, Scene> = {
     deform: { scale: [0.42, 2.6, 0.42], tilt: [0.1, 0, 0] },
     spin: { axis: "y", speed: 0.12, wobble: 0.02 },
     wave: { drive: "y", displace: "x", amplitude: 1.5, frequency: 0.55, speed: 1.6 },
-    pointSize: 0.046,
-    pointOpacity: 0.82,
-    glowScale: 6,
+    pointSize: 0.05,
+    pointOpacity: 0.6,
+    glowScale: 7,
     colorScheme: BLUE,
     transition: { ...PAGE_TRANSITION, flourish: "rise" },
   },
@@ -120,8 +120,8 @@ export const SCENES: Record<SceneKey, Scene> = {
     deform: { scale: [1.5, 1.4, 1.0], shearXY: 0.4, tilt: [0.5, 0.2, 0.35] },
     spin: { axis: "y", speed: 0.05, wobble: 0.1 },
     wave: { drive: "y", displace: "z", amplitude: 0.9, frequency: 0.7, speed: 1.2 },
-    pointSize: 0.044,
-    pointOpacity: 0.78,
+    pointSize: 0.048,
+    pointOpacity: 0.57,
     glowScale: 8,
     colorScheme: BLUE,
     transition: { ...PAGE_TRANSITION, flourish: "gather" },
@@ -135,8 +135,8 @@ export const SCENES: Record<SceneKey, Scene> = {
     deform: { scale: [1.7, 0.6, 1.1], shearXY: 1.0, tilt: [0, 0, 0.4] },
     spin: { axis: "z", speed: 0.1, wobble: 0.04 },
     wave: { drive: "x", displace: "y", amplitude: 0.75, frequency: 0.55, speed: 1.8 },
-    pointSize: 0.043,
-    pointOpacity: 0.78,
+    pointSize: 0.048,
+    pointOpacity: 0.57,
     glowScale: 8,
     colorScheme: BLUE,
     transition: { ...PAGE_TRANSITION, flourish: "sweep" },

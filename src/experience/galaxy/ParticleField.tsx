@@ -72,16 +72,17 @@ export function ParticleField({
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
   // Target glow colors that we lerp toward each frame
-  const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
-  const targetCoreColor = useRef(new THREE.Color(...colorScheme.outer));
+  // Big ambient bloom takes the violet outer hue; the small hot centre keeps blue.
+  const targetGlowColor = useRef(new THREE.Color(...colorScheme.outer));
+  const targetCoreColor = useRef(new THREE.Color(...colorScheme.inner));
 
   // Start / restart a morph whenever the target shape or colorScheme changes.
   useEffect(() => {
     const first = !formed.current;
     targetRef.current = shape;
     targetColorsRef.current = generateColors(count, shape, colorScheme);
-    targetGlowColor.current.setRGB(...colorScheme.inner);
-    targetCoreColor.current.setRGB(...colorScheme.outer);
+    targetGlowColor.current.setRGB(...colorScheme.outer);
+    targetCoreColor.current.setRGB(...colorScheme.inner);
     flourishRef.current = first ? "none" : flourish;
 
     if (overshootRef.current.length !== shape.length) {
@@ -223,9 +224,9 @@ export function ParticleField({
       >
         <spriteMaterial
           map={getParticleTexture()}
-          color={new THREE.Color(...colorScheme.inner)}
+          color={new THREE.Color(...colorScheme.outer)}
           transparent
-          opacity={0.18}
+          opacity={0.22}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
@@ -237,7 +238,7 @@ export function ParticleField({
       >
         <spriteMaterial
           map={getParticleTexture()}
-          color={new THREE.Color(...colorScheme.outer)}
+          color={new THREE.Color(...colorScheme.inner)}
           transparent
           opacity={0.32}
           depthWrite={false}

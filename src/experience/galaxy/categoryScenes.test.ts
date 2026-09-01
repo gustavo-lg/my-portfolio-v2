@@ -11,7 +11,7 @@ describe("SCENES", () => {
 
   it("menu is the anchor: identity deform, anchor framing", () => {
     expect(SCENES.menu.deform.scale).toEqual([1, 1, 1]);
-    expect(SCENES.menu.framing.position).toEqual([0, 0, 18]);
+    expect(SCENES.menu.framing.position).toEqual([0, 0, 13]);
     expect(SCENES.menu.framing.lookAt).toEqual([0, 0, 0]);
     expect(SCENES.menu.transition.flourish).toBe("none");
   });

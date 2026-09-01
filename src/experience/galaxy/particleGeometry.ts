@@ -18,20 +18,57 @@ function mulberry32(seed: number) {
 // Three zones: a tight luminous nucleus, a broad mid cloud, and a sparse
 // outer scatter that reaches the edges of the frame — a volumetric dust
 // cloud rather than a thin disk.
-export const CORE_FRACTION = 0.16;
-export const MID_FRACTION = 0.5;
-export const CORE_RADIUS = 1.1;
-export const MID_INNER = 1.4;
-export const MID_OUTER = 8;
-export const OUTER_INNER = 6;
-export const OUTER_OUTER = 16;
+export const CORE_FRACTION = 0.14;
+export const MID_FRACTION = 0.7;
+export const CORE_RADIUS = 2.0;
+export const MID_INNER = 1.3;
+export const MID_OUTER = 7;
+export const OUTER_INNER = 5;
+export const OUTER_OUTER = 13;
 export const HALO_Y_SQUASH = 0.62;
-export const DISPERSED_RADIUS = 24;
-export const COLOR_RANGE = OUTER_OUTER;
+export const DISPERSED_RADIUS = 22;
+// Colour reaches full "outer" well before the cloud's edge, so most of the
+// dust is the violet hue and only the dense nucleus keeps the blue one.
+export const COLOR_RANGE = 8;
 
-/** Nucleus + broad mid cloud + sparse outer scatter. */
+// Most of the dust condenses onto soft overlapping knots, so the field reads
+// as thick nebula clouds and density lanes rather than a thin sparkle field.
+const CLUMP_COUNT = 16;
+const CLUMP_BIAS = 0.72;
+
+interface Clump {
+  x: number;
+  y: number;
+  z: number;
+  spread: number;
+}
+
+function makeClumps(rng: () => number): Clump[] {
+  const clumps: Clump[] = [];
+  for (let i = 0; i < CLUMP_COUNT; i++) {
+    const u = rng() * 2 - 1;
+    const theta = rng() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    const r = MID_INNER + (OUTER_OUTER - MID_INNER) * Math.pow(rng(), 0.6);
+    clumps.push({
+      x: s * Math.cos(theta) * r,
+      y: u * r * 0.5,
+      z: s * Math.sin(theta) * r,
+      spread: 2.6 + rng() * 4.2,
+    });
+  }
+  return clumps;
+}
+
+/** Triangular noise in [-1.5, 1.5] — a cheap bell curve for jitter. */
+function bell(rng: () => number): number {
+  return rng() + rng() + rng() - 1.5;
+}
+
+/** Nucleus + broad mid cloud + sparse outer scatter, with clumped dust lanes. */
 export function generateTargetPositions(count: number, seed = 1): Float32Array {
   const rng = mulberry32(seed);
+  const clumps = makeClumps(rng);
   const out = new Float32Array(count * 3);
   const coreCount = Math.floor(count * CORE_FRACTION);
   const midCount = coreCount + Math.floor(count * MID_FRACTION);
@@ -60,6 +97,14 @@ export function generateTargetPositions(count: number, seed = 1): Float32Array {
       x *= r;
       y *= r * 0.8;
       z *= r;
+    }
+
+    // Non-core dust mostly condenses onto a nearby knot.
+    if (i >= coreCount && rng() < CLUMP_BIAS) {
+      const c = clumps[(rng() * clumps.length) | 0];
+      x = c.x + bell(rng) * c.spread;
+      y = c.y + bell(rng) * c.spread * 0.6;
+      z = c.z + bell(rng) * c.spread;
     }
 
     out[i * 3] = x;

@@ -10,7 +10,7 @@ describe("getPerfTier", () => {
 
   it("mobile: coarse pointer, 4-core -> low tier, no cursor, no bloom", () => {
     const t = getPerfTier({ pointerFine: false, hardwareConcurrency: 4 });
-    expect(t.particleCount).toBeLessThanOrEqual(8000);
+    expect(t.particleCount).toBeLessThanOrEqual(16000);
     expect(t.particleCount).toBeLessThan(
       getPerfTier({ pointerFine: true, hardwareConcurrency: 8 }).particleCount,
     );
