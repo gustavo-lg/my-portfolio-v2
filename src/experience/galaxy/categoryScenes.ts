@@ -38,6 +38,8 @@ export interface SceneTransition {
 }
 
 export interface Scene {
+  /** Which pocket of the nebula this page's formation sits in (world space). */
+  center: Vec3;
   framing: CameraFraming;
   deform: Deformation;
   spin: Spin;
@@ -49,7 +51,7 @@ export interface Scene {
   transition: SceneTransition;
 }
 
-/** One palette for the whole galaxy — a blue nucleus fading into deep violet dust. */
+/** One palette for the whole galaxy — blue near a formation's heart, deep violet out in the dust. */
 const BLUE: ColorScheme = {
   inner: [0.22, 0.5, 1.0],
   outer: [0.5, 0.14, 0.9],
@@ -71,6 +73,7 @@ export const SCENES: Record<SceneKey, Scene> = {
    *  Dense nebula at the heart of the galaxy. The calm anchor. Every page
    *  is a dive INTO this same cloud from a different angle.            */
   menu: {
+    center: [0, 0, 0],
     framing: { position: [0, 0, 13], lookAt: [0, 0, 0], fov: 58 },
     deform: { scale: [1, 1, 1] },
     spin: { axis: "z", speed: 0.05, wobble: 0.06 },
@@ -83,10 +86,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   /** ── PROJETOS ───────────────────────────────────────────────────────
-   *  The camera dives in from the left; the cloud flattens into a wide
-   *  horizontal sheet that ripples vertically like a banner.           */
+   *  The camera dives past the core, off to the left, toward a pocket
+   *  that flattens into a wide sheet rippling like a banner.           */
   projetos: {
-    framing: { position: [-9, 2, 12.5], lookAt: [-1, 0, 0], fov: 60 },
+    center: [8, 1.5, 3],
+    framing: { position: [-7, -2, 16], lookAt: [8, 1.5, 3], fov: 60 },
     deform: { scale: [1.95, 0.42, 1.25] },
     spin: { axis: "z", speed: 0.06, wobble: 0.03 },
     wave: { drive: "x", displace: "y", amplitude: 1.3, frequency: 0.5, speed: 1.4 },
@@ -98,10 +102,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   /** ── STACK ─────────────────────────────────────────────────────────
-   *  The camera rises; the cloud stretches into a tall column that
-   *  undulates side to side up its length.                            */
+   *  The camera climbs into a high pocket and looks up a tall column
+   *  that undulates side to side up its length.                       */
   stack: {
-    framing: { position: [0, 6, 11], lookAt: [0, 1.5, 0], fov: 42 },
+    center: [-4, 5, -8],
+    framing: { position: [-4, -4, 8], lookAt: [-4, 6, -8], fov: 46 },
     deform: { scale: [0.42, 2.6, 0.42], tilt: [0.1, 0, 0] },
     spin: { axis: "y", speed: 0.12, wobble: 0.02 },
     wave: { drive: "y", displace: "x", amplitude: 1.5, frequency: 0.55, speed: 1.6 },
@@ -113,10 +118,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   /** ── SOBRE ─────────────────────────────────────────────────────────
-   *  The camera drops and banks; the cloud tilts into a swirling
-   *  vortex whose depth ripples with height.                          */
+   *  The camera drops and banks toward a lower-right pocket that tilts
+   *  into a swirling vortex whose depth ripples with height.          */
   sobre: {
-    framing: { position: [3, -6, 12.5], lookAt: [0, 1, 0], fov: 58 },
+    center: [7, -3, 6],
+    framing: { position: [-3, -11, 15], lookAt: [7, -2, 6], fov: 56 },
     deform: { scale: [1.5, 1.4, 1.0], shearXY: 0.4, tilt: [0.5, 0.2, 0.35] },
     spin: { axis: "y", speed: 0.05, wobble: 0.1 },
     wave: { drive: "y", displace: "z", amplitude: 0.9, frequency: 0.7, speed: 1.2 },
@@ -128,10 +134,11 @@ export const SCENES: Record<SceneKey, Scene> = {
   },
 
   /** ── CONTATO ────────────────────────────────────────────────────────
-   *  The camera swings in from the right; the cloud shears into a
-   *  streaking comet with a trailing ripple.                          */
+   *  The camera swings in from the upper right toward a far pocket that
+   *  shears into a streaking comet with a trailing ripple.            */
   contato: {
-    framing: { position: [8, 3, 13], lookAt: [-1, 0, 0], fov: 60 },
+    center: [-8, 4, -5],
+    framing: { position: [8, 9, 12], lookAt: [-8, 4, -5], fov: 60 },
     deform: { scale: [1.7, 0.6, 1.1], shearXY: 1.0, tilt: [0, 0, 0.4] },
     spin: { axis: "z", speed: 0.1, wobble: 0.04 },
     wave: { drive: "x", displace: "y", amplitude: 0.75, frequency: 0.55, speed: 1.8 },

@@ -9,8 +9,9 @@ describe("SCENES", () => {
     for (const k of KEYS) expect(SCENES[k]).toBeDefined();
   });
 
-  it("menu is the anchor: identity deform, anchor framing", () => {
+  it("menu is the anchor: identity deform, centred, anchor framing", () => {
     expect(SCENES.menu.deform.scale).toEqual([1, 1, 1]);
+    expect(SCENES.menu.center).toEqual([0, 0, 0]);
     expect(SCENES.menu.framing.position).toEqual([0, 0, 13]);
     expect(SCENES.menu.framing.lookAt).toEqual([0, 0, 0]);
     expect(SCENES.menu.transition.flourish).toBe("none");
@@ -33,10 +34,14 @@ describe("SCENES", () => {
     }
   });
 
-  it("the 4 pages each dive in from a distinct camera position", () => {
+  it("the 4 pages each dive in from a distinct camera position to a distinct pocket", () => {
     const pages: SceneKey[] = ["projetos", "stack", "sobre", "contato"];
-    const seen = new Set(pages.map((k) => SCENES[k].framing.position.join(",")));
-    expect(seen.size).toBe(4);
+    expect(new Set(pages.map((k) => SCENES[k].framing.position.join(","))).size).toBe(4);
+    expect(new Set(pages.map((k) => SCENES[k].center.join(","))).size).toBe(4);
+    for (const k of pages) {
+      // The camera looks at that page's pocket, not the world origin.
+      expect(SCENES[k].center.some((v) => v !== 0)).toBe(true);
+    }
   });
 
   it("every scene shares the same blue colour scheme", () => {

@@ -27,6 +27,7 @@ interface Props {
   flourish: Flourish;
   colorScheme: ColorScheme;
   glowScale: number;
+  center?: [number, number, number];
   onFormed?: () => void;
 }
 
@@ -44,16 +45,16 @@ export function ParticleField({
   flourish,
   colorScheme,
   glowScale,
+  center = [0, 0, 0],
   onFormed,
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
   const glowRef = useRef<THREE.Sprite>(null);
-  const coreRef = useRef<THREE.Sprite>(null);
 
   const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
   // Initial color buffer
   const initialColors = useMemo(
-    () => generateColors(count, shape, colorScheme),
+    () => generateColors(count, shape, colorScheme, center),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [count],
   );
@@ -71,18 +72,17 @@ export function ParticleField({
   const spinSpeed = useRef(0);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
 
-  // Target glow colors that we lerp toward each frame
-  // Big ambient bloom takes the violet outer hue; the small hot centre keeps blue.
+  // Soft violet ambient wash that sits on the active pocket of the nebula.
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.outer));
-  const targetCoreColor = useRef(new THREE.Color(...colorScheme.inner));
+  const targetCenter = useRef(new THREE.Vector3(...center));
 
-  // Start / restart a morph whenever the target shape or colorScheme changes.
+  // Start / restart a morph whenever the target shape, colorScheme or centre changes.
   useEffect(() => {
     const first = !formed.current;
     targetRef.current = shape;
-    targetColorsRef.current = generateColors(count, shape, colorScheme);
+    targetColorsRef.current = generateColors(count, shape, colorScheme, center);
     targetGlowColor.current.setRGB(...colorScheme.outer);
-    targetCoreColor.current.setRGB(...colorScheme.inner);
+    targetCenter.current.set(...center);
     flourishRef.current = first ? "none" : flourish;
 
     if (overshootRef.current.length !== shape.length) {
@@ -134,7 +134,7 @@ export function ParticleField({
       tweenRef.current?.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shape, colorScheme]);
+  }, [shape, colorScheme, center]);
 
   useFrame((state, delta) => {
     const points = pointsRef.current;
@@ -191,18 +191,13 @@ export function ParticleField({
       points.rotation[other] = Math.sin(state.clock.elapsedTime * 0.12) * w;
     }
 
-    // Smoothly lerp background glow sprites toward the active scene's color and scale
+    // Soft ambient wash follows the active pocket's colour, scale and position.
     const lerpSpeed = Math.min(1, delta * 2.0);
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetGlowColor.current, lerpSpeed);
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
-    }
-    if (coreRef.current) {
-      const mat = coreRef.current.material as THREE.SpriteMaterial;
-      mat.color.lerp(targetCoreColor.current, lerpSpeed);
-      const coreScale = glowScale * 0.37;
-      coreRef.current.scale.lerp(new THREE.Vector3(coreScale, coreScale, coreScale), lerpSpeed);
+      glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
 
     // Smoothly lerp point size and opacity
@@ -217,30 +212,18 @@ export function ParticleField({
 
   return (
     <group>
-      {/* Outer ambient bloom — color animates to match the active scene */}
+      {/* Soft violet ambient wash — no hard nucleus, just a gentle glow that
+          rides the active pocket of the cloud. */}
       <sprite
         ref={glowRef}
+        position={center}
         scale={[glowScale, glowScale, glowScale]}
       >
         <spriteMaterial
           map={getParticleTexture()}
           color={new THREE.Color(...colorScheme.outer)}
           transparent
-          opacity={0.22}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </sprite>
-      {/* Inner concentrated core */}
-      <sprite
-        ref={coreRef}
-        scale={[glowScale * 0.37, glowScale * 0.37, glowScale * 0.37]}
-      >
-        <spriteMaterial
-          map={getParticleTexture()}
-          color={new THREE.Color(...colorScheme.inner)}
-          transparent
-          opacity={0.32}
+          opacity={0.16}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />

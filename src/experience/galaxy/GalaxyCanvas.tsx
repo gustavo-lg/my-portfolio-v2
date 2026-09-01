@@ -1,12 +1,17 @@
 import { useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ParticleField } from "./ParticleField";
+import { DustField } from "./DustField";
 import { GalaxyCamera } from "./GalaxyCamera";
 import {
   AnchorProjector,
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
-import { generateTargetPositions, deformPositions } from "./particleGeometry";
+import {
+  generateTargetPositions,
+  deformPositions,
+  offsetPositions,
+} from "./particleGeometry";
 import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
@@ -26,6 +31,7 @@ export default function GalaxyCanvas({
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
   const count = tier.particleCount;
+  const dustCount = Math.round(count * 0.32);
   const initialScene = useRef(activeScene).current;
 
   const shapes = useMemo(() => {
@@ -34,6 +40,7 @@ export default function GalaxyCanvas({
     for (const key of SCENE_ORDER) {
       const buf = new Float32Array(count * 3);
       deformPositions(base, SCENES[key].deform, buf);
+      offsetPositions(buf, SCENES[key].center);
       out[key] = buf;
     }
     return out;
@@ -52,6 +59,7 @@ export default function GalaxyCanvas({
       style={{ position: "fixed", inset: 0, pointerEvents: "none" }}
     >
       <GalaxyCamera initial={initialScene} />
+      <DustField count={dustCount} reducedMotion={reducedMotion} />
       <ParticleField
         count={count}
         reducedMotion={reducedMotion}
@@ -66,6 +74,7 @@ export default function GalaxyCanvas({
         flourish={reducedMotion ? "none" : scene.transition.flourish}
         colorScheme={scene.colorScheme}
         glowScale={scene.glowScale}
+        center={scene.center}
         onFormed={onFormed}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}

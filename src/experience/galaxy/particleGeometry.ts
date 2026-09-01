@@ -15,21 +15,21 @@ function mulberry32(seed: number) {
   };
 }
 
-// Three zones: a tight luminous nucleus, a broad mid cloud, and a sparse
-// outer scatter that reaches the edges of the frame — a volumetric dust
-// cloud rather than a thin disk.
-export const CORE_FRACTION = 0.14;
-export const MID_FRACTION = 0.7;
+// Two zones now — no bright nucleus. A broad mid cloud and a sparser outer
+// scatter, both clumped, so the nebula reads as an even volumetric drift with
+// no "sun" at its centre.
+export const CORE_FRACTION = 0;
+export const MID_FRACTION = 0.66;
 export const CORE_RADIUS = 2.0;
-export const MID_INNER = 1.3;
-export const MID_OUTER = 7;
+export const MID_INNER = 0.8;
+export const MID_OUTER = 8;
 export const OUTER_INNER = 5;
-export const OUTER_OUTER = 13;
+export const OUTER_OUTER = 15;
 export const HALO_Y_SQUASH = 0.62;
-export const DISPERSED_RADIUS = 22;
-// Colour reaches full "outer" well before the cloud's edge, so most of the
-// dust is the violet hue and only the dense nucleus keeps the blue one.
-export const COLOR_RANGE = 8;
+export const DISPERSED_RADIUS = 24;
+// Colour lerps blue→violet by distance from the formation centre; kept short
+// so most of the dust takes the violet hue.
+export const COLOR_RANGE = 9;
 
 // Most of the dust condenses onto soft overlapping knots, so the field reads
 // as thick nebula clouds and density lanes rather than a thin sparkle field.
@@ -145,18 +145,20 @@ const DEFAULT_SCHEME: ColorScheme = {
   outer: [0.55, 0.3, 0.92], // purple
 };
 
-/** Per-particle color lerped inner→outer by distance from origin. */
+/** Per-particle color lerped inner→outer by distance from the formation centre. */
 export function generateColors(
   count: number,
   targets: Float32Array,
   scheme: ColorScheme = DEFAULT_SCHEME,
+  center: [number, number, number] = [0, 0, 0],
 ): Float32Array {
   const { inner, outer } = scheme;
+  const [cx, cy, cz] = center;
   const out = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    const x = targets[i * 3];
-    const y = targets[i * 3 + 1];
-    const z = targets[i * 3 + 2];
+    const x = targets[i * 3] - cx;
+    const y = targets[i * 3 + 1] - cy;
+    const z = targets[i * 3 + 2] - cz;
     const d = Math.sqrt(x * x + y * y + z * z);
     const t = Math.min(1, d / COLOR_RANGE);
     out[i * 3]     = inner[0] + (outer[0] - inner[0]) * t;
@@ -221,4 +223,48 @@ export function deformPositions(
     out[i + 1] = y;
     out[i + 2] = z;
   }
+}
+
+/** Translate every xyz triple in `positions` by `center`, in place. */
+export function offsetPositions(
+  positions: Float32Array,
+  center: [number, number, number],
+): void {
+  const [cx, cy, cz] = center;
+  for (let i = 0; i < positions.length; i += 3) {
+    positions[i] += cx;
+    positions[i + 1] += cy;
+    positions[i + 2] += cz;
+  }
+}
+
+/**
+ * Static dust that surrounds the camera and never morphs — a near shell for
+ * immediate parallax motes plus a sparse far field for depth. `nearFrac` of
+ * the points land between `nearInner`..`nearOuter`, the rest out to `farOuter`.
+ */
+export function generateDustField(
+  count: number,
+  seed = 99,
+  nearInner = 3,
+  nearOuter = 24,
+  farOuter = 60,
+  nearFrac = 0.62,
+): Float32Array {
+  const rng = mulberry32(seed);
+  const out = new Float32Array(count * 3);
+  const nearCount = Math.floor(count * nearFrac);
+  for (let i = 0; i < count; i++) {
+    const u = rng() * 2 - 1;
+    const theta = rng() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    const r =
+      i < nearCount
+        ? nearInner + (nearOuter - nearInner) * Math.pow(rng(), 0.55)
+        : nearOuter + (farOuter - nearOuter) * Math.pow(rng(), 0.7);
+    out[i * 3] = s * Math.cos(theta) * r;
+    out[i * 3 + 1] = u * r * 0.85;
+    out[i * 3 + 2] = s * Math.sin(theta) * r;
+  }
+  return out;
 }
