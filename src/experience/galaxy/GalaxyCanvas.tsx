@@ -10,11 +10,14 @@ import {
 import {
   galaxyDisk,
   galaxyField,
+  galaxyFieldSplit,
+  diskNormal,
   offsetPositions,
   type DiskParams,
 } from "./particleGeometry";
 import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
 import { ORBITAL_ORDER } from "./orbitalAnchors";
+import type { GalaxySpin } from "./ParticleField";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
 /** A page's galaxy shrunk to a small distant one for the home layout. */
@@ -47,25 +50,54 @@ export default function GalaxyCanvas({
   const dustCount = Math.round(count * 0.42);
   const initialScene = useRef(activeScene).current;
 
-  const shapes = useMemo(() => {
+  const { shapes, spins } = useMemo(() => {
     const out = {} as Record<SceneKey, Float32Array>;
+    const spinMap = {} as Record<SceneKey, GalaxySpin[]>;
+
     // Home: the central galaxy plus a small distant one toward each label.
-    out.menu = galaxyField(
+    const minis = ORBITAL_ORDER.map((k) => ({
+      params: miniGalaxy(SCENES[k].disk),
+      center: SCENES[k].center,
+    }));
+    out.menu = galaxyField(count, SCENES.menu.disk, minis);
+
+    const { main: mainCount, mini: miniCount } = galaxyFieldSplit(
       count,
-      SCENES.menu.disk,
-      ORBITAL_ORDER.map((k) => ({
-        params: miniGalaxy(SCENES[k].disk),
-        center: SCENES[k].center,
-      })),
+      minis.length,
     );
+    const spin = (
+      start: number,
+      n: number,
+      center: readonly [number, number, number],
+      tilt: [number, number, number],
+      speed: number,
+    ): GalaxySpin => {
+      const [nx, ny, nz] = diskNormal(tilt);
+      return { start, count: n, cx: center[0], cy: center[1], cz: center[2], nx, ny, nz, speed };
+    };
+    spinMap.menu = [
+      spin(0, mainCount, [0, 0, 0], SCENES.menu.disk.tilt, SCENES.menu.swirl.speed),
+      ...ORBITAL_ORDER.map((k, i) =>
+        spin(
+          mainCount + i * miniCount,
+          miniCount,
+          SCENES[k].center,
+          SCENES[k].disk.tilt,
+          SCENES[k].swirl.speed,
+        ),
+      ),
+    ];
+
     // Each page: that galaxy's full form, at its world position.
     SCENE_ORDER.forEach((key, i) => {
       if (key === "menu") return;
-      const buf = galaxyDisk(count, SCENES[key].disk, 3 + i);
-      offsetPositions(buf, SCENES[key].center);
+      const s = SCENES[key];
+      const buf = galaxyDisk(count, s.disk, 3 + i);
+      offsetPositions(buf, s.center);
       out[key] = buf;
+      spinMap[key] = [spin(0, count, s.center, s.disk.tilt, s.swirl.speed)];
     });
-    return out;
+    return { shapes: out, spins: spinMap };
   }, [count]);
 
   const scene = SCENES[activeScene];
@@ -87,7 +119,7 @@ export default function GalaxyCanvas({
         reducedMotion={reducedMotion}
         idle={idle}
         shape={shapes[activeScene]}
-        swirl={scene.swirl}
+        galaxies={spins[activeScene]}
         wave={scene.wave}
         pointSize={scene.pointSize}
         pointOpacity={scene.pointOpacity}

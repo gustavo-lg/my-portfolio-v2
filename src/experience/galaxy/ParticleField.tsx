@@ -11,14 +11,31 @@ import { applyWave, idleOffset, lerpPositions } from "./particleMath";
 import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
-import type { Swirl, Flourish, Wave } from "./categoryScenes";
+import type { Flourish, Wave } from "./categoryScenes";
+
+/**
+ * One galaxy's rigid spin: the contiguous particle range [start, start+count)
+ * rotates as a rigid body about the unit axis (nx,ny,nz) through (cx,cy,cz).
+ * Rigid so the spiral shape is preserved exactly, no matter how long it spins.
+ */
+export interface GalaxySpin {
+  start: number;
+  count: number;
+  cx: number;
+  cy: number;
+  cz: number;
+  nx: number;
+  ny: number;
+  nz: number;
+  speed: number;
+}
 
 interface Props {
   count: number;
   reducedMotion: boolean;
   idle: boolean;
   shape: Float32Array;
-  swirl: Swirl;
+  galaxies: GalaxySpin[];
   wave: Wave;
   pointSize: number;
   pointOpacity: number;
@@ -36,7 +53,7 @@ export function ParticleField({
   reducedMotion,
   idle,
   shape,
-  swirl,
+  galaxies,
   wave,
   pointSize,
   pointOpacity,
@@ -71,6 +88,10 @@ export function ParticleField({
   const morph = useRef({ t: reducedMotion ? 1 : 0 });
   const formed = useRef(false);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
+  // Seconds each galaxy has been spinning since it last (re)formed. Only
+  // advances at rest, and resets on every morph, so a galaxy always spins out
+  // from the clean formed orientation instead of snapping.
+  const spinTime = useRef(0);
 
   // Bright core-bulge glow that sits on the active galaxy.
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
@@ -90,6 +111,7 @@ export function ParticleField({
     }
     flourishTarget(shape, flourishRef.current, overshootRef.current);
     fromRef.current = Float32Array.from(livePositions);
+    spinTime.current = 0;
 
     if (pointsRef.current) {
       const colorAttr = pointsRef.current.geometry.getAttribute("color") as THREE.BufferAttribute;
@@ -176,22 +198,32 @@ export function ParticleField({
       }
     }
 
-    // Differential rotation: every star orbits the galaxy centre on the world
-    // Y axis, inner stars faster. The galaxy stays put; only the stars move.
-    // A pure function of clock time — no drift. Ramps in with the morph.
-    if (!reducedMotion && swirl.speed !== 0) {
-      const s = swirl.speed * Math.min(1, morph.current.t);
-      const now = state.clock.elapsedTime;
-      const [cx, , cz] = center;
-      for (let i = 0; i < count; i++) {
-        const dx = posArr[i * 3] - cx;
-        const dz = posArr[i * 3 + 2] - cz;
-        const rr = Math.sqrt(dx * dx + dz * dz);
-        const a = (now * s) / (0.7 + rr * 0.4);
-        const ca = Math.cos(a);
-        const sa = Math.sin(a);
-        posArr[i * 3] = cx + dx * ca - dz * sa;
-        posArr[i * 3 + 2] = cz + dx * sa + dz * ca;
+    // Each galaxy spins as a RIGID body about its own axis and centre — the
+    // spiral shape is preserved exactly however long it runs, and the distant
+    // galaxies spin in place instead of orbiting the centre. Only advances at
+    // rest so it never fights a morph.
+    if (!reducedMotion && atRest) {
+      spinTime.current += delta;
+      const t = spinTime.current;
+      for (let g = 0; g < galaxies.length; g++) {
+        const gg = galaxies[g];
+        if (gg.speed === 0) continue;
+        const ang = t * gg.speed;
+        const ca = Math.cos(ang);
+        const sa = Math.sin(ang);
+        const one = 1 - ca;
+        const { nx, ny, nz, cx, cy, cz } = gg;
+        const end = (gg.start + gg.count) * 3;
+        for (let i = gg.start * 3; i < end; i += 3) {
+          const px = posArr[i] - cx;
+          const py = posArr[i + 1] - cy;
+          const pz = posArr[i + 2] - cz;
+          const dot = nx * px + ny * py + nz * pz;
+          // Rodrigues rotation of p about unit n by `ang`
+          posArr[i] = cx + px * ca + (ny * pz - nz * py) * sa + nx * dot * one;
+          posArr[i + 1] = cy + py * ca + (nz * px - nx * pz) * sa + ny * dot * one;
+          posArr[i + 2] = cz + pz * ca + (nx * py - ny * px) * sa + nz * dot * one;
+        }
       }
     }
 

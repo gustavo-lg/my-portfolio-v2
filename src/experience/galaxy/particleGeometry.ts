@@ -210,6 +210,25 @@ export interface DiskParams {
   tilt: [number, number, number];
 }
 
+/** Fraction of the HOME budget each mini (distant) galaxy gets. */
+export const MINI_SHARE = 0.06;
+
+/** Split the HOME particle budget into main + per-mini counts. */
+export function galaxyFieldSplit(
+  count: number,
+  miniCount: number,
+): { main: number; mini: number } {
+  const mini = Math.floor(count * MINI_SHARE);
+  return { main: count - mini * miniCount, mini };
+}
+
+/** Unit normal of a disk built in the XZ plane then tilted by `tilt`. */
+export function diskNormal(
+  tilt: [number, number, number],
+): [number, number, number] {
+  return rotateEuler(0, 1, 0, tilt);
+}
+
 function rotateEuler(
   x: number,
   y: number,
@@ -315,8 +334,10 @@ export function galaxyField(
   minis: { params: DiskParams; center: [number, number, number] }[],
 ): Float32Array {
   const out = new Float32Array(count * 3);
-  const miniCount = Math.floor(count * 0.06);
-  const mainCount = count - miniCount * minis.length;
+  const { main: mainCount, mini: miniCount } = galaxyFieldSplit(
+    count,
+    minis.length,
+  );
   out.set(galaxyDisk(mainCount, main, 1), 0);
   let offset = mainCount * 3;
   minis.forEach((m, idx) => {
