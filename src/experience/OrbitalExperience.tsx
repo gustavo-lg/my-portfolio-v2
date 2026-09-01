@@ -29,7 +29,7 @@ const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
 const SETTLE_MS = 1200;
 /** Phase-1 camera flight from home up to the target galaxy, before it deforms. */
-const APPROACH_MS = 1400;
+const APPROACH_MS = 1650;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function anchorScreenPoint(key: string) {

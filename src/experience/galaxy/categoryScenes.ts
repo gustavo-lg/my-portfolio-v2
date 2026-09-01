@@ -110,7 +110,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   projetos: {
     center: [-7.8, 4.3, 0.8],
     framing: { position: [-6.3, 5, 4.1], lookAt: [-7.8, 4.3, 0.8], fov: 62 },
-    approach: { position: [-1.3, 7, 14.7], lookAt: [-7.8, 4.3, 0.8], fov: 62 },
+    approach: { position: [-5.2, 5.4, 6.4], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
     disk: {
       bulge: 2.2,
       outer: 9,
@@ -134,7 +134,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   stack: {
     center: [7.8, 4.3, -0.8],
     framing: { position: [9.5, 3.8, 1.9], lookAt: [7.8, 4.3, -0.8], fov: 58 },
-    approach: { position: [15, 2, 10.8], lookAt: [7.8, 4.3, -0.8], fov: 58 },
+    approach: { position: [10.7, 3.4, 3.8], lookAt: [7.8, 4.3, -0.8], fov: 56 },
     disk: {
       bulge: 2.0,
       outer: 10,
@@ -158,7 +158,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   sobre: {
     center: [-7.8, -4.3, 0.8],
     framing: { position: [-6.3, -5.4, 4.1], lookAt: [-7.8, -4.3, 0.8], fov: 62 },
-    approach: { position: [-1.3, -8.9, 14.7], lookAt: [-7.8, -4.3, 0.8], fov: 62 },
+    approach: { position: [-5.2, -6.1, 6.4], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
     disk: {
       bulge: 2.5,
       outer: 8.5,
@@ -182,7 +182,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   contato: {
     center: [7.8, -4.3, -0.8],
     framing: { position: [9.5, -3.4, 1.9], lookAt: [7.8, -4.3, -0.8], fov: 60 },
-    approach: { position: [15, -0.4, 10.8], lookAt: [7.8, -4.3, -0.8], fov: 60 },
+    approach: { position: [10.7, -2.7, 3.8], lookAt: [7.8, -4.3, -0.8], fov: 58 },
     disk: {
       bulge: 1.9,
       outer: 9,
