@@ -310,7 +310,7 @@ export function galaxyField(
   minis: { params: DiskParams; center: [number, number, number] }[],
 ): Float32Array {
   const out = new Float32Array(count * 3);
-  const miniCount = Math.floor(count * 0.085);
+  const miniCount = Math.floor(count * 0.06);
   const mainCount = count - miniCount * minis.length;
   out.set(galaxyDisk(mainCount, main, 1), 0);
   let offset = mainCount * 3;

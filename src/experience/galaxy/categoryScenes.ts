@@ -81,8 +81,8 @@ export const SCENES: Record<SceneKey, Scene> = {
     center: [0, 0, 0],
     framing: { position: [0, 1, 16], lookAt: [0, 0, 0], fov: 64 },
     disk: {
-      bulge: 1.6,
-      outer: 5.5,
+      bulge: 1.8,
+      outer: 6.5,
       thickness: 0.4,
       arms: 2,
       twist: 3.6,

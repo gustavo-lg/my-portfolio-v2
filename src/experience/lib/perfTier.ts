@@ -15,17 +15,17 @@ export interface PerfTierOptions {
 // Counts are the morphing nebula only; GalaxyCanvas adds ~32% more as the
 // static surrounding DustField.
 const HIGH: Omit<PerfTier, "customCursor"> = {
-  particleCount: 60000,
-  maxDpr: 1.75,
-  bloom: false,
-};
-const MID: Omit<PerfTier, "customCursor"> = {
-  particleCount: 38000,
+  particleCount: 92000,
   maxDpr: 1.6,
   bloom: false,
 };
+const MID: Omit<PerfTier, "customCursor"> = {
+  particleCount: 56000,
+  maxDpr: 1.5,
+  bloom: false,
+};
 const LOW: Omit<PerfTier, "customCursor"> = {
-  particleCount: 12000,
+  particleCount: 15000,
   maxDpr: 1.5,
   bloom: false,
 };

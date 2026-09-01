@@ -23,9 +23,9 @@ export function ExperienceOverlay({ visible }: { visible: boolean }) {
         willChange: "opacity",
         background:
           "radial-gradient(ellipse 135% 105% at 50% 42%," +
-          " hsl(var(--galaxy-bg) / 0.34) 0%," +
-          " hsl(var(--galaxy-bg) / 0.62) 52%," +
-          " hsl(var(--galaxy-bg) / 0.93) 100%)",
+          " hsl(var(--galaxy-bg) / 0.12) 0%," +
+          " hsl(var(--galaxy-bg) / 0.32) 55%," +
+          " hsl(var(--galaxy-bg) / 0.6) 100%)",
       }}
     />
   );
