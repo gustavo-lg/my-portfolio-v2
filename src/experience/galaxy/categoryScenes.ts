@@ -43,6 +43,12 @@ export interface Scene {
   /** World-space position of this scene's galaxy. */
   center: Vec3;
   framing: CameraFraming;
+  /**
+   * Where the camera flies FIRST, from the home scene — a point further from
+   * the galaxy so it reads as something being approached, before the particles
+   * deform. Pages only; the camera then pushes in from here to `framing`.
+   */
+  approach?: CameraFraming;
   /** Spiral-galaxy shape for this scene. */
   disk: DiskParams;
   swirl: Swirl;
@@ -69,8 +75,8 @@ const CALM: SceneTransition = {
 };
 
 const PAGE_TRANSITION = {
-  camera: { duration: 3000, ease: "power2.inOut" },
-  morph: { duration: 2800, ease: "power2.inOut" },
+  camera: { duration: 2200, ease: "power2.inOut" },
+  morph: { duration: 2400, ease: "power2.inOut" },
 };
 
 export const SCENES: Record<SceneKey, Scene> = {
@@ -104,6 +110,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   projetos: {
     center: [-7.8, 4.3, 0.8],
     framing: { position: [-4, 6, 9], lookAt: [-7.8, 4.3, 0.8], fov: 60 },
+    approach: { position: [-1.3, 7, 14.7], lookAt: [-7.8, 4.3, 0.8], fov: 62 },
     disk: {
       bulge: 2.2,
       outer: 9,
@@ -127,6 +134,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   stack: {
     center: [7.8, 4.3, -0.8],
     framing: { position: [12, 3, 6], lookAt: [7.8, 4.3, -0.8], fov: 56 },
+    approach: { position: [15, 2, 10.8], lookAt: [7.8, 4.3, -0.8], fov: 58 },
     disk: {
       bulge: 2.0,
       outer: 10,
@@ -150,6 +158,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   sobre: {
     center: [-7.8, -4.3, 0.8],
     framing: { position: [-4, -7, 9], lookAt: [-7.8, -4.3, 0.8], fov: 60 },
+    approach: { position: [-1.3, -8.9, 14.7], lookAt: [-7.8, -4.3, 0.8], fov: 62 },
     disk: {
       bulge: 2.5,
       outer: 8.5,
@@ -173,6 +182,7 @@ export const SCENES: Record<SceneKey, Scene> = {
   contato: {
     center: [7.8, -4.3, -0.8],
     framing: { position: [12, -2, 6], lookAt: [7.8, -4.3, -0.8], fov: 58 },
+    approach: { position: [15, -0.4, 10.8], lookAt: [7.8, -4.3, -0.8], fov: 60 },
     disk: {
       bulge: 1.9,
       outer: 9,

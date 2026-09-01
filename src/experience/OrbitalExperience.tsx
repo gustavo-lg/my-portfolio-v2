@@ -28,6 +28,8 @@ import NotFound from "@/pages/NotFound";
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
 const SETTLE_MS = 1200;
+/** Phase-1 camera flight from home up to the target galaxy, before it deforms. */
+const APPROACH_MS = 1400;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function anchorScreenPoint(key: string) {
@@ -123,15 +125,32 @@ function ExperienceShell() {
     }
 
     if (ctx.state === "navigating" && ctx.target) {
-      const meta = categories.find((c) => c.key === ctx.target)!;
+      const target = ctx.target;
+      const meta = categories.find((c) => c.key === target)!;
+      const scene = SCENES[target];
       (async () => {
         if (!reducedMotion) {
-          await wait(520); // overlay fade-out (CSS)
-          if (cancelled) return;
-          await wait(620); // labels collapse (OrbitalLabels)
+          await wait(400); // overlay fade + labels collapse (both CSS)
           if (cancelled) return;
         }
-        await goToScene(ctx.target);
+        // Phase 1 — fly the camera up to the target galaxy while the particles
+        // stay in the home layout, so the clicked galaxy reads as something we
+        // approach rather than something that rushes to the centre.
+        await camera.flyTo(scene.approach ?? scene.framing, {
+          duration: reducedMotion ? 0 : APPROACH_MS,
+          ease: "power2.out",
+          instant: reducedMotion,
+        });
+        if (cancelled) return;
+        // Phase 2 — deform the mini galaxy into this page's full galaxy shape
+        // (in place) while the camera finishes its push-in.
+        activeSceneRef.current = target;
+        setActiveScene(target);
+        await camera.flyTo(scene.framing, {
+          duration: reducedMotion ? 0 : scene.transition.camera.duration,
+          ease: scene.transition.camera.ease,
+          instant: reducedMotion,
+        });
         if (cancelled) return;
         navigate(meta.path);
         send({ type: "TRANSITION_COMPLETE" });
