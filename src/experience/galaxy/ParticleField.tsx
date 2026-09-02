@@ -30,6 +30,23 @@ export interface GalaxySpin {
   speed: number;
 }
 
+const GLOW_OPACITY = 0.5;
+const CORE_OPACITY = 0.95;
+const HIDDEN = 0.04; // opacity floor while a scene-to-scene morph runs
+const REVEAL_S = 0.85; // seconds to fade the new galaxy back in, after it forms
+
+/**
+ * Opacity multiplier WHILE a scene-to-scene morph is running: fade out fast,
+ * then hold near-invisible for the rest of the morph. The camera finishes its
+ * move behind this, and the new galaxy re-forms unseen; it's faded back in
+ * afterwards (a static reveal from the centre, not a slide) by `REVEAL_S`.
+ */
+function morphDissolve(t: number): number {
+  if (t >= 1) return HIDDEN;
+  if (t < 0.16) return 1 - (t / 0.16) * (1 - HIDDEN); // 1 -> HIDDEN
+  return HIDDEN; // hold invisible until the morph (and camera) are done
+}
+
 interface Props {
   count: number;
   reducedMotion: boolean;
@@ -92,6 +109,9 @@ export function ParticleField({
   // advances at rest, and resets on every morph, so a galaxy always spins out
   // from the clean formed orientation instead of snapping.
   const spinTime = useRef(0);
+  // Post-morph reveal: `revealFrom` counts seconds since a hidden morph landed;
+  // `-1` means "no reveal pending" (idle, or the very first formation).
+  const revealFrom = useRef(-1);
 
   // Bright core-bulge glow that sits on the active galaxy.
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
@@ -112,6 +132,8 @@ export function ParticleField({
     flourishTarget(shape, flourishRef.current, overshootRef.current);
     fromRef.current = Float32Array.from(livePositions);
     spinTime.current = 0;
+    // Non-first morphs run hidden, then get a static reveal once they land.
+    revealFrom.current = first ? -1 : 0;
 
     if (pointsRef.current) {
       const colorAttr = pointsRef.current.geometry.getAttribute("color") as THREE.BufferAttribute;
@@ -132,6 +154,7 @@ export function ParticleField({
 
     if (reducedMotion) {
       morph.current.t = 1;
+      revealFrom.current = -1; // no reveal animation with reduced motion
       if (pointsRef.current) {
         const colorAttr = pointsRef.current.geometry.getAttribute("color") as THREE.BufferAttribute;
         if (colorAttr) {
@@ -234,25 +257,57 @@ export function ParticleField({
       applyWave(posArr, wave, state.clock.elapsedTime, waveStrength);
     }
 
+    // Opacity multiplier for the whole field:
+    //  - not a hidden morph        -> 1 (normal)
+    //  - morph still running       -> fade out + hold near-invisible
+    //  - morph landed, revealing   -> ease HIDDEN -> 1 in place (no slide)
+    let dissolve = 1;
+    if (formed.current && revealFrom.current >= 0) {
+      if (!atRest) {
+        dissolve = morphDissolve(morph.current.t);
+      } else {
+        revealFrom.current += delta;
+        const r = revealFrom.current / REVEAL_S;
+        if (r >= 1) {
+          revealFrom.current = -1;
+        } else {
+          dissolve = HIDDEN + (1 - HIDDEN) * (1 - (1 - r) * (1 - r)); // easeOutQuad
+        }
+      }
+    }
+
     // Bright core glow follows the active galaxy's centre, colour and scale.
+    // Mid-morph: fade the sprites hard (dissolve²) and snap them to the target
+    // centre so the bright core is never seen travelling across the frame.
     const lerpSpeed = Math.min(1, delta * 2.0);
+    const spriteDim = dissolve * dissolve;
+    const morphing = dissolve < 1;
     if (glowRef.current) {
       const mat = glowRef.current.material as THREE.SpriteMaterial;
       mat.color.lerp(targetGlowColor.current, lerpSpeed);
+      mat.opacity = GLOW_OPACITY * spriteDim;
       glowRef.current.scale.lerp(new THREE.Vector3(glowScale, glowScale, glowScale), lerpSpeed);
-      glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
+      if (morphing) glowRef.current.position.copy(targetCenter.current);
+      else glowRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
     if (coreRef.current) {
       const cs = glowScale * 0.34;
+      (coreRef.current.material as THREE.SpriteMaterial).opacity =
+        CORE_OPACITY * spriteDim;
       coreRef.current.scale.lerp(new THREE.Vector3(cs, cs, cs), lerpSpeed);
-      coreRef.current.position.lerp(targetCenter.current, lerpSpeed);
+      if (morphing) coreRef.current.position.copy(targetCenter.current);
+      else coreRef.current.position.lerp(targetCenter.current, lerpSpeed);
     }
 
-    // Smoothly lerp point size and opacity
+    // Point size eases; opacity follows the dissolve mid-morph, eases at rest.
     const ptsMat = points.material as THREE.PointsMaterial;
     if (ptsMat) {
       ptsMat.size += (pointSize - ptsMat.size) * lerpSpeed;
-      ptsMat.opacity += (pointOpacity - ptsMat.opacity) * lerpSpeed;
+      if (dissolve < 1) {
+        ptsMat.opacity = pointOpacity * dissolve;
+      } else {
+        ptsMat.opacity += (pointOpacity - ptsMat.opacity) * lerpSpeed;
+      }
     }
 
     posAttr.needsUpdate = true;
@@ -270,7 +325,7 @@ export function ParticleField({
           map={getParticleTexture()}
           color={new THREE.Color(...colorScheme.inner)}
           transparent
-          opacity={0.5}
+          opacity={GLOW_OPACITY}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
@@ -285,7 +340,7 @@ export function ParticleField({
           map={getParticleTexture()}
           color="#ffffff"
           transparent
-          opacity={0.95}
+          opacity={CORE_OPACITY}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />

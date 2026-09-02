@@ -142,8 +142,9 @@ function ExperienceShell() {
           instant: reducedMotion,
         });
         if (cancelled) return;
-        // Phase 2 — deform the mini galaxy into this page's full galaxy shape
-        // (in place) while the camera finishes its push-in.
+        // Phase 2 — the mini galaxy re-forms into this page's galaxy shape
+        // UNSEEN (ParticleField holds it near-invisible through the morph)
+        // while the camera finishes its push-in; then it fades in on the spot.
         activeSceneRef.current = target;
         setActiveScene(target);
         await camera.flyTo(scene.framing, {
@@ -151,6 +152,10 @@ function ExperienceShell() {
           ease: scene.transition.camera.ease,
           instant: reducedMotion,
         });
+        if (cancelled) return;
+        // Let the centre-out fade-in get underway before the page content
+        // swings in over it.
+        if (!reducedMotion) await wait(450);
         if (cancelled) return;
         navigate(meta.path);
         send({ type: "TRANSITION_COMPLETE" });
