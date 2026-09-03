@@ -65,7 +65,7 @@ export function ContentArea() {
   }, [routeKey]);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowNav(true), 850);
+    const t = setTimeout(() => setShowNav(true), 650);
     return () => clearTimeout(t);
   }, []);
 

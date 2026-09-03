@@ -28,8 +28,6 @@ import NotFound from "@/pages/NotFound";
 const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
 const SETTLE_MS = 1200;
-/** Phase-1 camera flight from home up to the target galaxy, before it deforms. */
-const APPROACH_MS = 1650;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 function anchorScreenPoint(key: string) {
@@ -129,54 +127,36 @@ function ExperienceShell() {
       const meta = categories.find((c) => c.key === target)!;
       const scene = SCENES[target];
       (async () => {
-        if (!reducedMotion) {
-          await wait(400); // overlay fade + labels collapse (both CSS)
-          if (cancelled) return;
-        }
-        // Phase 1 — fly the camera up to the target galaxy while the particles
-        // stay in the home layout, so the clicked galaxy reads as something we
-        // approach rather than something that rushes to the centre.
-        await camera.flyTo(scene.approach ?? scene.framing, {
-          duration: reducedMotion ? 0 : APPROACH_MS,
-          // inOut, not out: phase 1 must NOT decelerate to a stop before the
-          // hand-off — phase 2 (power2.out) picks the motion straight up.
-          ease: "power2.inOut",
-          instant: reducedMotion,
-        });
-        if (cancelled) return;
-        // Phase 2 — swap the active scene: only the focused mini galaxy's slice
-        // of the buffer changes, so just that galaxy deforms in place while the
-        // camera finishes its push-in. Both use power2.out so nothing stalls at
-        // the phase-1 -> phase-2 hand-off.
         activeSceneRef.current = target;
         setActiveScene(target);
-        await camera.flyTo(scene.framing, {
+
+        // Fluid single-phase camera flight directly to target galaxy framing
+        const flyPromise = camera.flyTo(scene.framing, {
           duration: reducedMotion ? 0 : scene.transition.camera.duration,
           ease: scene.transition.camera.ease,
           instant: reducedMotion,
         });
+
+        // Brief beat for label collapse and initial camera acceleration
+        if (!reducedMotion) await wait(350);
         if (cancelled) return;
-        // Small beat so the deform is well underway before the page content
-        // swings in over it.
-        if (!reducedMotion) await wait(450);
-        if (cancelled) return;
+
+        // Navigate immediately so page content swoops in from the left while camera is finishing arrival
         navigate(meta.path);
+
+        await flyPromise;
+        if (cancelled) return;
         send({ type: "TRANSITION_COMPLETE" });
       })();
     }
 
     if (ctx.state === "returning") {
       (async () => {
-        // Start the camera pull-out + shape morph, then navigate WHILE they
-        // run. Unmounting ContentArea (nine cards + subviews) is a heavy React
-        // commit; dispatching RETURN_COMPLETE after the page-out finishes
-        // (t≈1150ms) lets it land mid-flight while the camera moves at high
-        // speed, leaving the 2200ms settling frame completely clean.
         goToScene("menu");
-        if (!reducedMotion) await wait(600);
+        if (!reducedMotion) await wait(400);
         if (cancelled) return;
         navigate("/");
-        if (!reducedMotion) await wait(SWAP_MS - 600);
+        if (!reducedMotion) await wait(Math.max(0, SWAP_MS - 400));
         if (cancelled) return;
         send({ type: "RETURN_COMPLETE" });
       })();

@@ -146,8 +146,8 @@ export default {
         // `page-out`: ease-in — lingers readable a beat, then the zoom-past
         //   accelerates off the right edge. Shorter, since a growing element
         //   has to clear fast.
-        "page-in": "page-in 1.6s linear 0.15s both",
-        "page-out": "page-out 1.05s cubic-bezier(0.6, 0, 0.82, 0.3) both",
+        "page-in": "page-in 1.35s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "page-out": "page-out 0.95s cubic-bezier(0.55, 0, 0.8, 0.4) both",
       },
     },
   },

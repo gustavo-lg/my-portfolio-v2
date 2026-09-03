@@ -75,8 +75,8 @@ const CALM: SceneTransition = {
 };
 
 const PAGE_TRANSITION = {
-  camera: { duration: 2600, ease: "power1.out" },
-  morph: { duration: 2600, ease: "power1.out" },
+  camera: { duration: 1700, ease: "power2.out" },
+  morph: { duration: 1700, ease: "power2.out" },
 };
 
 export const SCENES: Record<SceneKey, Scene> = {
