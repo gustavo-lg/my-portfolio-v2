@@ -51,9 +51,12 @@ describe("SCENES", () => {
     }
   });
 
-  it("each page uses a non-'none' flourish", () => {
+  // A flourish scales/shears the WHOLE particle buffer, which would drag the
+  // home galaxies that are meant to stay put while only the focused one
+  // deforms. Pages must therefore morph straight through.
+  it("no page uses a flourish, so the continuous scene stays put", () => {
     for (const k of ["projetos", "stack", "sobre", "contato"] as SceneKey[]) {
-      expect(SCENES[k].transition.flourish).not.toBe("none");
+      expect(SCENES[k].transition.flourish).toBe("none");
     }
   });
 });

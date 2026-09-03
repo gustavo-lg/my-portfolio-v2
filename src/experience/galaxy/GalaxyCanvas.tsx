@@ -15,20 +15,36 @@ import {
   offsetPositions,
   type DiskParams,
 } from "./particleGeometry";
-import { SCENES, SCENE_ORDER, type SceneKey } from "./categoryScenes";
+import { SCENES, type SceneKey } from "./categoryScenes";
 import { ORBITAL_ORDER } from "./orbitalAnchors";
 import type { GalaxySpin } from "./ParticleField";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
-/** A page's galaxy shrunk to a small distant one for the home layout. */
+/**
+ * The distant version seen on HOME: same footprint as the focused form but
+ * flattened, barely warped and with its arms only part-wound. Diving in
+ * restores all of that — that difference IS the deformation, and keeping the
+ * radius close means the density never drops.
+ */
 function miniGalaxy(d: DiskParams): DiskParams {
   return {
     ...d,
-    bulge: d.bulge * 0.34,
-    outer: d.outer * 0.32,
-    thickness: d.thickness * 0.42,
-    warp: d.warp * 0.4,
+    bulge: d.bulge * 0.3,
+    outer: d.outer * 0.3,
+    thickness: d.thickness * 0.4,
+    warp: d.warp * 0.35,
+    twist: d.twist * 0.6,
   };
+}
+
+/**
+ * The focused form on a page: the mini opened up — thicker, warped, arms fully
+ * wound, disk tipped over — and grown only slightly. Held compact on purpose:
+ * areal density goes as particles / radius², and the camera sits ~3.7 units
+ * away, so this still overflows the frame while staying as dense as HOME.
+ */
+function focusedGalaxy(d: DiskParams): DiskParams {
+  return { ...d, bulge: d.bulge * 0.34, outer: d.outer * 0.34 };
 }
 
 interface Props {
@@ -47,7 +63,7 @@ export default function GalaxyCanvas({
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
   const count = tier.particleCount;
-  const dustCount = Math.round(count * 0.42);
+  const dustCount = Math.round(count * 0.33);
   const initialScene = useRef(activeScene).current;
 
   const { shapes, spins } = useMemo(() => {
@@ -88,15 +104,22 @@ export default function GalaxyCanvas({
       ),
     ];
 
-    // Each page: that galaxy's full form, at its world position.
-    SCENE_ORDER.forEach((key, i) => {
-      if (key === "menu") return;
-      const s = SCENES[key];
-      const buf = galaxyDisk(count, s.disk, 3 + i);
-      offsetPositions(buf, s.center);
+    // Each page keeps the HOME layout as a continuous backdrop and swaps ONLY
+    // that page's mini galaxy for its grown form. Every other particle has the
+    // same position in both buffers, so the central galaxy and the other three
+    // minis do not move at all during the morph — the galaxy the camera dived
+    // into is the only thing that deforms.
+    ORBITAL_ORDER.forEach((key, miniIdx) => {
+      const s2 = SCENES[key];
+      const buf = Float32Array.from(out.menu);
+      const focus = galaxyDisk(miniCount, focusedGalaxy(s2.disk), 3 + miniIdx);
+      offsetPositions(focus, s2.center);
+      buf.set(focus, (mainCount + miniIdx * miniCount) * 3);
       out[key] = buf;
-      spinMap[key] = [spin(0, count, s.center, s.disk.tilt, s.swirl.speed)];
+      // Same five galaxies in the same places, so the spins carry straight over.
+      spinMap[key] = spinMap.menu;
     });
+
     return { shapes: out, spins: spinMap };
   }, [count]);
 

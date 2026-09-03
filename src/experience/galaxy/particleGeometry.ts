@@ -211,7 +211,7 @@ export interface DiskParams {
 }
 
 /** Fraction of the HOME budget each mini (distant) galaxy gets. */
-export const MINI_SHARE = 0.06;
+export const MINI_SHARE = 0.11;
 
 /** Split the HOME particle budget into main + per-mini counts. */
 export function galaxyFieldSplit(

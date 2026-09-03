@@ -123,11 +123,11 @@ export const SCENES: Record<SceneKey, Scene> = {
     },
     swirl: { speed: 0.6 },
     wave: { drive: "x", displace: "y", amplitude: 0.45, frequency: 0.4, speed: 1.0 },
-    pointSize: 0.044,
+    pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3.2,
     colorScheme: GALAXY,
-    transition: { ...PAGE_TRANSITION, flourish: "fling" },
+    transition: { ...PAGE_TRANSITION, flourish: "none" },
   },
 
   /** ── STACK ── Andromeda-type spiral seen almost edge-on and rolled. */
@@ -147,11 +147,11 @@ export const SCENES: Record<SceneKey, Scene> = {
     },
     swirl: { speed: 0.4 },
     wave: { drive: "y", displace: "x", amplitude: 0.8, frequency: 0.45, speed: 1.4 },
-    pointSize: 0.044,
+    pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3,
     colorScheme: GALAXY,
-    transition: { ...PAGE_TRANSITION, flourish: "rise" },
+    transition: { ...PAGE_TRANSITION, flourish: "none" },
   },
 
   /** ── SOBRE ── Andromeda-type spiral, banked, slow reverse churn. */
@@ -171,11 +171,11 @@ export const SCENES: Record<SceneKey, Scene> = {
     },
     swirl: { speed: -0.35 },
     wave: { drive: "y", displace: "z", amplitude: 0.5, frequency: 0.55, speed: 0.9 },
-    pointSize: 0.044,
+    pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3.4,
     colorScheme: GALAXY,
-    transition: { ...PAGE_TRANSITION, flourish: "gather" },
+    transition: { ...PAGE_TRANSITION, flourish: "none" },
   },
 
   /** ── CONTATO ── Andromeda-type spiral, tilted hard, fast churn. */
@@ -195,11 +195,11 @@ export const SCENES: Record<SceneKey, Scene> = {
     },
     swirl: { speed: 0.95 },
     wave: { drive: "x", displace: "y", amplitude: 0.6, frequency: 0.6, speed: 1.6 },
-    pointSize: 0.044,
+    pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3,
     colorScheme: GALAXY,
-    transition: { ...PAGE_TRANSITION, flourish: "sweep" },
+    transition: { ...PAGE_TRANSITION, flourish: "none" },
   },
 };
 
