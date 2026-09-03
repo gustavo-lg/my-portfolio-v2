@@ -1,6 +1,5 @@
 import {
   Suspense,
-  lazy,
   useCallback,
   useEffect,
   useRef,
@@ -24,8 +23,7 @@ import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
 import { ContentArea } from "@/experience/pages/ContentArea";
 import { SWAP_MS } from "@/experience/pages/pageTransition";
 import NotFound from "@/pages/NotFound";
-
-const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
+import GalaxyCanvas from "@/experience/galaxy/GalaxyCanvas";
 
 const SETTLE_MS = 1200;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -228,7 +226,7 @@ function ExperienceShell() {
       {staticGalaxy ? (
         <GalaxyBackdrop />
       ) : (
-        <Suspense fallback={<GalaxyBackdrop pulse />}>
+        <Suspense fallback={<GalaxyBackdrop />}>
           <GalaxyCanvas
             idle={idleMotion}
             activeScene={activeScene}
