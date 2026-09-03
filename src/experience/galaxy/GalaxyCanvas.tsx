@@ -8,15 +8,18 @@ import {
   type AnchorScreenPositions,
 } from "./useAnchorProjection";
 import {
+  galaxyDisk,
   galaxyField,
   galaxyFieldSplit,
   generateColors,
   diskNormal,
+  offsetPositions,
   type DiskParams,
 } from "./particleGeometry";
 import { SCENES, type SceneKey } from "./categoryScenes";
 import { ORBITAL_ORDER } from "./orbitalAnchors";
 import type { GalaxySpin } from "./ParticleField";
+import type { CategoryKey } from "@/content/types";
 import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
 
 /**
@@ -71,27 +74,31 @@ function GalaxyCanvas({
     [initialScene],
   );
 
-  // Single unified particle field — same shape, colors and spins across every
-  // page. The camera is the ONLY thing that moves between scenes; the particle
-  // background is continuous and never morphs, eliminating the visible "jump"
-  // that occurred when swapping shape buffers mid-flight.
-  const { shape, spins, colors } = useMemo(() => {
+  // Single unified particle field with:
+  // 1. Central galaxy multiplied by 3x particles (super dense home core).
+  // 2. 4 minis with 1x particles on Home.
+  // 3. Precomputed 3x extra detail particles for each mini, which smoothly fade in
+  //    when entering that page so the active galaxy multiplies by 4x particles (1x + 3x = 4x),
+  //    and smoothly fade out when returning to Home.
+  const { shape, spins, colors, totalCount, detailLayers, extraCount } = useMemo(() => {
     const minis = ORBITAL_ORDER.map((k) => ({
       params: miniGalaxy(SCENES[k].disk),
       center: SCENES[k].center,
     }));
-    const positions = galaxyField(count, SCENES.menu.disk, minis);
-    const colorBuf = generateColors(
+    // Central galaxy gets 3x particles:
+    const positions = galaxyField(count, SCENES.menu.disk, minis, 3);
+    const { main: mainCount, mini: miniCount, total } = galaxyFieldSplit(
       count,
+      minis.length,
+      3,
+    );
+    const colorBuf = generateColors(
+      total,
       positions,
       SCENES.menu.colorScheme,
       SCENES.menu.center,
     );
 
-    const { main: mainCount, mini: miniCount } = galaxyFieldSplit(
-      count,
-      minis.length,
-    );
     const spin = (
       start: number,
       n: number,
@@ -115,12 +122,50 @@ function GalaxyCanvas({
       ),
     ];
 
-    return { shape: positions, spins: galaxies, colors: colorBuf };
+    // Detail layer: when a page is entered, that mini reaches 2x particles
+    // (1x base + 1x extra = 2x total, keeping it clean and not overcrowded).
+    const detailExtra = miniCount;
+    const details = {} as Record<
+      CategoryKey,
+      { positions: Float32Array; colors: Float32Array; spin: GalaxySpin }
+    >;
+    ORBITAL_ORDER.forEach((key, idx) => {
+      const s = SCENES[key];
+      const p = galaxyDisk(detailExtra, miniGalaxy(s.disk), 101 + idx * 7);
+      offsetPositions(p, s.center);
+      const c = generateColors(detailExtra, p, s.colorScheme, s.center);
+      const [nx, ny, nz] = diskNormal(s.disk.tilt);
+      details[key] = {
+        positions: p,
+        colors: c,
+        spin: {
+          start: 0,
+          count: detailExtra,
+          cx: s.center[0],
+          cy: s.center[1],
+          cz: s.center[2],
+          nx,
+          ny,
+          nz,
+          speed: s.swirl.speed,
+        },
+      };
+    });
+
+    return {
+      shape: positions,
+      spins: galaxies,
+      colors: colorBuf,
+      totalCount: total,
+      detailLayers: details,
+      extraCount: detailExtra,
+    };
   }, [count]);
 
-  // All visual props are fixed to the menu scene so the particle field never
-  // changes between routes — only the camera moves.
+  // All visual props are fixed to the menu scene so the base particle field never
+  // morphs between routes — only the camera moves.
   const menuScene = SCENES.menu;
+  const activeDetail = activeScene !== "menu" ? detailLayers[activeScene] : null;
 
   return (
     <Canvas
@@ -132,7 +177,7 @@ function GalaxyCanvas({
       <GalaxyCamera initial={initialScene} />
       <DustField count={dustCount} reducedMotion={reducedMotion} />
       <ParticleField
-        count={count}
+        count={totalCount}
         reducedMotion={reducedMotion}
         idle={idle}
         shape={shape}
@@ -148,6 +193,8 @@ function GalaxyCanvas({
         glowScale={menuScene.glowScale}
         center={menuScene.center}
         onFormed={onFormed}
+        activeDetail={activeDetail}
+        detailCount={extraCount}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}
     </Canvas>

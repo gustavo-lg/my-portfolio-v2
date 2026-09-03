@@ -261,12 +261,9 @@ function ExperienceShell() {
 }
 
 export function OrbitalExperience() {
-  const { tier } = useDeviceCapabilities();
-  const enabledCursor = useMemo(() => tier.customCursor, [tier.customCursor]);
-
   return (
     <GalaxyCameraProvider>
-      <CursorProvider enabled={enabledCursor}>
+      <CursorProvider enabled={false}>
         <ExperienceShell />
       </CursorProvider>
     </GalaxyCameraProvider>

@@ -49,7 +49,7 @@ export function OrbitalLabel({ meta, index, phase, onSelect }: Props) {
         transitionDelay: shown ? `${BASE_DELAY + index * STAGGER}ms` : "0ms",
         willChange: "transform, opacity",
       }}
-      className="group relative flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/12 bg-background/40 px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.24em] text-foreground/85 shadow-[0_1px_20px_-4px_hsl(var(--galaxy-bg))] backdrop-blur-md hover:border-primary/90 hover:bg-background/70 hover:text-primary hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-95"
+      className="group relative flex cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-full border border-white/12 bg-background/40 px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.24em] text-foreground/85 shadow-[0_1px_20px_-4px_hsl(var(--galaxy-bg))] backdrop-blur-md hover:border-primary/90 hover:bg-background/70 hover:text-primary hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-95"
     >
       <Icon
         className="h-3.5 w-3.5 text-foreground/55 transition-all duration-300 group-hover:scale-110 group-hover:text-primary group-hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.85)]"

@@ -55,6 +55,12 @@ function rotateGalaxy(
 const GLOW_OPACITY = 0.5;
 const CORE_OPACITY = 0.95;
 
+export interface GalaxyDetail {
+  positions: Float32Array;
+  colors: Float32Array;
+  spin: GalaxySpin;
+}
+
 interface Props {
   count: number;
   reducedMotion: boolean;
@@ -73,6 +79,9 @@ interface Props {
   glowScale: number;
   center?: [number, number, number];
   onFormed?: () => void;
+  /** Active category detail layer (null when on Home). Multiplies that mini galaxy's particles by 4. */
+  activeDetail?: GalaxyDetail | null;
+  detailCount?: number;
 }
 
 export function ParticleField({
@@ -92,10 +101,27 @@ export function ParticleField({
   glowScale,
   center = [0, 0, 0],
   onFormed,
+  activeDetail,
+  detailCount,
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
+  const detailPointsRef = useRef<THREE.Points>(null);
   const glowRef = useRef<THREE.Sprite>(null);
   const coreRef = useRef<THREE.Sprite>(null);
+
+  const detailOpacity = useRef({ value: 0 });
+  const detailTargetPositions = useRef<Float32Array | null>(null);
+  const detailSpin = useRef<GalaxySpin | null>(null);
+  const detailTween = useRef<gsap.core.Tween | null>(null);
+
+  const detailPositions = useMemo(
+    () => (detailCount ? new Float32Array(detailCount * 3) : null),
+    [detailCount],
+  );
+  const detailColors = useMemo(
+    () => (detailCount ? new Float32Array(detailCount * 3) : null),
+    [detailCount],
+  );
 
   const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
   // Colours come from GalaxyCanvas fully baked (one per scene); this snapshot
@@ -120,6 +146,44 @@ export function ParticleField({
   // Bright core-bulge glow that sits on the active galaxy.
   const targetGlowColor = useRef(new THREE.Color(...colorScheme.inner));
   const targetCenter = useRef(new THREE.Vector3(...center));
+
+  // Fade in / out the extra 3x detail particles for the active galaxy
+  useEffect(() => {
+    detailTween.current?.kill();
+
+    if (activeDetail && detailPointsRef.current) {
+      detailTargetPositions.current = activeDetail.positions;
+      detailSpin.current = activeDetail.spin;
+
+      const colorAttr = detailPointsRef.current.geometry.getAttribute(
+        "color",
+      ) as THREE.BufferAttribute;
+      if (colorAttr) {
+        (colorAttr.array as Float32Array).set(activeDetail.colors);
+        colorAttr.needsUpdate = true;
+      }
+
+      detailTween.current = gsap.to(detailOpacity.current, {
+        value: pointOpacity,
+        duration: reducedMotion ? 0 : 1.5,
+        ease: "power2.out",
+      });
+    } else {
+      detailTween.current = gsap.to(detailOpacity.current, {
+        value: 0,
+        duration: reducedMotion ? 0 : 1.5,
+        ease: "power2.out",
+        onComplete: () => {
+          detailTargetPositions.current = null;
+          detailSpin.current = null;
+        },
+      });
+    }
+
+    return () => {
+      detailTween.current?.kill();
+    };
+  }, [activeDetail, pointOpacity, reducedMotion]);
 
   // Start / restart a morph whenever the target shape, colorScheme or centre changes.
   useEffect(() => {
@@ -270,6 +334,40 @@ export function ParticleField({
     }
 
     posAttr.needsUpdate = true;
+
+    // Detail layer: update rotation, wave and visibility for 4x active galaxy
+    const detailPoints = detailPointsRef.current;
+    if (detailPoints && detailPositions) {
+      const op = detailOpacity.current.value;
+      if (op > 0.001 && detailTargetPositions.current && detailSpin.current) {
+        detailPoints.visible = true;
+        const dMat = detailPoints.material as THREE.PointsMaterial;
+        if (dMat) {
+          dMat.opacity = op;
+          dMat.size = pointSize;
+        }
+
+        const dPosAttr = detailPoints.geometry.getAttribute(
+          "position",
+        ) as THREE.BufferAttribute;
+        const dPosArr = dPosAttr.array as Float32Array;
+        const target = detailTargetPositions.current;
+        dPosArr.set(target);
+
+        if (!reducedMotion) {
+          const g = detailSpin.current;
+          const TAU = 6.283185307179586;
+          let ang = (spinTime.current * g.speed) % TAU;
+          if (ang < 0) ang += TAU;
+          rotateGalaxy(target, dPosArr, g, ang);
+          applyWave(dPosArr, wave, state.clock.elapsedTime, 1);
+        }
+
+        dPosAttr.needsUpdate = true;
+      } else {
+        detailPoints.visible = false;
+      }
+    }
   });
 
   return (
@@ -329,6 +427,33 @@ export function ParticleField({
           opacity={pointOpacity}
         />
       </points>
+
+      {detailPositions && detailColors && detailCount && (
+        <points ref={detailPointsRef} frustumCulled={false} visible={false}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[detailPositions, 3]}
+              count={detailCount}
+            />
+            <bufferAttribute
+              attach="attributes-color"
+              args={[detailColors, 3]}
+              count={detailCount}
+            />
+          </bufferGeometry>
+          <pointsMaterial
+            size={pointSize}
+            sizeAttenuation
+            vertexColors
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            map={getParticleTexture()}
+            opacity={0}
+          />
+        </points>
+      )}
     </group>
   );
 }

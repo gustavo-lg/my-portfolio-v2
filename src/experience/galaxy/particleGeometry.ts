@@ -217,9 +217,12 @@ export const MINI_SHARE = 0.11;
 export function galaxyFieldSplit(
   count: number,
   miniCount: number,
-): { main: number; mini: number } {
+  mainMultiplier = 1,
+): { main: number; mini: number; total: number } {
   const mini = Math.floor(count * MINI_SHARE);
-  return { main: count - mini * miniCount, mini };
+  const baseMain = count - mini * miniCount;
+  const main = baseMain * mainMultiplier;
+  return { main, mini, total: main + mini * miniCount };
 }
 
 /** Unit normal of a disk built in the XZ plane then tilted by `tilt`. */
@@ -332,12 +335,14 @@ export function galaxyField(
   count: number,
   main: DiskParams,
   minis: { params: DiskParams; center: [number, number, number] }[],
+  mainMultiplier = 1,
 ): Float32Array {
-  const out = new Float32Array(count * 3);
-  const { main: mainCount, mini: miniCount } = galaxyFieldSplit(
+  const { main: mainCount, mini: miniCount, total } = galaxyFieldSplit(
     count,
     minis.length,
+    mainMultiplier,
   );
+  const out = new Float32Array(total * 3);
   out.set(galaxyDisk(mainCount, main, 1), 0);
   let offset = mainCount * 3;
   minis.forEach((m, idx) => {
