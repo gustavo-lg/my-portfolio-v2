@@ -192,28 +192,52 @@ export function ParticleField({
     };
   }, [activeDetail, pointOpacity, reducedMotion]);
 
-  // Deformation intensity tween for the active page galaxy
-  const deformIntensity = useRef({ value: 0 });
-  const deformTween = useRef<gsap.core.Tween | null>(null);
-  const activeSceneRef = useRef<SceneKey>(activeScene);
+  // Per-category deformation intensity for smooth entry and return transitions
+  const intensities = useRef<Record<string, number>>({
+    projetos: 0,
+    stack: 0,
+    sobre: 0,
+    contato: 0,
+  });
+  const deformTweens = useRef<Record<string, gsap.core.Tween | null>>({
+    projetos: null,
+    stack: null,
+    sobre: null,
+    contato: null,
+  });
 
   useEffect(() => {
-    deformTween.current?.kill();
-    activeSceneRef.current = activeScene;
-    const target = activeScene !== "menu" ? 1 : 0;
-    const duration =
-      activeScene === "stack" || activeScene === "contato" ? 1.9 : 1.4;
-    if (reducedMotion) {
-      deformIntensity.current.value = target;
-    } else {
-      deformTween.current = gsap.to(deformIntensity.current, {
-        value: target,
-        duration,
-        ease: "power2.out",
-      });
+    const categories = ["projetos", "stack", "sobre", "contato"] as const;
+
+    for (const cat of categories) {
+      deformTweens.current[cat]?.kill();
+      const target = cat === activeScene ? 1 : 0;
+      const isEntering = target === 1;
+
+      if (reducedMotion) {
+        intensities.current[cat] = target;
+      } else {
+        // Entering duration: 1.9s for stack/contato, 1.4s for others
+        // Returning/relaxing duration: 1.8s for a very smooth return to home
+        const duration = isEntering
+          ? cat === "stack" || cat === "contato"
+            ? 1.9
+            : 1.4
+          : 1.8;
+
+        deformTweens.current[cat] = gsap.to(intensities.current, {
+          [cat]: target,
+          duration,
+          ease: "power2.out",
+        });
+      }
     }
+
     return () => {
-      deformTween.current?.kill();
+      const categories = ["projetos", "stack", "sobre", "contato"] as const;
+      for (const cat of categories) {
+        deformTweens.current[cat]?.kill();
+      }
     };
   }, [activeScene, reducedMotion]);
 
@@ -326,19 +350,19 @@ export function ParticleField({
           rotateGalaxy(targetRef.current, posArr, g, ang);
         }
 
-        const dIntensity = deformIntensity.current.value;
-        const curScene = activeSceneRef.current;
-        if (dIntensity > 0.001 && curScene !== "menu") {
-          const activeG = galaxies.find((g) => g.key === curScene);
-          if (activeG) {
+        // Apply active or returning deformation for each mini galaxy
+        for (const g of galaxies) {
+          if (!g.key || g.key === "menu") continue;
+          const intensity = intensities.current[g.key] ?? 0;
+          if (intensity > 0.001) {
             applyGalaxyDeformation(
               posArr,
-              activeG.start,
-              activeG.count,
-              curScene,
-              dIntensity,
+              g.start,
+              g.count,
+              g.key,
+              intensity,
               state.clock.elapsedTime,
-              activeG,
+              g,
             );
           }
         }
@@ -410,18 +434,19 @@ export function ParticleField({
           if (ang < 0) ang += TAU;
           rotateGalaxy(target, dPosArr, g, ang);
 
-          const dIntensity = deformIntensity.current.value;
-          const curScene = activeSceneRef.current;
-          if (dIntensity > 0.001 && curScene !== "menu") {
-            applyGalaxyDeformation(
-              dPosArr,
-              0,
-              detailCount ?? 0,
-              curScene,
-              dIntensity,
-              state.clock.elapsedTime,
-              g,
-            );
+          if (g.key && g.key !== "menu") {
+            const intensity = intensities.current[g.key] ?? 0;
+            if (intensity > 0.001) {
+              applyGalaxyDeformation(
+                dPosArr,
+                0,
+                detailCount ?? 0,
+                g.key,
+                intensity,
+                state.clock.elapsedTime,
+                g,
+              );
+            }
           }
           applyWave(dPosArr, wave, state.clock.elapsedTime, 1);
         }
