@@ -11,6 +11,7 @@ import {
   galaxyDisk,
   galaxyField,
   galaxyFieldSplit,
+  generateColors,
   diskNormal,
   offsetPositions,
   type DiskParams,
@@ -66,9 +67,10 @@ export default function GalaxyCanvas({
   const dustCount = Math.round(count * 0.33);
   const initialScene = useRef(activeScene).current;
 
-  const { shapes, spins } = useMemo(() => {
+  const { shapes, spins, colors } = useMemo(() => {
     const out = {} as Record<SceneKey, Float32Array>;
     const spinMap = {} as Record<SceneKey, GalaxySpin[]>;
+    const colorMap = {} as Record<SceneKey, Float32Array>;
 
     // Home: the central galaxy plus a small distant one toward each label.
     const minis = ORBITAL_ORDER.map((k) => ({
@@ -76,6 +78,12 @@ export default function GalaxyCanvas({
       center: SCENES[k].center,
     }));
     out.menu = galaxyField(count, SCENES.menu.disk, minis);
+    colorMap.menu = generateColors(
+      count,
+      out.menu,
+      SCENES.menu.colorScheme,
+      SCENES.menu.center,
+    );
 
     const { main: mainCount, mini: miniCount } = galaxyFieldSplit(
       count,
@@ -118,9 +126,13 @@ export default function GalaxyCanvas({
       out[key] = buf;
       // Same five galaxies in the same places, so the spins carry straight over.
       spinMap[key] = spinMap.menu;
+      // Colour ramp is anchored on this page's centre so the focused galaxy
+      // gets a hot core; the untouched galaxies keep the home ramp closely
+      // enough that the cross-fade over the morph is imperceptible.
+      colorMap[key] = generateColors(count, buf, s2.colorScheme, s2.center);
     });
 
-    return { shapes: out, spins: spinMap };
+    return { shapes: out, spins: spinMap, colors: colorMap };
   }, [count]);
 
   const scene = SCENES[activeScene];
@@ -142,6 +154,7 @@ export default function GalaxyCanvas({
         reducedMotion={reducedMotion}
         idle={idle}
         shape={shapes[activeScene]}
+        colors={colors[activeScene]}
         galaxies={spins[activeScene]}
         wave={scene.wave}
         pointSize={scene.pointSize}

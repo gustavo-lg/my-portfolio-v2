@@ -138,13 +138,16 @@ function ExperienceShell() {
         // approach rather than something that rushes to the centre.
         await camera.flyTo(scene.approach ?? scene.framing, {
           duration: reducedMotion ? 0 : APPROACH_MS,
-          ease: "power2.out",
+          // inOut, not out: phase 1 must NOT decelerate to a stop before the
+          // hand-off — phase 2 (power2.out) picks the motion straight up.
+          ease: "power2.inOut",
           instant: reducedMotion,
         });
         if (cancelled) return;
-        // Phase 2 — the mini galaxy re-forms into this page's galaxy shape
-        // UNSEEN (ParticleField holds it near-invisible through the morph)
-        // while the camera finishes its push-in; then it fades in on the spot.
+        // Phase 2 — swap the active scene: only the focused mini galaxy's slice
+        // of the buffer changes, so just that galaxy deforms in place while the
+        // camera finishes its push-in. Both use power2.out so nothing stalls at
+        // the phase-1 -> phase-2 hand-off.
         activeSceneRef.current = target;
         setActiveScene(target);
         await camera.flyTo(scene.framing, {
@@ -153,7 +156,7 @@ function ExperienceShell() {
           instant: reducedMotion,
         });
         if (cancelled) return;
-        // Let the centre-out fade-in get underway before the page content
+        // Small beat so the deform is well underway before the page content
         // swings in over it.
         if (!reducedMotion) await wait(450);
         if (cancelled) return;

@@ -4,7 +4,6 @@ import * as THREE from "three";
 import gsap from "gsap";
 import {
   generateDispersedPositions,
-  generateColors,
   type ColorScheme,
 } from "./particleGeometry";
 import { applyWave, idleOffset, lerpPositions } from "./particleMath";
@@ -57,6 +56,8 @@ interface Props {
   reducedMotion: boolean;
   idle: boolean;
   shape: Float32Array;
+  /** Per-particle RGB target for this scene (precomputed by GalaxyCanvas). */
+  colors: Float32Array;
   galaxies: GalaxySpin[];
   wave: Wave;
   pointSize: number;
@@ -75,6 +76,7 @@ export function ParticleField({
   reducedMotion,
   idle,
   shape,
+  colors,
   galaxies,
   wave,
   pointSize,
@@ -92,12 +94,9 @@ export function ParticleField({
   const coreRef = useRef<THREE.Sprite>(null);
 
   const dispersed = useMemo(() => generateDispersedPositions(count), [count]);
-  // Initial color buffer
-  const initialColors = useMemo(
-    () => generateColors(count, shape, colorScheme, center),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [count],
-  );
+  // Colours come from GalaxyCanvas fully baked (one per scene); this snapshot
+  // is only the initial value the geometry mounts with.
+  const initialColors = useRef(colors).current;
   const livePositions = useMemo(() => Float32Array.from(dispersed), [dispersed]);
   const liveColors = useMemo(() => Float32Array.from(initialColors), [initialColors]);
 
@@ -122,7 +121,7 @@ export function ParticleField({
   useEffect(() => {
     const first = !formed.current;
     targetRef.current = shape;
-    targetColorsRef.current = generateColors(count, shape, colorScheme, center);
+    targetColorsRef.current = colors;
     targetGlowColor.current.setRGB(...colorScheme.inner);
     targetCenter.current.set(...center);
     flourishRef.current = first ? "none" : flourish;
@@ -182,7 +181,7 @@ export function ParticleField({
       tweenRef.current?.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shape, colorScheme, center]);
+  }, [shape, colors, center]);
 
   useFrame((state, delta) => {
     const points = pointsRef.current;
