@@ -145,8 +145,8 @@ export const SCENES: Record<SceneKey, Scene> = {
       warp: 0.6,
       tilt: [1.42, 0.0, 1.3],
     },
-    swirl: { speed: 0.4 },
-    wave: { drive: "y", displace: "x", amplitude: 0.8, frequency: 0.45, speed: 1.4 },
+    swirl: { speed: 0.3 },
+    wave: { drive: "y", displace: "x", amplitude: 0.45, frequency: 0.35, speed: 0.6 },
     pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3,
@@ -178,7 +178,7 @@ export const SCENES: Record<SceneKey, Scene> = {
     transition: { ...PAGE_TRANSITION, flourish: "none" },
   },
 
-  /** ── CONTATO ── Andromeda-type spiral, tilted hard, fast churn. */
+  /** ── CONTATO ── Andromeda-type spiral, tilted hard, calm churn. */
   contato: {
     center: [7.8, -4.3, -0.8],
     framing: { position: [9.5, -3.4, 1.9], lookAt: [7.8, -4.3, -0.8], fov: 60 },
@@ -193,8 +193,8 @@ export const SCENES: Record<SceneKey, Scene> = {
       warp: 0.6,
       tilt: [1.34, 0.3, 0.55],
     },
-    swirl: { speed: 0.95 },
-    wave: { drive: "x", displace: "y", amplitude: 0.6, frequency: 0.6, speed: 1.6 },
+    swirl: { speed: 0.4 },
+    wave: { drive: "x", displace: "y", amplitude: 0.4, frequency: 0.45, speed: 0.7 },
     pointSize: 0.052,
     pointOpacity: 0.82,
     glowScale: 3,

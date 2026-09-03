@@ -6,11 +6,15 @@ import {
   generateDispersedPositions,
   type ColorScheme,
 } from "./particleGeometry";
-import { applyWave, lerpPositions } from "./particleMath";
+import {
+  applyGalaxyDeformation,
+  applyWave,
+  lerpPositions,
+} from "./particleMath";
 import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
-import type { Flourish, Wave } from "./categoryScenes";
+import type { Flourish, SceneKey, Wave } from "./categoryScenes";
 
 /**
  * One galaxy's rigid spin: the contiguous particle range [start, start+count)
@@ -18,6 +22,7 @@ import type { Flourish, Wave } from "./categoryScenes";
  * Rigid so the spiral shape is preserved exactly, no matter how long it spins.
  */
 export interface GalaxySpin {
+  key?: SceneKey;
   start: number;
   count: number;
   cx: number;
@@ -82,6 +87,7 @@ interface Props {
   /** Active category detail layer (null when on Home). Multiplies that mini galaxy's particles by 4. */
   activeDetail?: GalaxyDetail | null;
   detailCount?: number;
+  activeScene?: SceneKey;
 }
 
 export function ParticleField({
@@ -103,6 +109,7 @@ export function ParticleField({
   onFormed,
   activeDetail,
   detailCount,
+  activeScene = "menu",
 }: Props) {
   const pointsRef = useRef<THREE.Points>(null);
   const detailPointsRef = useRef<THREE.Points>(null);
@@ -184,6 +191,31 @@ export function ParticleField({
       detailTween.current?.kill();
     };
   }, [activeDetail, pointOpacity, reducedMotion]);
+
+  // Deformation intensity tween for the active page galaxy
+  const deformIntensity = useRef({ value: 0 });
+  const deformTween = useRef<gsap.core.Tween | null>(null);
+  const activeSceneRef = useRef<SceneKey>(activeScene);
+
+  useEffect(() => {
+    deformTween.current?.kill();
+    activeSceneRef.current = activeScene;
+    const target = activeScene !== "menu" ? 1 : 0;
+    const duration =
+      activeScene === "stack" || activeScene === "contato" ? 1.9 : 1.4;
+    if (reducedMotion) {
+      deformIntensity.current.value = target;
+    } else {
+      deformTween.current = gsap.to(deformIntensity.current, {
+        value: target,
+        duration,
+        ease: "power2.out",
+      });
+    }
+    return () => {
+      deformTween.current?.kill();
+    };
+  }, [activeScene, reducedMotion]);
 
   // Start / restart a morph whenever the target shape, colorScheme or centre changes.
   useEffect(() => {
@@ -293,6 +325,23 @@ export function ParticleField({
           if (ang < 0) ang += TAU;
           rotateGalaxy(targetRef.current, posArr, g, ang);
         }
+
+        const dIntensity = deformIntensity.current.value;
+        const curScene = activeSceneRef.current;
+        if (dIntensity > 0.001 && curScene !== "menu") {
+          const activeG = galaxies.find((g) => g.key === curScene);
+          if (activeG) {
+            applyGalaxyDeformation(
+              posArr,
+              activeG.start,
+              activeG.count,
+              curScene,
+              dIntensity,
+              state.clock.elapsedTime,
+              activeG,
+            );
+          }
+        }
       }
     }
 
@@ -360,6 +409,20 @@ export function ParticleField({
           let ang = (spinTime.current * g.speed) % TAU;
           if (ang < 0) ang += TAU;
           rotateGalaxy(target, dPosArr, g, ang);
+
+          const dIntensity = deformIntensity.current.value;
+          const curScene = activeSceneRef.current;
+          if (dIntensity > 0.001 && curScene !== "menu") {
+            applyGalaxyDeformation(
+              dPosArr,
+              0,
+              detailCount ?? 0,
+              curScene,
+              dIntensity,
+              state.clock.elapsedTime,
+              g,
+            );
+          }
           applyWave(dPosArr, wave, state.clock.elapsedTime, 1);
         }
 

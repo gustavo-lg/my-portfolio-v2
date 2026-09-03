@@ -100,6 +100,7 @@ function GalaxyCanvas({
     );
 
     const spin = (
+      key: SceneKey,
       start: number,
       n: number,
       center: readonly [number, number, number],
@@ -107,12 +108,13 @@ function GalaxyCanvas({
       speed: number,
     ): GalaxySpin => {
       const [nx, ny, nz] = diskNormal(tilt);
-      return { start, count: n, cx: center[0], cy: center[1], cz: center[2], nx, ny, nz, speed };
+      return { key, start, count: n, cx: center[0], cy: center[1], cz: center[2], nx, ny, nz, speed };
     };
     const galaxies = [
-      spin(0, mainCount, [0, 0, 0], SCENES.menu.disk.tilt, SCENES.menu.swirl.speed),
+      spin("menu", 0, mainCount, [0, 0, 0], SCENES.menu.disk.tilt, SCENES.menu.swirl.speed),
       ...ORBITAL_ORDER.map((k, i) =>
         spin(
+          k,
           mainCount + i * miniCount,
           miniCount,
           SCENES[k].center,
@@ -139,6 +141,7 @@ function GalaxyCanvas({
         positions: p,
         colors: c,
         spin: {
+          key,
           start: 0,
           count: detailExtra,
           cx: s.center[0],
@@ -195,6 +198,7 @@ function GalaxyCanvas({
         onFormed={onFormed}
         activeDetail={activeDetail}
         detailCount={extraCount}
+        activeScene={activeScene}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}
     </Canvas>
