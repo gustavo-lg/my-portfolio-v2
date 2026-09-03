@@ -69,14 +69,14 @@ const GALAXY: ColorScheme = {
 };
 
 const CALM: SceneTransition = {
-  camera: { duration: CAMERA_MS, ease: "power2.out" },
-  morph: { duration: 2200, ease: "power2.out" },
+  camera: { duration: CAMERA_MS, ease: "power1.out" },
+  morph: { duration: 1900, ease: "power1.out" },
   flourish: "none",
 };
 
 const PAGE_TRANSITION = {
-  camera: { duration: 2200, ease: "power2.out" },
-  morph: { duration: 2100, ease: "power2.out" },
+  camera: { duration: 2600, ease: "power1.out" },
+  morph: { duration: 2600, ease: "power1.out" },
 };
 
 export const SCENES: Record<SceneKey, Scene> = {

@@ -167,14 +167,17 @@ function ExperienceShell() {
 
     if (ctx.state === "returning") {
       (async () => {
-        // Content exit animation and camera dolly run together; the content is
-        // gone well before the camera finishes re-centring the nebula.
-        await Promise.all([
-          goToScene("menu"),
-          reducedMotion ? Promise.resolve() : wait(SWAP_MS),
-        ]);
+        // Start the camera pull-out + shape morph, then navigate WHILE they
+        // run. Unmounting ContentArea (nine cards + subviews) is a heavy React
+        // commit; dispatching RETURN_COMPLETE after the page-out finishes
+        // (t≈1150ms) lets it land mid-flight while the camera moves at high
+        // speed, leaving the 2200ms settling frame completely clean.
+        goToScene("menu");
+        if (!reducedMotion) await wait(600);
         if (cancelled) return;
         navigate("/");
+        if (!reducedMotion) await wait(SWAP_MS - 600);
+        if (cancelled) return;
         send({ type: "RETURN_COMPLETE" });
       })();
     }
@@ -250,7 +253,7 @@ function ExperienceShell() {
             idle={idleMotion}
             activeScene={activeScene}
             onFormed={handleFormed}
-            onAnchors={handleAnchors}
+            onAnchors={menuActive && !staticGalaxy ? handleAnchors : undefined}
           />
         </Suspense>
       )}

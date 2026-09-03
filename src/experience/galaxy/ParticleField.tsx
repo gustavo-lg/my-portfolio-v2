@@ -6,7 +6,7 @@ import {
   generateDispersedPositions,
   type ColorScheme,
 } from "./particleGeometry";
-import { applyWave, idleOffset, lerpPositions } from "./particleMath";
+import { applyWave, lerpPositions } from "./particleMath";
 import { flourishTarget, morphInto } from "./particleMorph";
 import { getParticleTexture } from "./particleTexture";
 import { FORMATION_MS } from "./cameraTargets";
@@ -30,21 +30,25 @@ export interface GalaxySpin {
 }
 
 /** Rotate one galaxy's slice of `arr` rigidly about its own axis and centre. */
-function rotateGalaxy(arr: Float32Array, g: GalaxySpin, ang: number): void {
-  if (ang === 0) return;
+function rotateGalaxy(
+  src: Float32Array,
+  dst: Float32Array,
+  g: GalaxySpin,
+  ang: number,
+): void {
   const ca = Math.cos(ang);
   const sa = Math.sin(ang);
   const one = 1 - ca;
   const { nx, ny, nz, cx, cy, cz } = g;
   const end = (g.start + g.count) * 3;
   for (let i = g.start * 3; i < end; i += 3) {
-    const px = arr[i] - cx;
-    const py = arr[i + 1] - cy;
-    const pz = arr[i + 2] - cz;
+    const px = src[i] - cx;
+    const py = src[i + 1] - cy;
+    const pz = src[i + 2] - cz;
     const dot = nx * px + ny * py + nz * pz;
-    arr[i] = cx + px * ca + (ny * pz - nz * py) * sa + nx * dot * one;
-    arr[i + 1] = cy + py * ca + (nz * px - nx * pz) * sa + ny * dot * one;
-    arr[i + 2] = cz + pz * ca + (nx * py - ny * px) * sa + nz * dot * one;
+    dst[i] = cx + px * ca + (ny * pz - nz * py) * sa + nx * dot * one;
+    dst[i + 1] = cy + py * ca + (nz * px - nx * pz) * sa + ny * dot * one;
+    dst[i + 2] = cz + pz * ca + (nx * py - ny * px) * sa + nz * dot * one;
   }
 }
 
@@ -135,7 +139,13 @@ export function ParticleField({
     // the galaxies that are not deforming never jump or rewind.
     fromRef.current = Float32Array.from(livePositions);
     for (const g of galaxies) {
-      rotateGalaxy(fromRef.current, g, -spinTime.current * g.speed);
+      if (g.speed === 0) continue;
+      rotateGalaxy(
+        fromRef.current,
+        fromRef.current,
+        g,
+        -spinTime.current * g.speed,
+      );
     }
 
     if (pointsRef.current) {
@@ -192,16 +202,35 @@ export function ParticleField({
     ) as THREE.BufferAttribute;
     const posArr = posAttr.array as Float32Array;
 
-    morphInto(
-      fromRef.current,
-      overshootRef.current,
-      targetRef.current,
-      morph.current.t,
-      flourishRef.current,
-      posArr,
-    );
-
     const atRest = morph.current.t >= 1;
+
+    if (!atRest) {
+      morphInto(
+        fromRef.current,
+        overshootRef.current,
+        targetRef.current,
+        morph.current.t,
+        flourishRef.current,
+        posArr,
+      );
+    } else {
+      // Rest state: rebuild from the STATIC target every frame -- one copy plus
+      // one in-place spin pass per galaxy slice. Skips the redundant
+      // full-buffer morph lerp and the per-particle idle-noise loop, which
+      // together cost 50ms+ of JS per frame during the return-to-home settle.
+      posArr.set(targetRef.current);
+      if (!reducedMotion) {
+        spinTime.current += delta;
+        const st = spinTime.current;
+        const TAU = 6.283185307179586;
+        for (const g of galaxies) {
+          if (g.speed === 0) continue;
+          let ang = (st * g.speed) % TAU;
+          if (ang < 0) ang += TAU;
+          rotateGalaxy(targetRef.current, posArr, g, ang);
+        }
+      }
+    }
 
     // Smoothly morph particle vertex colors in lockstep with the shape transition
     const colorAttr = points.geometry.getAttribute("color") as THREE.BufferAttribute | undefined;
@@ -213,29 +242,9 @@ export function ParticleField({
       }
     }
 
-    if (!reducedMotion && atRest && idle) {
-      const time = state.clock.elapsedTime;
-      for (let i = 0; i < count; i++) {
-        const [ox, oy, oz] = idleOffset(i, time, 0);
-        posArr[i * 3] += ox;
-        posArr[i * 3 + 1] += oy;
-        posArr[i * 3 + 2] += oz;
-      }
-    }
-
-    // Each galaxy spins as a RIGID body about its own axis and centre — the
-    // spiral shape is preserved exactly however long it runs, and the distant
-    // galaxies spin in place instead of orbiting the centre. Only advances at
-    // rest so it never fights a morph.
-    if (!reducedMotion && atRest) {
-      spinTime.current += delta;
-      for (const g of galaxies) rotateGalaxy(posArr, g, spinTime.current * g.speed);
-    }
-
-    // Continuous sine ripple over the formed shape — ramps in over the last
-    // 40% of the morph so it never fights the formation itself.
+    // Ripple: full strength at rest, ramping in over the last 40% of a morph.
     if (!reducedMotion) {
-      const waveStrength = (morph.current.t - 0.6) / 0.4;
+      const waveStrength = atRest ? 1 : (morph.current.t - 0.6) / 0.4;
       applyWave(posArr, wave, state.clock.elapsedTime, waveStrength);
     }
 
