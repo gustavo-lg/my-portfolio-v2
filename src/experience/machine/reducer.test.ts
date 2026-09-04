@@ -23,6 +23,22 @@ describe("experienceReducer", () => {
     expect(c).toEqual({ state: "traveling", target: "stack" });
   });
 
+  it("SELECT_CATEGORY works during menu-reveal without waiting for MENU_REVEALED", () => {
+    const c = experienceReducer(
+      { state: "menu-reveal", target: null },
+      { type: "SELECT_CATEGORY", key: "projetos" },
+    );
+    expect(c).toEqual({ state: "traveling", target: "projetos" });
+  });
+
+  it("SELECT_CATEGORY works during intro-settling", () => {
+    const c = experienceReducer(
+      { state: "intro-settling", target: null },
+      { type: "SELECT_CATEGORY", key: "sobre" },
+    );
+    expect(c).toEqual({ state: "traveling", target: "sobre" });
+  });
+
   it("cursor arrival then transition reaches internal-page", () => {
     let c: ExperienceContext = { state: "traveling", target: "stack" };
     c = experienceReducer(c, { type: "CURSOR_ARRIVED" });

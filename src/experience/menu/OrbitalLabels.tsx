@@ -54,7 +54,7 @@ export function OrbitalLabels({
   const mobile = useMobile();
 
   useEffect(() => {
-    if (ctx.state === "navigating") {
+    if (ctx.state === "traveling" || ctx.state === "navigating") {
       setPhase("out");
       return;
     }

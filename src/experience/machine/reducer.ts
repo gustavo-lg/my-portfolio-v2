@@ -32,10 +32,14 @@ export function experienceReducer(
     case "intro-settling":
       if (event.type === "SETTLE_COMPLETE")
         return { ...ctx, state: "menu-reveal" };
+      if (event.type === "SELECT_CATEGORY")
+        return { state: "traveling", target: event.key };
       return ctx;
 
     case "menu-reveal":
       if (event.type === "MENU_REVEALED") return { ...ctx, state: "idle" };
+      if (event.type === "SELECT_CATEGORY")
+        return { state: "traveling", target: event.key };
       return ctx;
 
     case "idle":
