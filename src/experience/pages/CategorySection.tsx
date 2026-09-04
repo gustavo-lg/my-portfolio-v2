@@ -20,10 +20,10 @@ export function CategorySection({ category }: { category: CategoryKey }) {
 
   return (
     <ExperienceContainer>
-      <h1 className="mb-2 font-display text-3xl font-light uppercase tracking-[0.2em] text-foreground md:text-5xl">
+      <h1 className="mb-2 font-display text-3xl font-light uppercase tracking-[0.2em] text-foreground drop-shadow-[0_2px_24px_hsl(var(--galaxy-bg))] md:text-5xl">
         {meta.label}
       </h1>
-      <p className="mb-10 text-sm text-muted-foreground">{meta.blurb}</p>
+      <p className="mb-10 text-sm text-muted-foreground drop-shadow-[0_1px_12px_hsl(var(--galaxy-bg))]">{meta.blurb}</p>
       <View />
     </ExperienceContainer>
   );

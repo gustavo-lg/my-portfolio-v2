@@ -50,6 +50,8 @@ function ExperienceShell() {
 
   const bootstrapped = useRef(false);
   const settleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const prevStateRef = useRef(ctx.state);
+  const prevTargetRef = useRef(ctx.target);
   const [anchors, setAnchors] = useState<AnchorScreenPositions | null>(null);
   const [pageOverlay, setPageOverlay] = useState(false);
   const handleAnchors = useCallback(
@@ -174,18 +176,33 @@ function ExperienceShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx.state, ctx.target, goToScene]);
 
-  // The dimming overlay comes back only once the incoming page has finished
-  // its swing-in, and drops again the moment another swap starts.
+  // The dimming overlay activates right when the incoming page finishes
+  // its entrance animation, and drops again the moment another swap starts.
   useEffect(() => {
     if (ctx.state !== "internal-page") {
+      prevStateRef.current = ctx.state;
+      prevTargetRef.current = ctx.target;
       setPageOverlay(false);
       return;
     }
+
+    const wasNavigating = prevStateRef.current === "navigating";
+    const targetChanged =
+      Boolean(prevTargetRef.current) && prevTargetRef.current !== ctx.target;
+    prevStateRef.current = ctx.state;
+    prevTargetRef.current = ctx.target;
+
+    // When arriving from navigating, the 1.35s page-in animation was started
+    // during the camera flight and has already completed upon arrival.
+    // On internal category swaps or direct deep links, wait for page-in (1.35s).
+    const delayMs = reducedMotion
+      ? 0
+      : wasNavigating && !targetChanged
+        ? 50
+        : 1500;
+
     setPageOverlay(false);
-    const t = window.setTimeout(
-      () => setPageOverlay(true),
-      reducedMotion ? 0 : SWAP_MS + 300,
-    );
+    const t = window.setTimeout(() => setPageOverlay(true), delayMs);
     return () => window.clearTimeout(t);
   }, [ctx.state, ctx.target, reducedMotion]);
 
@@ -236,7 +253,7 @@ function ExperienceShell() {
         </Suspense>
       )}
 
-      <ExperienceOverlay visible={overlayVisible} />
+      <ExperienceOverlay visible={overlayVisible} isPage={pageOverlay} />
 
       {menuActive && !staticGalaxy && (
         <OrbitalLabels positions={anchors} onSelect={handleSelectLabel} />

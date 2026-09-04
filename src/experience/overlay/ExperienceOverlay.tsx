@@ -10,23 +10,52 @@
  * arbitrary `duration-[...]` / `ease-[cubic-bezier(...)]` candidates were not
  * being emitted by the JIT extractor (the parens in the easing break it).
  */
-const FADE = "opacity 2100ms cubic-bezier(0.37, 0, 0.16, 1)";
+const MENU_FADE = "opacity 2100ms cubic-bezier(0.37, 0, 0.16, 1)";
+const PAGE_FADE =
+  "opacity 1000ms cubic-bezier(0.25, 1, 0.5, 1), backdrop-filter 1000ms cubic-bezier(0.25, 1, 0.5, 1), -webkit-backdrop-filter 1000ms cubic-bezier(0.25, 1, 0.5, 1)";
 
-export function ExperienceOverlay({ visible }: { visible: boolean }) {
+export interface ExperienceOverlayProps {
+  visible: boolean;
+  isPage?: boolean;
+}
+
+export function ExperienceOverlay({ visible, isPage }: ExperienceOverlayProps) {
+  const showMenuOverlay = visible && !isPage;
+  const showPageOverlay = visible && Boolean(isPage);
+
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-0 z-[1]"
-      style={{
-        opacity: visible ? 1 : 0,
-        transition: FADE,
-        willChange: "opacity",
-        background:
-          "radial-gradient(ellipse 135% 105% at 50% 42%," +
-          " hsl(var(--galaxy-bg) / 0.12) 0%," +
-          " hsl(var(--galaxy-bg) / 0.32) 55%," +
-          " hsl(var(--galaxy-bg) / 0.6) 100%)",
-      }}
-    />
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[1]">
+      {/* Home / Menu subtle vignette */}
+      <div
+        className="absolute inset-0"
+        style={{
+          opacity: showMenuOverlay ? 1 : 0,
+          transition: MENU_FADE,
+          willChange: "opacity",
+          background:
+            "radial-gradient(ellipse 135% 105% at 50% 42%," +
+            " hsl(var(--galaxy-bg) / 0.12) 0%," +
+            " hsl(var(--galaxy-bg) / 0.32) 55%," +
+            " hsl(var(--galaxy-bg) / 0.6) 100%)",
+        }}
+      />
+
+      {/* Internal pages deep dark veil with subtle cosmic blur */}
+      <div
+        className="absolute inset-0"
+        style={{
+          opacity: showPageOverlay ? 1 : 0,
+          transition: PAGE_FADE,
+          willChange: "opacity, backdrop-filter",
+          backdropFilter: showPageOverlay ? "blur(4px)" : "blur(0px)",
+          WebkitBackdropFilter: showPageOverlay ? "blur(4px)" : "blur(0px)",
+          background:
+            "radial-gradient(ellipse 140% 110% at 50% 45%," +
+            " hsl(var(--galaxy-bg) / 0.42) 0%," +
+            " hsl(var(--galaxy-bg) / 0.58) 60%," +
+            " hsl(var(--galaxy-bg) / 0.75) 100%)",
+        }}
+      />
+    </div>
   );
 }
