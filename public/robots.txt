@@ -10,5 +10,14 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
 User-agent: *
 Allow: /
+
+Host: https://gustavogoncalves.dev.br
+Sitemap: https://gustavogoncalves.dev.br/sitemap.xml

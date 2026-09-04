@@ -1,0 +1,23 @@
+{
+  "name": "Gustavo Gonçalves — Desenvolvedor Web & Automação",
+  "short_name": "Gustavo Gonçalves",
+  "description": "Portfólio de Gustavo Gonçalves: desenvolvimento web moderno, plataformas SaaS, integrações de APIs e automações inteligentes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 32x32 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/og.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
