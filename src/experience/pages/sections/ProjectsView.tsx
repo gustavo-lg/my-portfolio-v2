@@ -2,13 +2,13 @@ import { projects } from "@/content/projects";
 
 export function ProjectsView() {
   return (
-    <ul className="grid gap-6 md:grid-cols-2">
+    <ul className="grid gap-4 sm:gap-6 md:grid-cols-2">
       {projects.map((p) => (
         <li
           key={p.title}
-          className="group rounded-xl border border-border/80 bg-card/40 p-5 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/50 hover:bg-card/70 hover:shadow-[0_0_24px_hsl(var(--primary)/0.12)]"
+          className="group rounded-xl border border-border/80 bg-card/40 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/50 hover:bg-card/70 hover:shadow-[0_0_24px_hsl(var(--primary)/0.12)] sm:p-5"
         >
-          <h2 className="text-lg font-semibold text-card-foreground transition-colors duration-200 group-hover:text-primary">
+          <h2 className="text-base font-semibold text-card-foreground transition-colors duration-200 group-hover:text-primary sm:text-lg">
             {p.title}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>

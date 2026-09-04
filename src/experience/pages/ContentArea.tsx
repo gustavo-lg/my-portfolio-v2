@@ -77,7 +77,7 @@ export function ContentArea() {
     : layers;
 
   return (
-    <div className="relative z-10 min-h-screen">
+    <div className="relative z-10 min-h-[100svh]">
       <div
         className="transition-opacity duration-700"
         style={{ opacity: exiting ? 0 : 1 }}
@@ -88,8 +88,7 @@ export function ContentArea() {
       {/* `perspective` gives the recede/approach its depth — the layers shrink
           toward a vanishing point instead of just getting smaller. */}
       <div
-        className="relative overflow-x-clip pb-36 pt-24"
-        style={{ perspective: "2200px" }}
+        className="relative overflow-x-clip pb-24 pt-[calc(max(1rem,env(safe-area-inset-top))+4.75rem)] [perspective:1400px] sm:pb-36 sm:pt-24 sm:[perspective:2200px]"
       >
         {rendered.map((layer) => (
           <div
@@ -105,7 +104,7 @@ export function ContentArea() {
               // Outgoing sits on top so its zoom-past reads over the new page.
               layer.anim === "in"
                 ? "relative z-10 origin-[34%_45%] animate-page-in motion-reduce:animate-none"
-                : "pointer-events-none absolute inset-x-0 top-24 z-20 origin-[50%_45%] animate-page-out motion-reduce:hidden"
+                : "pointer-events-none absolute inset-x-0 top-[calc(max(1rem,env(safe-area-inset-top))+4.75rem)] z-20 origin-[50%_45%] animate-page-out motion-reduce:hidden sm:top-24"
             }
           >
             <CategorySection category={layer.key} />

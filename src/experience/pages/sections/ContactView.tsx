@@ -26,9 +26,9 @@ export function ContactView() {
   ) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
+    <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
       <div>
-        <ul className="space-y-5 rounded-2xl border border-border/80 bg-card/35 p-6 backdrop-blur-md">
+        <ul className="space-y-4 rounded-2xl border border-border/80 bg-card/35 p-4 backdrop-blur-md sm:space-y-5 sm:p-6">
           <li className="flex items-center gap-3 text-sm text-foreground/85">
             <Mail className="h-5 w-5 shrink-0 text-primary" aria-hidden /> {contactInfo.email}
           </li>
@@ -60,7 +60,7 @@ export function ContactView() {
             value={form.name}
             onChange={onChange}
             required
-            className="w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2 text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="min-h-11 w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2.5 text-base text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40 sm:text-sm"
           />
         </label>
         <label className="block text-sm">
@@ -71,7 +71,7 @@ export function ContactView() {
             value={form.email}
             onChange={onChange}
             required
-            className="w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2 text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="min-h-11 w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2.5 text-base text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40 sm:text-sm"
           />
         </label>
         <label className="block text-sm">
@@ -81,7 +81,7 @@ export function ContactView() {
             value={form.subject}
             onChange={onChange}
             required
-            className="w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2 text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="min-h-11 w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2.5 text-base text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40 sm:text-sm"
           />
         </label>
         <label className="block text-sm">
@@ -91,12 +91,12 @@ export function ContactView() {
             value={form.message}
             onChange={onChange}
             required
-            className="min-h-[120px] w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2 text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="min-h-[104px] w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2.5 text-base text-foreground backdrop-blur-md transition-all duration-200 focus:border-primary focus:bg-background/95 focus:outline-none focus:ring-2 focus:ring-primary/40 sm:min-h-[120px] sm:text-sm"
           />
         </label>
         <button
           type="submit"
-          className="group relative w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold tracking-wider text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:scale-[1.015] hover:bg-primary/95 hover:shadow-[0_0_28px_hsl(var(--primary)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.98]"
+          className="group relative flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold tracking-wider text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:scale-[1.015] hover:bg-primary/95 hover:shadow-[0_0_28px_hsl(var(--primary)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.98]"
         >
           Chamar no WhatsApp
         </button>

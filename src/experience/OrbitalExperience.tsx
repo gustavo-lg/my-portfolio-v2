@@ -232,7 +232,7 @@ function ExperienceShell() {
       ctx.state === "navigating");
 
   return (
-    <div className="relative min-h-screen bg-galaxy-bg text-foreground">
+    <div className="relative min-h-[100svh] overflow-x-clip bg-galaxy-bg text-foreground">
       <a
         href="#content"
         className="sr-only z-[200] rounded bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

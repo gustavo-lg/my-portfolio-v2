@@ -51,14 +51,17 @@ export function OrbitalLabels({
   if (!positions) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-30">
+    <div className="pointer-events-none fixed inset-0 z-30 [--label-clamp-x:16%] [--label-clamp-y:12%] sm:[--label-clamp-x:6%] sm:[--label-clamp-y:5%]">
       {ORBITAL_ORDER.map((key, i) => {
         const pos = positions[key];
         return (
           <div
             key={key}
             className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${pos.xPct}%`, top: `${pos.yPct}%` }}
+            style={{
+              left: `clamp(var(--label-clamp-x), ${pos.xPct}%, calc(100% - var(--label-clamp-x)))`,
+              top: `clamp(var(--label-clamp-y), ${pos.yPct}%, calc(100% - var(--label-clamp-y)))`,
+            }}
           >
             <OrbitalLabel
               meta={metaByKey[key]}

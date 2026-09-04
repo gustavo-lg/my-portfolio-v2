@@ -20,7 +20,7 @@ export function Wordmark() {
         willChange: "transform, opacity, filter",
       }}
     >
-      <h1 className="whitespace-nowrap font-display text-2xl font-light tracking-[0.18em] text-foreground drop-shadow-[0_2px_32px_hsl(var(--galaxy-bg))] sm:text-3xl md:text-4xl">
+      <h1 className="max-w-full break-words font-display text-2xl font-light tracking-[0.1em] text-foreground drop-shadow-[0_2px_32px_hsl(var(--galaxy-bg))] sm:text-3xl sm:tracking-[0.18em] md:text-4xl">
         {profile.name}
       </h1>
       <p

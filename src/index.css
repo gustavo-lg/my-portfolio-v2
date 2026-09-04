@@ -130,10 +130,38 @@ All colors MUST be HSL.
        makes the galaxy jump at the end of the camera move. */
     scrollbar-gutter: stable;
     background-color: hsl(var(--galaxy-bg));
+    overflow-x: clip;
   }
 
   body {
     @apply text-foreground;
     background-color: hsl(var(--galaxy-bg));
+    overflow-x: clip;
+  }
+
+  @media (max-width: 640px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+
+    @keyframes page-in {
+      0% {
+        transform: translateX(-22vw) scale(0.4) rotateY(-16deg);
+      }
+      100% {
+        transform: translateX(0) scale(1) rotateY(0deg);
+      }
+    }
+
+    @keyframes page-out {
+      0% {
+        transform: translateX(0) scale(1) rotateY(0deg);
+      }
+      100% {
+        transform: translateX(120vw) scale(1.8) rotateY(-12deg);
+      }
+    }
   }
 }

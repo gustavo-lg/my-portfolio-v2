@@ -36,9 +36,9 @@ export function BottomNav({ current }: { current: CategoryKey }) {
   return (
     <nav
       aria-label="Outras categorias"
-      className="pointer-events-none fixed inset-x-0 bottom-8 z-30"
+      className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 sm:bottom-8"
     >
-      <ExperienceContainer className="flex justify-center gap-3">
+      <ExperienceContainer className="flex flex-wrap justify-center gap-2 sm:gap-3">
         {others.map((c) => {
           const Icon = categoryIcons[c.icon];
           return (
@@ -46,7 +46,7 @@ export function BottomNav({ current }: { current: CategoryKey }) {
               key={c.key}
               type="button"
               onClick={() => goTo(c.key, c.path)}
-              className="group pointer-events-auto relative flex cursor-pointer items-center gap-2 rounded-full border border-border/70 bg-background/50 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/80 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95"
+              className="group pointer-events-auto relative flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border border-border/70 bg-background/50 px-3 py-2 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/80 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 sm:gap-2 sm:px-4 sm:text-xs"
             >
               <Icon
                 className="h-4 w-4 text-muted-foreground transition-transform duration-300 ease-out group-hover:scale-110 group-hover:text-primary"

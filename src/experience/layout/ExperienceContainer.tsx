@@ -16,7 +16,7 @@ export function ExperienceContainer({
   className?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full px-6", EXPERIENCE_MAX_W, className)}>
+    <div className={cn("mx-auto w-full px-4 sm:px-6", EXPERIENCE_MAX_W, className)}>
       {children}
     </div>
   );

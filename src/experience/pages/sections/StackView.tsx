@@ -2,12 +2,12 @@ import { skillCategories, learningTools, strengths } from "@/content/stack";
 
 export function StackView() {
   return (
-    <div className="space-y-12">
-      <section className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-8 sm:space-y-12">
+      <section className="grid gap-3 sm:gap-4 sm:grid-cols-2">
         {skillCategories.map((c) => (
           <div
             key={c.title}
-            className="group rounded-xl border border-border/80 bg-card/30 p-5 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/40 hover:bg-card/60 hover:shadow-[0_0_20px_hsl(var(--primary)/0.1)]"
+            className="group rounded-xl border border-border/80 bg-card/30 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/40 hover:bg-card/60 hover:shadow-[0_0_20px_hsl(var(--primary)/0.1)] sm:p-5"
           >
             <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <span className={`h-2 w-2 rounded-full ${c.color} transition-transform duration-300 group-hover:scale-125`} aria-hidden />

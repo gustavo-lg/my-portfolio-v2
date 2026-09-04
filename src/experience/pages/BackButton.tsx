@@ -19,12 +19,12 @@ export function BackButton() {
   };
 
   return (
-    <div className="fixed inset-x-0 top-6 z-30">
+    <div className="fixed inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-30 sm:top-6">
       <ExperienceContainer>
         <button
           type="button"
           onClick={onBack}
-          className="group relative flex cursor-pointer items-center gap-2 rounded-full border border-border/70 bg-background/60 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-foreground/90 backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/85 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95"
+          className="group relative flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border/70 bg-background/60 px-3.5 py-2 text-[0.7rem] font-medium uppercase tracking-[0.2em] text-foreground/90 backdrop-blur-md transition-all duration-300 ease-out hover:scale-105 hover:border-primary hover:bg-background/85 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 sm:px-4 sm:text-xs"
         >
           <ArrowLeft
             className="h-4 w-4 transition-transform duration-300 ease-out group-hover:-translate-x-1"

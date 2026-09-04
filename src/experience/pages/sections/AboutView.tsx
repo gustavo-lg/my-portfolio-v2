@@ -23,7 +23,7 @@ const pillarIcons: Record<string, LucideIcon> = {
 
 export function AboutView() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-7 sm:space-y-10">
       {/* Intro lead */}
       <p className="text-base sm:text-lg leading-relaxed text-foreground/90">
         {aboutIntro}
@@ -43,13 +43,13 @@ export function AboutView() {
         <h2 className="mb-4 text-sm uppercase tracking-[0.2em] text-muted-foreground">
           Como eu atuo
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
           {pillars.map((pillar) => {
             const Icon = pillarIcons[pillar.icon] ?? Code;
             return (
               <div
                 key={pillar.title}
-                className="group flex flex-col justify-start rounded-xl border border-border/80 bg-card/30 p-5 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/40 hover:bg-card/60 hover:shadow-[0_0_20px_hsl(var(--primary)/0.1)]"
+                className="group flex flex-col justify-start rounded-xl border border-border/80 bg-card/30 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:border-primary/40 hover:bg-card/60 hover:shadow-[0_0_20px_hsl(var(--primary)/0.1)] sm:p-5"
               >
                 <h3 className="flex items-center gap-2.5 text-sm font-semibold text-foreground transition-colors duration-200 group-hover:text-primary">
                   <Icon className="h-4 w-4 shrink-0 text-primary transition-transform duration-300 group-hover:scale-110" aria-hidden />
@@ -69,7 +69,7 @@ export function AboutView() {
         <h2 className="mb-4 text-sm uppercase tracking-[0.2em] text-muted-foreground">
           Objetivo
         </h2>
-        <div className="rounded-xl border border-border/80 bg-card/30 p-5 backdrop-blur-sm">
+        <div className="rounded-xl border border-border/80 bg-card/30 p-4 backdrop-blur-sm sm:p-5">
           <p className="text-sm leading-relaxed text-foreground/90">
             {aboutGoal}
           </p>
