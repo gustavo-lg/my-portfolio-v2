@@ -15,6 +15,7 @@ export const projects: Project[] = [
     features: [
       "Alta performance",
       "Otimizado para o Google",
+      "Blog integrado",
       "Contato direto via WhatsApp",
       "Automação inteligente",
       "Gestão fácil de imóveis",
@@ -67,7 +68,7 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    title: "Poupe Fácil",
+    title: "Minha SecretárIA",
     description:
       "Desenvolvi uma página de vendas personalizada, integrada à Hotmart para gerenciamento de pagamentos e planos. O sistema conta com um painel dinâmico, chatbot inteligente e automações via WhatsApp, tornando o atendimento e a gestão muito mais rápidos, eficientes e profissionais.",
     image: projetoPoupeFacil,
@@ -109,16 +110,6 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    title: "Pokedex Next",
-    description:
-      "Pokedex desenvolvida com Next.js (App Router) e TypeScript, integrando a PokéAPI. Permite busca por nome, exibe detalhes dos Pokémon com renderização SSR, paginação e carregamento dinâmico. Interface responsiva com Material UI e Skeleton Loaders para melhor experiência do usuário.",
-    image: projetoPokedex,
-    features: ["Next.js", "React", "TypeScript", "CSS", "Axios", "MUI", "API Rest"],
-    liveUrl: "https://pokedex-next-y3qk.vercel.app/",
-    githubUrl: "https://github.com/gustavo-lg/pokedex-next",
-    featured: false,
-  },
-  {
     title: "Meus Repositórios",
     description:
       "Meus Repositórios Aplicação desenvolvida com React que consome a API do GitHub para listar repositórios de um usuário e exibir detalhes individuais de cada um deles.",
@@ -126,16 +117,6 @@ export const projects: Project[] = [
     features: ["React", "Javascript", "Axios", "API Rest"],
     liveUrl: "https://meus-repositorios-beta.vercel.app/",
     githubUrl: "https://github.com/gustavo-lg/meus-repositorios",
-    featured: false,
-  },
-  {
-    title: "Blog Platform",
-    description:
-      "Plataforma de blog com editor rico, painel integrado com Supabase para gerenciamento de dados e storage.",
-    image: null,
-    features: ["Next.js", "MDX", "Tailwind"],
-    liveUrl: "https://imobiliario.vercel.app/blog",
-    githubUrl: "#",
     featured: false,
   },
   {

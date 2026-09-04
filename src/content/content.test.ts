@@ -6,8 +6,8 @@ import { contactInfo } from "./contact";
 import { profile } from "./profile";
 
 describe("content", () => {
-  it("has 9 projects, 5 featured", () => {
-    expect(projects).toHaveLength(9);
+  it("has 7 projects, 5 featured", () => {
+    expect(projects).toHaveLength(7);
     expect(projects.filter((p) => p.featured)).toHaveLength(5);
   });
 

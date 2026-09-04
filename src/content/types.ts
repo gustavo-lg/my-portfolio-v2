@@ -35,6 +35,7 @@ export interface AboutPillar {
 export interface ContactInfo {
   email: string;
   phone: string;
+  linkedin: string;
   location: string;
   whatsapp: string;
   instagram: string;
