@@ -10,7 +10,7 @@ export const aboutParagraphs: string[] = [
 ];
 
 export const aboutGoal =
-  "Busco uma posição de Analista de Suporte Técnico em empresa de tecnologia, onde possa unir esse olhar técnico com atendimento e experiência do cliente.";
+  "Construir ferramentas e soluções que eliminem atritos operacionais no dia a dia de produtos digitais, transformando tarefas repetitivas em sistemas autônomos e bem documentados.";
 
 export const pillars: AboutPillar[] = [
   {

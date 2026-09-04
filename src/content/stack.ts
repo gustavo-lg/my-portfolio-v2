@@ -31,11 +31,13 @@ export const skillCategories: SkillCategory[] = [
   },
 ];
 
-/** Tools I'm currently learning / interested in working with. */
+/** Tools I'm currently learning / exploring. */
 export const learningTools: string[] = [
-  "Zendesk",
-  "Salesforce Service Cloud",
-  "G Suite",
+  "Agentes de IA & LLMs",
+  "OpenAI & Anthropic APIs",
+  "RAG & Bases Vetoriais",
+  "LangChain / LangGraph",
+  "Automação Inteligente",
 ];
 
 /** How I work — drawn from the day-to-day, not a generic soft-skill list. */

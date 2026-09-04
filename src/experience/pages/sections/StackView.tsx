@@ -46,7 +46,7 @@ export function StackView() {
 
       <section>
         <h2 className="mb-4 text-sm uppercase tracking-[0.2em] text-muted-foreground">
-          Estudando / interesse
+          No radar
         </h2>
         <div className="flex flex-wrap gap-2">
           {learningTools.map((s) => (

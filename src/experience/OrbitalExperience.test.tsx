@@ -53,7 +53,7 @@ describe("OrbitalExperience routing", () => {
     renderAt("/stack");
     expect(screen.getByText("Qualidade & Automação de Testes")).toBeInTheDocument();
     expect(screen.getByText("Playwright")).toBeInTheDocument();
-    expect(screen.getByText("Zendesk")).toBeInTheDocument();
+    expect(screen.getByText("Agentes de IA & LLMs")).toBeInTheDocument();
   });
 
   it("renders the contact form at /contato", () => {
