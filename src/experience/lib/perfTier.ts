@@ -1,8 +1,13 @@
+import { LADDER, indexOfId, type Rung } from "./qualityLadder";
+import type { GpuClass } from "./gpuTier";
+
 export interface PerfTier {
+  id: string;
   particleCount: number;
   maxDpr: number;
-  bloom: boolean;
   customCursor: boolean;
+  /** Always false in the MVP; kept so consumers do not have to change. */
+  bloom: boolean;
 }
 
 export interface PerfTierOptions {
@@ -10,53 +15,68 @@ export interface PerfTierOptions {
   pointerFine?: boolean;
   hardwareConcurrency?: number;
   deviceMemory?: number;
+  gpuClass?: GpuClass;
 }
 
-// Counts are the morphing nebula only; GalaxyCanvas adds ~32% more as the
-// static surrounding DustField.
-const HIGH: Omit<PerfTier, "customCursor"> = {
-  particleCount: 140000,
-  maxDpr: 1.5,
-  bloom: false,
-};
-const MID: Omit<PerfTier, "customCursor"> = {
-  particleCount: 88000,
-  maxDpr: 1.5,
-  bloom: false,
-};
-const LOW: Omit<PerfTier, "customCursor"> = {
-  particleCount: 16000,
-  maxDpr: 1.5,
-  bloom: false,
-};
-const REDUCED: Omit<PerfTier, "customCursor"> = {
-  particleCount: 6000,
-  maxDpr: 1.5,
-  bloom: false,
-};
+/**
+ * `customCursor` is a question about the input device, not about how many
+ * particles the GPU can push, so it is derived here rather than carried on the
+ * rung. It used to live on the ladder, which meant a touch device promoted from
+ * `floor` to `low+` would silently switch the flag on.
+ */
+export function tierFromRung(
+  rung: Rung,
+  maxDpr: number,
+  opts: { pointerFine?: boolean; reducedMotion?: boolean } = {},
+): PerfTier {
+  const { pointerFine = false, reducedMotion = false } = opts;
+  return {
+    id: rung.id,
+    particleCount: rung.particleCount,
+    maxDpr,
+    customCursor: pointerFine && !reducedMotion,
+    bloom: false,
+  };
+}
 
-export function getPerfTier(opts: PerfTierOptions = {}): PerfTier {
+/**
+ * Picks the rung the scene STARTS on. It never picks the top rung: reaching
+ * "ultra" is earned by measured frame rate in useAdaptivePerfTier, never
+ * guessed from a vendor string.
+ *
+ * `reducedMotion` is deliberately absent — that is an accessibility preference
+ * handled by REDUCED_RUNG, not a performance verdict.
+ */
+export function getStartIndex(opts: PerfTierOptions = {}): number {
   const {
-    reducedMotion = false,
     pointerFine = false,
     hardwareConcurrency = 4,
     deviceMemory,
+    gpuClass = "unknown",
   } = opts;
 
-  if (reducedMotion) {
-    return { ...REDUCED, customCursor: false };
+  // Touch and coarse pointers enter at the base.
+  if (!pointerFine) return indexOfId("floor");
+
+  // A weak GPU outranks a strong CPU. This is the original bug: 8 cores plus
+  // weak integrated graphics used to land on the top tier and stutter.
+  if (gpuClass === "low") return indexOfId("low");
+
+  if (typeof deviceMemory === "number" && deviceMemory <= 4) {
+    return indexOfId("low");
   }
+  if (hardwareConcurrency <= 2) return indexOfId("low");
 
-  const lowMemory = typeof deviceMemory === "number" && deviceMemory <= 4;
-
-  // Coarse pointer or weak CPU/memory -> mobile/low tier.
-  if (!pointerFine || hardwareConcurrency <= 4 || lowMemory) {
-    return { ...LOW, customCursor: false };
+  if (gpuClass === "high") {
+    return hardwareConcurrency >= 8 ? indexOfId("high") : indexOfId("mid");
   }
+  if (gpuClass === "mid") return indexOfId("mid");
 
-  if (hardwareConcurrency >= 8) {
-    return { ...HIGH, customCursor: true };
-  }
+  // Safari blocks WEBGL_debug_renderer_info and always lands here. Promotion is
+  // what carries a capable Mac back up.
+  if (gpuClass === "unknown") return indexOfId("mid-");
 
-  return { ...MID, customCursor: true };
+  return indexOfId("low+");
 }
+
+export { LADDER };

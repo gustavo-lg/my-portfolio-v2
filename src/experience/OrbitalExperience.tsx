@@ -10,13 +10,17 @@ import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import type { CategoryMeta } from "@/content/types";
 import { categories, categoryByPath } from "@/content/categories";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
-import { useDeviceCapabilities } from "@/experience/lib/useDeviceCapabilities";
+import {
+  DeviceCapabilitiesProvider,
+  useDeviceCapabilities,
+} from "@/experience/lib/useDeviceCapabilities";
 import { GalaxyCameraProvider, useGalaxyCamera } from "@/experience/galaxy/GalaxyCamera";
 import { SCENES, type SceneKey } from "@/experience/galaxy/categoryScenes";
 import type { AnchorScreenPositions } from "@/experience/galaxy/useAnchorProjection";
 import { CursorProvider, useCursor } from "@/experience/cursor/CustomCursor";
 import { ExperienceOverlay } from "@/experience/overlay/ExperienceOverlay";
 import { GalaxyBackdrop } from "@/experience/galaxy/GalaxyBackdrop";
+import { PerfHud } from "@/experience/lib/PerfHud";
 import { isWebGLAvailable } from "@/experience/lib/webgl";
 import { OrbitalMenu } from "@/experience/menu/OrbitalMenu";
 import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
@@ -240,6 +244,7 @@ function ExperienceShell() {
         Pular para o conteúdo
       </a>
 
+      <PerfHud />
       {staticGalaxy ? (
         <GalaxyBackdrop />
       ) : (
@@ -277,10 +282,12 @@ function ExperienceShell() {
 
 export function OrbitalExperience() {
   return (
-    <GalaxyCameraProvider>
-      <CursorProvider enabled={false}>
-        <ExperienceShell />
-      </CursorProvider>
-    </GalaxyCameraProvider>
+    <DeviceCapabilitiesProvider>
+      <GalaxyCameraProvider>
+        <CursorProvider enabled={false}>
+          <ExperienceShell />
+        </CursorProvider>
+      </GalaxyCameraProvider>
+    </DeviceCapabilitiesProvider>
   );
 }

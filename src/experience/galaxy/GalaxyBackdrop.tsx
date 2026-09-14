@@ -3,7 +3,7 @@
  * while the WebGL chunk loads and as the permanent backdrop when WebGL is
  * unavailable.
  */
-export function GalaxyBackdrop({ pulse = false }: { pulse?: boolean }) {
+export function GalaxyBackdrop() {
   return (
     <div
       aria-hidden
