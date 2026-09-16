@@ -59,4 +59,23 @@ describe("SCENES", () => {
       expect(SCENES[k].transition.flourish).toBe("none");
     }
   });
+
+  // The phone-only extra pull-back must always be an ADDITIONAL margin on top
+  // of `fit`, never a smaller one — that would silently crop the minis again
+  // below the narrow-viewport breakpoint.
+  it("menu's fitNarrow is at least as generous as fit on both axes", () => {
+    const { fit, fitNarrow } = SCENES.menu.framing;
+    expect(fit).toBeDefined();
+    expect(fitNarrow).toBeDefined();
+    expect(fitNarrow!.x).toBeGreaterThanOrEqual(fit!.x);
+    expect(fitNarrow!.y).toBeGreaterThanOrEqual(fit!.y);
+  });
+
+  // Only the home page composes several galaxies at once; category pages are
+  // single-galaxy close-ups with no crowding problem to solve.
+  it("only menu declares fitNarrow", () => {
+    for (const k of ["projetos", "stack", "sobre", "contato"] as SceneKey[]) {
+      expect(SCENES[k].framing.fitNarrow).toBeUndefined();
+    }
+  });
 });

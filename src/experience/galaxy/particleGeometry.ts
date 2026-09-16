@@ -343,10 +343,13 @@ export function galaxyField(
     mainMultiplier,
   );
   const out = new Float32Array(total * 3);
-  out.set(galaxyDisk(mainCount, main, 1), 0);
+  const mainBuf = galaxyDisk(mainCount, main, 1);
+  stratify(mainBuf, mainCount, 1);
+  out.set(mainBuf, 0);
   let offset = mainCount * 3;
   minis.forEach((m, idx) => {
     const buf = galaxyDisk(miniCount, m.params, 21 + idx);
+    stratify(buf, miniCount, 21 + idx);
     offsetPositions(buf, m.center);
     out.set(buf, offset);
     offset += buf.length;
@@ -411,6 +414,27 @@ export function deformPositions(
   }
 }
 
+/**
+ * Shuffles the points (xyz triples) into deterministic order, so that any
+ * prefix of the buffer is a uniform sample of the whole. This is what lets
+ * the drawn count shrink without deforming the galaxy: a raw prefix would be
+ * biased toward whichever zone was generated first (bulge, disk, halo).
+ */
+export function stratify(buf: Float32Array, count: number, seed: number): void {
+  const rng = mulberry32(seed);
+  for (let i = count - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    if (i === j) continue;
+    const ai = i * 3;
+    const aj = j * 3;
+    for (let k = 0; k < 3; k++) {
+      const tmp = buf[ai + k];
+      buf[ai + k] = buf[aj + k];
+      buf[aj + k] = tmp;
+    }
+  }
+}
+
 /** Translate every xyz triple in `positions` by `center`, in place. */
 export function offsetPositions(
   positions: Float32Array,
@@ -452,5 +476,6 @@ export function generateDustField(
     out[i * 3 + 1] = u * r * 0.85;
     out[i * 3 + 2] = s * Math.sin(theta) * r;
   }
+  stratify(out, count, seed);
   return out;
 }

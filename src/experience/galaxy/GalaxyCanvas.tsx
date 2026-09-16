@@ -14,6 +14,7 @@ import {
   generateColors,
   diskNormal,
   offsetPositions,
+  stratify,
   type DiskParams,
 } from "./particleGeometry";
 import { SCENES, type SceneKey } from "./categoryScenes";
@@ -25,7 +26,12 @@ import { GalaxyBackdrop } from "./GalaxyBackdrop";
 import { storeIndex } from "@/experience/lib/adaptiveTier";
 import { LADDER } from "@/experience/lib/qualityLadder";
 import { classifyGpu, getGpuRendererString } from "@/experience/lib/gpuTier";
-import { perfStats } from "@/experience/lib/perfDebug";
+import {
+  perfStats,
+  markSceneSettled,
+  resetSceneSettled,
+} from "@/experience/lib/perfDebug";
+import { useNarrowViewport } from "@/experience/lib/useNarrowViewport";
 
 /**
  * The distant version seen on HOME and ALL pages: same footprint as the full
@@ -44,8 +50,32 @@ function miniGalaxy(d: DiskParams): DiskParams {
   };
 }
 
+/**
+ * Shrinks only the central galaxy's radial reach, on phones. The minis sit at
+ * ~8.9 world units out with their own radius of ~2.7-3, so their near edge is
+ * around 5.9 — inside the unscaled core's outer radius of 7.5. Worse, the
+ * core's sparse halo (particleGeometry.ts's galaxyDisk) reaches up to
+ * `1.2 * outer` ≈ 9, past the mini centres entirely. On a phone, already
+ * zoomed in tighter than desktop, this reads as the core's arms and halo
+ * touching each mini. Shrinking bulge/outer opens a visible gap without
+ * moving anything else — mini positions, camera flight targets and label
+ * anchors are untouched.
+ *
+ * `bar` (a stretch factor, not a radius — see DiskParams) only shapes the
+ * inner third of the disk and never reaches the minis either way, so it is
+ * deliberately left alone here.
+ *
+ * Starting point (~0.7x), not final: tune visually against a real phone.
+ */
+function narrowMenuDisk(d: DiskParams): DiskParams {
+  return {
+    ...d,
+    bulge: d.bulge * 0.7,
+    outer: d.outer * 0.7,
+  };
+}
+
 interface Props {
-  idle: boolean;
   activeScene: SceneKey;
   onFormed?: () => void;
   onAnchors?: (positions: AnchorScreenPositions) => void;
@@ -66,19 +96,26 @@ const CANVAS_STYLE: React.CSSProperties = {
 
 /** Full-viewport WebGL backdrop. Default export so it can be React.lazy'd. */
 function GalaxyCanvas({
-  idle,
   activeScene,
   onFormed,
   onAnchors,
 }: Props) {
   const { tier, reducedMotion } = useDeviceCapabilities();
+  const isNarrow = useNarrowViewport();
   const count = tier.particleCount;
+  // The session's highest rung — since the ladder only steps down (Fase 1),
+  // this is also the most the scene will ever need to draw. Buffers are
+  // allocated once at this size; stepping down only shrinks the draw range
+  // (Fase 2), it never remounts or reallocates.
+  const allocCount = useRef(count).current;
+  const allocDustCount = Math.round(allocCount * 0.33);
   const dustCount = Math.round(count * 0.33);
   const initialScene = useRef(activeScene).current;
 
-  // The particle count changes when the adaptive tier steps, which remounts the
-  // fields. Only the very first mount should play the entry formation; a later
-  // remount must appear already settled.
+  // The particle count no longer remounts the fields when the adaptive tier
+  // steps (Fase 2) — allocation is fixed at `allocCount` and stepping only
+  // changes the drawn range. `mountedOnce` still guards `instantForm` for any
+  // other cause of a fresh mount.
   const mountedOnce = useRef(false);
   useEffect(() => {
     mountedOnce.current = true;
@@ -90,8 +127,11 @@ function GalaxyCanvas({
   const handleFormed = useCallback(() => {
     if (formedRef.current) return;
     formedRef.current = true;
+    markSceneSettled();
     onFormed?.();
   }, [onFormed]);
+
+  useEffect(() => resetSceneSettled, []);
 
   const [contextLost, setContextLost] = useState(false);
 
@@ -171,10 +211,16 @@ function GalaxyCanvas({
       params: miniGalaxy(SCENES[k].disk),
       center: SCENES[k].center,
     }));
-    // Central galaxy gets 3x particles:
-    const positions = galaxyField(count, SCENES.menu.disk, minis, 3);
+    // On phones, shrink only the core's radial reach so its arms/halo stop
+    // touching the minis (narrowMenuDisk above). Mini params, positions,
+    // camera targets and label anchors are untouched by this.
+    const mainDisk = isNarrow ? narrowMenuDisk(SCENES.menu.disk) : SCENES.menu.disk;
+    // Central galaxy gets 3x particles. Allocated at `allocCount` — the
+    // session's highest rung — never at the live, possibly-lower `count`
+    // (Fase 2): the buffer is sized once and only the drawn range shrinks.
+    const positions = galaxyField(allocCount, mainDisk, minis, 3);
     const { main: mainCount, mini: miniCount, total } = galaxyFieldSplit(
-      count,
+      allocCount,
       minis.length,
       3,
     );
@@ -197,7 +243,7 @@ function GalaxyCanvas({
       return { key, start, count: n, cx: center[0], cy: center[1], cz: center[2], nx, ny, nz, speed };
     };
     const galaxies = [
-      spin("menu", 0, mainCount, [0, 0, 0], SCENES.menu.disk.tilt, SCENES.menu.swirl.speed),
+      spin("menu", 0, mainCount, [0, 0, 0], mainDisk.tilt, SCENES.menu.swirl.speed),
       ...ORBITAL_ORDER.map((k, i) =>
         spin(
           k,
@@ -221,6 +267,7 @@ function GalaxyCanvas({
       const s = SCENES[key];
       const p = galaxyDisk(detailExtra, miniGalaxy(s.disk), 101 + idx * 7);
       offsetPositions(p, s.center);
+      stratify(p, detailExtra, 101 + idx * 7);
       const c = generateColors(detailExtra, p, s.colorScheme, s.center);
       const [nx, ny, nz] = diskNormal(s.disk.tilt);
       details[key] = {
@@ -249,7 +296,20 @@ function GalaxyCanvas({
       detailLayers: details,
       extraCount: detailExtra,
     };
-  }, [count]);
+  }, [allocCount, isNarrow]);
+
+  // How much of the allocated buffer to actually draw at the CURRENT (live,
+  // possibly lower) tier. `galaxyFieldSplit` on both sides gives the exact
+  // proportion — not an approximation — because the mini share is a fraction
+  // of the total, not a fixed count (fix-performance-v2.md, Fase 2.3).
+  const drawCounts = useMemo(() => {
+    const alloc = galaxyFieldSplit(allocCount, ORBITAL_ORDER.length, 3);
+    const want = galaxyFieldSplit(count, ORBITAL_ORDER.length, 3);
+    return {
+      main: Math.min(alloc.main, want.main),
+      mini: Math.min(alloc.mini, want.mini),
+    };
+  }, [allocCount, count]);
 
   // All visual props are fixed to the menu scene so the base particle field never
   // morphs between routes — only the camera moves.
@@ -271,16 +331,15 @@ function GalaxyCanvas({
     >
       <GalaxyCamera initial={initialScene} />
       <DustField
-        key={dustCount}
-        count={dustCount}
+        count={allocDustCount}
+        drawn={dustCount}
         reducedMotion={reducedMotion}
       />
       <ParticleField
-        key={totalCount}
         instantForm={mountedOnce.current}
         count={totalCount}
+        drawCounts={drawCounts}
         reducedMotion={reducedMotion}
-        idle={idle}
         shape={shape}
         colors={colors}
         galaxies={spins}
@@ -296,6 +355,7 @@ function GalaxyCanvas({
         onFormed={handleFormed}
         activeDetail={activeDetail}
         detailCount={extraCount}
+        detailDrawn={drawCounts.mini}
         activeScene={activeScene}
       />
       {onAnchors && <AnchorProjector onChange={onAnchors} />}

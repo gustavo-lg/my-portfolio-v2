@@ -21,7 +21,6 @@ export const LADDER: readonly Rung[] = [
   // rebuild on mount (~0.197 ms per thousand points). 300k lands at roughly
   // 104 MB and a 248 ms rebuild; 440k would be 140 MB and 310 ms, for a gain
   // additive blending largely washes out.
-  { id: "extreme", particleCount: 300000, maxDpr: 2.0 },
   { id: "ultra", particleCount: 220000, maxDpr: 2.0 },
   { id: "high", particleCount: 220000, maxDpr: 1.5 },
   { id: "high-", particleCount: 150000, maxDpr: 1.5 },
@@ -85,17 +84,6 @@ export function stepDown(index: number, devicePixelRatio: number): number {
   let from = start;
   while (from < last) {
     const next = from + 1;
-    if (!isInertStep(from, next, devicePixelRatio)) return next;
-    from = next;
-  }
-  return start;
-}
-
-export function stepUp(index: number, devicePixelRatio: number): number {
-  const start = Math.min(LADDER.length - 1, Math.max(0, Math.trunc(index)));
-  let from = start;
-  while (from > 0) {
-    const next = from - 1;
     if (!isInertStep(from, next, devicePixelRatio)) return next;
     from = next;
   }

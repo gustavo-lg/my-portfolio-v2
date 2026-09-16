@@ -56,6 +56,8 @@ export interface PerfStats {
   probeRounds: number;
   /** Set when a shader fails to compile, so the failure is visible on screen. */
   shaderError: string | null;
+  /** True once the entrance formation has finished and the scene is settled. */
+  sceneSettled: boolean;
 }
 
 /**
@@ -73,4 +75,18 @@ export const perfStats: PerfStats = {
   probeFps: null,
   probeRounds: 0,
   shaderError: null,
+  sceneSettled: false,
 };
+
+/**
+ * Exported as functions, not by mutating `perfStats` directly at the call
+ * site: `perfStats` is a module-level singleton that survives remounts and
+ * SPA navigations, so resetting it on unmount needs an explicit call.
+ */
+export function markSceneSettled(): void {
+  perfStats.sceneSettled = true;
+}
+
+export function resetSceneSettled(): void {
+  perfStats.sceneSettled = false;
+}

@@ -8,6 +8,21 @@ export interface CameraFraming {
   position: Vec3;
   lookAt: Vec3;
   fov: number;
+  /**
+   * Half-extents that must stay in frame, in world units. Set it when the shot
+   * has to hold a layout wider than a phone can show at this distance: the
+   * camera is then pulled back until the extent fits. Omit it to keep the
+   * authored position on every viewport.
+   */
+  fit?: { x: number; y: number };
+  /**
+   * Wider than `fit`, used only below NARROW_VIEWPORT_MAX_WIDTH
+   * (responsiveFraming.ts) — phones, not tablets. Exists because on a phone
+   * the mini galaxies sit close enough to the frame edge that "just barely
+   * fits" reads as cramped; this asks for extra breathing room on top of the
+   * minimum `fit` guarantee. Falls back to `fit` when absent.
+   */
+  fitNarrow?: { x: number; y: number };
 }
 
 /**
@@ -85,7 +100,19 @@ export const SCENES: Record<SceneKey, Scene> = {
    *  two tight arms. Four small Andromeda-style galaxies sit out around it.  */
   menu: {
     center: [0, 0, 0],
-    framing: { position: [0, 1, 16], lookAt: [0, 0, 0], fov: 64 },
+    // The four minis sit at x = ±7.8, y = ±4.3. `fit` keeps them on screen in
+    // portrait, where the authored distance would crop them away entirely.
+    framing: {
+      position: [0, 1, 16],
+      lookAt: [0, 0, 0],
+      fov: 64,
+      fit: { x: 9.6, y: 6.2 },
+      // Starting point, not final — tune visually against a real phone. Sits
+      // ~20% further back than `fit` alone: on a 390px-wide phone `fit`
+      // already pulls the camera to ~33 world units (vs. 16 authored for
+      // desktop); this adds another ~20% of margin on top.
+      fitNarrow: { x: 11.5, y: 7.4 },
+    },
     disk: {
       bulge: 2.4,
       outer: 7.5,

@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
+# Gustavo Gonçalves — Portfólio
 
-## Project info
+Portfólio pessoal como experiência imersiva em WebGL: uma galáxia de
+partículas renderizada com Three.js/React Three Fiber substitui a navegação
+tradicional por scroll. As categorias (Projetos, Stack, Sobre, Contato)
+orbitam um núcleo central; selecionar uma delas dispara uma sequência
+coreografada de câmera + morph de partículas até a cena daquela página.
 
-**URL**: https://lovable.dev/projects/42bbea11-7767-4370-802f-86e955c6ac37
+**Produção**: https://gustavogoncalves.dev.br/
 
-## How can I edit this code?
+## Stack
 
-There are several ways of editing your application.
+- **Build**: Vite 5, TypeScript 5, `@vitejs/plugin-react-swc`
+- **UI**: React 18, React Router 6, Tailwind CSS 3, shadcn/ui (Radix)
+- **3D/animação**: Three.js, `@react-three/fiber`, `@react-three/drei`, GSAP
+- **Testes**: Vitest + Testing Library (jsdom)
+- **Deploy**: Vercel
 
-**Use Lovable**
+## Rodando localmente
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/42bbea11-7767-4370-802f-86e955c6ac37) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Requer Node.js e npm.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Outros scripts:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run build       # build de produção
+npm run build:dev   # build em modo development (debug mais fácil)
+npm run preview     # serve o build de produção localmente
+npm run lint        # eslint
+npm test            # vitest run (suíte completa)
+npm run test:watch  # vitest em modo watch
+```
 
-**Use GitHub Codespaces**
+## Estrutura
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+  content/       # dados do portfólio (projetos, stack, sobre, contato) — sem CMS/backend
+  experience/    # a "experiência orbital": máquina de estados, câmera, galáxia de partículas, menu, cursor
+    galaxy/      # geometria/shader/animação das partículas (Three.js puro + R3F)
+    lib/         # tier de qualidade adaptativo, capacidades do dispositivo, HUD de perf
+    machine/     # máquina de estados da navegação (menu ↔ categoria ↔ retorno)
+    menu/        # labels orbitais, menu
+    pages/       # conteúdo de cada categoria, transições de página
+  pages/         # rotas de nível superior (NotFound)
+scratchpad/      # scripts de harness CDP para medir performance (não fazem parte do app)
+```
 
-## What technologies are used for this project?
+### Sobre a galáxia de partículas
 
-This project is built with:
+Uma única nuvem de partículas é alocada uma vez por sessão e nunca remontada:
+trocar de degrau de qualidade ou de categoria apenas reajusta quanto do
+buffer é desenhado (`geometry.groups`/`drawRange`) e para onde as partículas
+fazem morph — sem realocar memória nem recompilar shaders. A qualidade inicial
+é escolhida a partir de sinais estáticos do dispositivo (GPU, núcleos,
+memória) e só pode ser **rebaixada** depois, nunca promovida, com base em FPS
+medido de verdade após a formação de entrada terminar.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Detalhes de por que o sistema é assim — e o histórico de bugs de performance
+que motivaram o design atual — estão documentados em
+`docs/history/fix-performance.md` e `docs/history/fix-performance-v2.md`.
 
-## How can I deploy this project?
+## Testes
 
-Simply open [Lovable](https://lovable.dev/projects/42bbea11-7767-4370-802f-86e955c6ac37) and click on Share -> Publish.
+A suíte roda em `vitest` + `jsdom`: sem contexto WebGL real, sem compilação
+de shader, sem `requestAnimationFrame` confiável. Toda a lógica pura (câmera,
+ladder de qualidade, geometria de partículas, máquina de estados) é extraída
+para módulos testáveis; os componentes React Three Fiber (`ParticleField`,
+`GalaxyCamera`, `GalaxyCanvas`) não têm teste unitário e são verificados
+manualmente via Chrome DevTools Protocol (scripts em `scratchpad/`).
 
-## Can I connect a custom domain to my Lovable project?
+## Documentação adicional
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `docs/superpowers/specs/` e `docs/superpowers/plans/` — specs e planos de
+  implementação do redesign "Sistema Orbital" e da navegação por galáxia
+  (histórico de decisões de arquitetura).
+- `docs/history/` — registro histórico, em ordem cronológica de descoberta:
+  `redesign-spec.md` (brief original do redesign) e o ciclo de investigação
+  de performance do sistema de qualidade adaptativa (`fix-performance.md` →
+  `VALIDACAO-PERFORMANCE.md` → `PLANO-CALIBRACAO.md`, cuja recomendação foi
+  revertida → `fix-performance-v2.md`, correção definitiva).

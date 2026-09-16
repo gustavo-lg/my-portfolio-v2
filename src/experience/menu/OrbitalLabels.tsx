@@ -14,27 +14,13 @@ const metaByKey = Object.fromEntries(categories.map((c) => [c.key, c])) as Recor
 // Matches OrbitalLabel: 140ms base + 150ms stagger + 1600ms transition.
 const REVEAL_TOTAL_MS = 140 + ORBITAL_ORDER.length * 150 + 1600;
 
-const MOBILE_QUERY = "(max-width: 640px)";
-// On phones the projected anchors land near the screen edges; nudge each label
-// a little toward the centre so the pills stay comfortably inside the viewport.
-const MOBILE_PULL = 0.40;
-
-function useMobile(): boolean {
-  const [mobile, setMobile] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      Boolean(window.matchMedia?.(MOBILE_QUERY).matches),
-  );
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mql = window.matchMedia(MOBILE_QUERY);
-    const onChange = () => setMobile(mql.matches);
-    onChange();
-    mql.addEventListener?.("change", onChange);
-    return () => mql.removeEventListener?.("change", onChange);
-  }, []);
-  return mobile;
-}
+// A phone-only pull toward the centre used to live here. It existed because the
+// home framing was authored for landscape: in portrait the mini galaxies, and
+// with them the projected anchors, fell outside the viewport, so the labels had
+// to be dragged back in. The camera now fits that layout to the aspect ratio
+// (see responsiveFraming.ts), the anchors land on screen on their own, and the
+// pull only bunched the labels over the core. The CSS clamps below still keep a
+// pill from touching the edge.
 
 /**
  * Plain DOM, rendered as a sibling of <Routes> (above the page `<main>`).
@@ -51,7 +37,6 @@ export function OrbitalLabels({
   const { ctx, send } = useExperience();
   const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
   const revealed = useRef(false);
-  const mobile = useMobile();
 
   useEffect(() => {
     if (ctx.state === "traveling" || ctx.state === "navigating") {
@@ -76,14 +61,7 @@ export function OrbitalLabels({
   return (
     <div className="pointer-events-none fixed inset-0 z-30 [--label-clamp-x:16%] [--label-clamp-y:12%] sm:[--label-clamp-x:6%] sm:[--label-clamp-y:5%]">
       {ORBITAL_ORDER.map((key, i) => {
-        const raw = positions[key];
-        // On phones, ease each label slightly toward the centre of the screen.
-        const pos = mobile
-          ? {
-            xPct: raw.xPct + (50 - raw.xPct) * MOBILE_PULL,
-            yPct: raw.yPct + (50 - raw.yPct) * MOBILE_PULL,
-          }
-          : raw;
+        const pos = positions[key];
         return (
           <div
             key={key}

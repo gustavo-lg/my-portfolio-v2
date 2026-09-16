@@ -85,9 +85,16 @@ export interface GalaxyDetail {
 }
 
 interface Props {
+  /** Allocated (buffer) count — the session's highest rung, fixed at mount. */
   count: number;
+  /**
+   * How many of the allocated points to actually draw at the live tier, per
+   * galaxy group: `main` for the menu galaxy, `mini` for each of the others.
+   * A lower adaptive tier only shrinks this via `geometry.groups`, never
+   * reallocates (fix-performance-v2.md, Fase 2).
+   */
+  drawCounts: { main: number; mini: number };
   reducedMotion: boolean;
-  idle: boolean;
   shape: Float32Array;
   /** Per-particle RGB target for this scene (precomputed by GalaxyCanvas). */
   colors: Float32Array;
@@ -105,6 +112,12 @@ interface Props {
   /** Active category detail layer (null when on Home). Multiplies that mini galaxy's particles by 4. */
   activeDetail?: GalaxyDetail | null;
   detailCount?: number;
+  /**
+   * How much of the allocated detail buffer to draw at the live tier — the
+   * detail layer is a single galaxy, so it uses `setDrawRange`, not groups
+   * (fix-performance-v2.md, Fase 2.4).
+   */
+  detailDrawn?: number;
   activeScene?: SceneKey;
   /**
    * Skip the entry formation and appear already settled. Set when the field is
@@ -154,8 +167,8 @@ function makeBuffers(
 
 export function ParticleField({
   count,
+  drawCounts,
   reducedMotion,
-  idle,
   shape,
   colors,
   galaxies,
@@ -171,6 +184,7 @@ export function ParticleField({
   onFormed,
   activeDetail,
   detailCount,
+  detailDrawn,
   activeScene = "menu",
   instantForm = false,
 }: Props) {
@@ -289,6 +303,25 @@ export function ParticleField({
     if (attr) attr.needsUpdate = true;
   }, [galaxies, buffers, main]);
 
+  // Draw fewer points per galaxy when the adaptive tier steps down, without
+  // reallocating or remounting: one draw call per `geometry.groups` entry, its
+  // `count` adjustable at runtime (fix-performance-v2.md, Fase 2.1).
+  useEffect(() => {
+    const geom = pointsRef.current?.geometry;
+    if (!geom) return;
+    geom.clearGroups();
+    for (const g of galaxies) {
+      const n = g.key === "menu" ? drawCounts.main : drawCounts.mini;
+      geom.addGroup(g.start, Math.max(1, Math.min(g.count, n)), 0);
+    }
+  }, [galaxies, drawCounts]);
+
+  useEffect(() => {
+    const geom = detailPointsRef.current?.geometry;
+    if (!geom || !detailCount) return;
+    geom.setDrawRange(0, Math.max(1, Math.min(detailCount, detailDrawn ?? detailCount)));
+  }, [detailCount, detailDrawn]);
+
   useEffect(() => {
     const u = main.uniforms;
     u.uWave.value.set(wave.amplitude, wave.frequency, wave.speed);
@@ -392,9 +425,50 @@ export function ParticleField({
     targetGlowColor.current.setRGB(...colorScheme.inner);
     targetCenter.current.set(...center);
 
+    tweenRef.current?.kill();
+
+    const finish = () => {
+      if (!formed.current) {
+        formed.current = true;
+        onFormed?.();
+      }
+    };
+
+    // Point `target`/`targetColor` (and the shader inputs derived from them)
+    // at the new shape. Reused for both the instant path below and the
+    // animated path further down — the instant path applies it and stops
+    // immediately, before touching `target`'s OLD value that the snapshot
+    // below still needs to read.
+    const applyNewTarget = () => {
+      target.set(shape.subarray(0, Math.min(target.length, shape.length)));
+      targetColor.set(colors.subarray(0, Math.min(targetColor.length, colors.length)));
+      flourishRef.current = kind;
+      flourishTarget(target, kind, overshoot, center);
+      main.uniforms.uFlourish.value = usesFlourish(kind);
+
+      const geom = pointsRef.current?.geometry;
+      if (geom) {
+        for (const name of ["position", "aFrom", "aOvershoot", "aFromColor", "aTargetColor"]) {
+          const a = geom.getAttribute(name);
+          if (a) a.needsUpdate = true;
+        }
+      }
+    };
+
+    if (reducedMotion || instantForm) {
+      // Skip the snapshot/morph math below entirely (RC5): with morph.t
+      // forced to 1, the shader shows `target` regardless of `from`, so the
+      // ~8 full-array passes that compute a transitional `from` would be
+      // thrown away on every remount.
+      applyNewTarget();
+      morph.current.t = 1;
+      finish();
+      return;
+    }
+
     // Snapshot where the particles are right now. The shader owns the live
     // pose, so rebuild it here from the same inputs it uses — once per morph,
-    // not once per frame.
+    // not once per frame. Reads `target`'s OLD (pre-`applyNewTarget`) value.
     if (t >= 1) {
       scratch.set(target);
       for (const g of galaxies) {
@@ -441,35 +515,8 @@ export function ParticleField({
     lerpPositions(fromColor, targetColor, t, scratch.subarray(0, targetColor.length));
     fromColor.set(scratch.subarray(0, fromColor.length));
 
-    target.set(shape.subarray(0, Math.min(target.length, shape.length)));
-    targetColor.set(colors.subarray(0, Math.min(targetColor.length, colors.length)));
-    flourishRef.current = kind;
-    flourishTarget(target, kind, overshoot, center);
-    main.uniforms.uFlourish.value = usesFlourish(kind);
-
-    const geom = pointsRef.current?.geometry;
-    if (geom) {
-      for (const name of ["position", "aFrom", "aOvershoot", "aFromColor", "aTargetColor"]) {
-        const a = geom.getAttribute(name);
-        if (a) a.needsUpdate = true;
-      }
-    }
-
+    applyNewTarget();
     morph.current.t = 0;
-    tweenRef.current?.kill();
-
-    const finish = () => {
-      if (!formed.current) {
-        formed.current = true;
-        onFormed?.();
-      }
-    };
-
-    if (reducedMotion || instantForm) {
-      morph.current.t = 1;
-      finish();
-      return;
-    }
 
     const durMs = first ? FORMATION_MS : morphDuration;
     const ease = first ? "power1.inOut" : morphEase;
@@ -574,15 +621,17 @@ export function ParticleField({
         const elapsedMs = now - m.since;
         const fps = (m.frames * 1000) / elapsedMs;
         const dpr = state.gl.getPixelRatio();
+        const drawnTotal =
+          drawCounts.main + drawCounts.mini * Math.max(0, galaxies.length - 1);
         perfStats.fps = fps;
         perfStats.bodyMs = m.bodyMs / m.frames;
-        perfStats.particles = count;
-        perfStats.detail = detailCount ?? 0;
+        perfStats.particles = drawnTotal;
+        perfStats.detail = detailDrawn ?? detailCount ?? 0;
         perfStats.dpr = dpr;
         perfStats.devicePixelRatio = window.devicePixelRatio;
         console.info(
           `[perf] fps=${fps.toFixed(1)} body=${perfStats.bodyMs.toFixed(2)}ms ` +
-            `particles=${count} detail=${detailCount ?? 0} ` +
+            `particles=${drawnTotal} detail=${detailDrawn ?? detailCount ?? 0} ` +
             `dpr=${dpr.toFixed(2)} devicePixelRatio=${window.devicePixelRatio}`,
         );
         m.frames = 0;
@@ -625,7 +674,7 @@ export function ParticleField({
         />
       </sprite>
 
-      <points ref={pointsRef} frustumCulled={false} material={main.material}>
+      <points ref={pointsRef} frustumCulled={false} material={[main.material]}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"

@@ -7,7 +7,6 @@ import {
   isInertStep,
   rungAt,
   stepDown,
-  stepUp,
 } from "./qualityLadder";
 
 describe("LADDER shape", () => {
@@ -58,10 +57,6 @@ describe("stepping with DPR headroom", () => {
     expect(stepDown(LADDER.length - 1, 2)).toBe(LADDER.length - 1);
   });
 
-  it("stepUp at index 0 stays put", () => {
-    expect(stepUp(0, 2)).toBe(0);
-  });
-
   it("takes a DPR step when the display has the headroom", () => {
     expect(stepDown(indexOfId("ultra"), 2)).toBe(indexOfId("high"));
   });
@@ -84,25 +79,6 @@ describe("stepping with DPR headroom", () => {
     expect(stepDown(indexOfId("mid"), 1.25)).toBe(indexOfId("mid-"));
   });
 
-  it("stepUp climbs a count change even when DPR has no headroom", () => {
-    // high- (150k) -> high (220k) is a real gain regardless of DPR.
-    expect(stepUp(indexOfId("high-"), 1)).toBe(indexOfId("high"));
-    expect(stepUp(indexOfId("high-"), 2)).toBe(indexOfId("high"));
-  });
-
-  it("skips past a DPR-only rung to reach the next real gain", () => {
-    // high -> ultra only raises maxDpr, which a DPR-1 display cannot use, so
-    // the step continues to "extreme", which does add particles.
-    expect(stepUp(indexOfId("high"), 1)).toBe(indexOfId("extreme"));
-    // With headroom, the DPR rung is worth taking on its own.
-    expect(stepUp(indexOfId("high"), 2)).toBe(indexOfId("ultra"));
-  });
-
-  it("stays put when no step in that direction would change anything", () => {
-    // From the top rung there is nothing above, DPR headroom or not.
-    expect(stepUp(0, 1)).toBe(0);
-    expect(stepUp(0, 2)).toBe(0);
-  });
 });
 
 describe("clampDpr", () => {

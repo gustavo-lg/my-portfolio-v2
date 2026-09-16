@@ -1,5 +1,15 @@
 # Plano: calibrar a escada de qualidade
 
+> **Revertido em `fix-performance-v2.md`.** O degrau `extreme` e a lógica de
+> promoção (`up1`/`demoted`/`MAX_PROMOTIONS`/`stepUp`) que a Fase B deste
+> documento introduziu se mostraram a causa raiz de um travamento em produção
+> (RC1–RC3 de `fix-performance-v2.md`): sob vsync o medidor não distingue
+> "sobra folga" de "está no limite exato", promovia qualquer máquina que
+> sustentasse o refresh, e cada troca de degrau remontava a geometria de
+> forma síncrona e cara. `extreme` foi removido da escada e a promoção foi
+> eliminada por completo — a partir daí a escada só desce. Documento mantido
+> como registro do raciocínio da época, não como recomendação vigente.
+
 ## Contexto
 
 As Fases 0 a 7 do `fix-performance.md` estão prontas. A Parte A da validação

@@ -3,10 +3,10 @@
  * requestAnimationFrame — everything here is unit-testable in jsdom.
  */
 
-import { indexOfId, rungAt, stepDown, stepUp } from "./qualityLadder";
+import { indexOfId, rungAt, stepDown } from "./qualityLadder";
 import type { GpuClass } from "./gpuTier";
 
-export type Move = "down2" | "down1" | "hold" | "up1";
+export type Move = "down2" | "down1" | "hold";
 
 /** A move needs more than this fraction of the samples to agree. */
 export const SAMPLE_THRESHOLD = 0.75;
@@ -49,17 +49,12 @@ export function decide(samples: number[], refreshRate: number): Move {
   // Worst case first: far below the floor drops two rungs at once.
   if (count((s) => s < lower / 2) > need) return "down2";
   if (count((s) => s < lower) > need) return "down1";
-  if (count((s) => s >= upper) > need) return "up1";
   return "hold";
 }
 
 export interface AdaptState {
   index: number;
-  demoted: boolean;
-  promotions: number;
 }
-
-export const MAX_PROMOTIONS = 2;
 
 export function applyMove(
   state: AdaptState,
@@ -68,19 +63,19 @@ export function applyMove(
 ): AdaptState {
   if (move === "hold") return state;
 
-  if (move === "up1") {
-    // Once a machine has failed a measurement it is never promoted again this
-    // session. Climbing back up is how oscillation starts.
-    if (state.demoted) return state;
-    if (state.promotions >= MAX_PROMOTIONS) return state;
-    const next = stepUp(state.index, devicePixelRatio);
-    if (next === state.index) return state;
-    return { index: next, demoted: false, promotions: state.promotions + 1 };
-  }
-
   const once = stepDown(state.index, devicePixelRatio);
   const index = move === "down2" ? stepDown(once, devicePixelRatio) : once;
-  return { index, demoted: true, promotions: state.promotions };
+  return { index };
+}
+
+/**
+ * A meter that never exceeds 45 fps does not prove a 45 Hz monitor — it
+ * proves a struggling machine. Without this floor, the weaker the machine,
+ * the lower the bar it is judged against (RC2).
+ */
+export function normalizeRefreshRate(measured: number): number {
+  if (!Number.isFinite(measured) || measured < 50) return 60;
+  return measured;
 }
 
 export const STORAGE_KEY = "portfolio-quality-v1";
