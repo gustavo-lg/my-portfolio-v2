@@ -18,10 +18,10 @@ describe("getStartIndex", () => {
     ).toBe("low");
   });
 
-  it("a strong GPU with plenty of cores starts high, not ultra", () => {
+  it("a strong GPU with plenty of cores starts ultra", () => {
     expect(
       idFor({ pointerFine: true, hardwareConcurrency: 16, gpuClass: "high" }),
-    ).toBe("high");
+    ).toBe("ultra");
   });
 
   it("a strong GPU behind a weak CPU starts mid", () => {
@@ -63,20 +63,14 @@ describe("getStartIndex", () => {
     expect(getStartIndex()).toBe(indexOfId("floor"));
   });
 
-  it("never starts on the top rung — ultra is earned by measurement", () => {
-    const combos = [true, false].flatMap((pointerFine) =>
-      [1, 2, 4, 8, 16, 32].flatMap((hardwareConcurrency) =>
-        (["low", "mid", "high", "unknown"] as const).flatMap((gpuClass) =>
-          [undefined, 2, 4, 8, 16].map((deviceMemory) => ({
-            pointerFine,
-            hardwareConcurrency,
-            gpuClass,
-            deviceMemory,
-          })),
-        ),
-      ),
-    );
-    for (const c of combos) expect(getStartIndex(c)).toBeGreaterThan(0);
+  it("the top rung is reachable at start — with promotion removed, a start rung is the only way up", () => {
+    expect(
+      getStartIndex({
+        pointerFine: true,
+        hardwareConcurrency: 8,
+        gpuClass: "high",
+      }),
+    ).toBe(0);
   });
 
   it("always returns a valid ladder index", () => {

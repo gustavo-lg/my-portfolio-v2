@@ -1,14 +1,15 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
-  MAX_PROMOTIONS,
   STORAGE_KEY,
   STORAGE_TTL_MS,
   applyMove,
   boundsFor,
   decide,
   loadStored,
+  normalizeRefreshRate,
   storeIndex,
   type AdaptState,
+  type Move,
 } from "./adaptiveTier";
 import { LADDER, indexOfId } from "./qualityLadder";
 
@@ -16,8 +17,8 @@ import { LADDER, indexOfId } from "./qualityLadder";
 // and index arithmetic below is direct.
 const DPR = 2;
 
-function state(index: number, over: Partial<AdaptState> = {}): AdaptState {
-  return { index, demoted: false, promotions: 0, ...over };
+function state(index: number): AdaptState {
+  return { index };
 }
 
 const rep = (value: number, n = 10) => new Array(n).fill(value);
@@ -36,22 +37,22 @@ describe("decide", () => {
     expect(decide(rep(15), 60)).toBe("down2");
     expect(decide(rep(35), 60)).toBe("down1");
     expect(decide(rep(50), 60)).toBe("hold");
-    expect(decide(rep(60), 60)).toBe("up1");
+    // A comfortable or excellent frame rate never promotes — there is no
+    // rung above the starting one to climb to (RC2/RC3).
+    expect(decide(rep(60), 60)).toBe("hold");
   });
 
-  it("judges the same frame rate differently on a high refresh display", () => {
-    // 60 fps is comfortable at 60 Hz and merely mid-range at 165 Hz.
-    expect(decide(rep(60), 60)).toBe("up1");
+  it("never promotes on a high refresh display either", () => {
     expect(decide(rep(60), 165)).toBe("hold");
     expect(decide(rep(50), 165)).toBe("down1");
-    expect(decide(rep(161), 165)).toBe("up1");
+    expect(decide(rep(161), 165)).toBe("hold");
   });
 
   it("ignores a single stall among good samples", () => {
     // This is the case that fooled the old one-average version: two identical
     // measurement runs reported 2631 fps and 322 fps.
     const samples = [...rep(161, 9), 20];
-    expect(decide(samples, 165)).toBe("up1");
+    expect(decide(samples, 165)).toBe("hold");
   });
 
   it("holds when the samples do not agree", () => {
@@ -60,7 +61,7 @@ describe("decide", () => {
   });
 
   it("needs more than three quarters of the samples to agree", () => {
-    expect(decide([...rep(161, 8), ...rep(20, 2)], 165)).toBe("up1");
+    expect(decide([...rep(161, 8), ...rep(20, 2)], 165)).toBe("hold");
     expect(decide([...rep(161, 7), ...rep(20, 3)], 165)).toBe("hold");
   });
 
@@ -76,7 +77,20 @@ describe("decide", () => {
   });
 
   it("ignores invalid entries but still judges the valid ones", () => {
-    expect(decide([...rep(161, 9), Number.NaN], 165)).toBe("up1");
+    expect(decide([...rep(161, 9), Number.NaN], 165)).toBe("hold");
+  });
+});
+
+describe("normalizeRefreshRate", () => {
+  it("floors an implausibly low measurement to 60", () => {
+    expect(normalizeRefreshRate(45)).toBe(60);
+    expect(normalizeRefreshRate(0)).toBe(60);
+    expect(normalizeRefreshRate(Number.NaN)).toBe(60);
+  });
+
+  it("passes through a plausible measurement unchanged", () => {
+    expect(normalizeRefreshRate(60)).toBe(60);
+    expect(normalizeRefreshRate(144)).toBe(144);
   });
 });
 
@@ -86,10 +100,9 @@ describe("applyMove", () => {
     expect(applyMove(s, "hold", DPR)).toBe(s);
   });
 
-  it("down1 advances one rung and marks the session demoted", () => {
+  it("down1 advances one rung", () => {
     const next = applyMove(state(0), "down1", DPR);
     expect(next.index).toBe(1);
-    expect(next.demoted).toBe(true);
   });
 
   it("down2 advances two rungs", () => {
@@ -102,31 +115,33 @@ describe("applyMove", () => {
     expect(applyMove(state(last), "down2", DPR).index).toBe(last);
   });
 
-  it("never promotes after a demotion", () => {
-    const s = state(3, { demoted: true });
-    expect(applyMove(s, "up1", DPR)).toBe(s);
-  });
-
-  it("stops promoting at MAX_PROMOTIONS", () => {
-    const s = state(3, { promotions: MAX_PROMOTIONS });
-    expect(applyMove(s, "up1", DPR)).toBe(s);
-  });
-
-  it("cannot promote past the top rung", () => {
-    const s = state(0);
-    expect(applyMove(s, "up1", DPR)).toBe(s);
-  });
-
-  it("promotes one rung and counts it", () => {
-    const next = applyMove(state(3), "up1", DPR);
-    expect(next.index).toBe(2);
-    expect(next.promotions).toBe(1);
-    expect(next.demoted).toBe(false);
-  });
-
   it("skips an inert DPR rung when the display has no headroom", () => {
     const next = applyMove(state(indexOfId("ultra")), "down1", 1);
     expect(next.index).toBe(indexOfId("high-"));
+  });
+
+  it("promotion is impossible: no move ever raises the index", () => {
+    const moves: Move[] = ["down2", "down1", "hold"];
+    const refreshRates = [30, 60, 90, 120, 144, 165, 240];
+    for (const move of moves) {
+      for (const refresh of refreshRates) {
+        for (let index = 0; index < LADDER.length; index++) {
+          const next = applyMove(state(index), move, DPR);
+          expect(next.index).toBeGreaterThanOrEqual(index);
+        }
+        void refresh;
+      }
+    }
+  });
+
+  it("decide never returns a promotion move for any sampled frame rate", () => {
+    const refreshRates = [30, 60, 90, 120, 144, 165, 240];
+    for (const refresh of refreshRates) {
+      for (let fps = 5; fps <= 300; fps += 5) {
+        const move = decide(rep(fps), refresh);
+        expect(move).not.toBe("up1");
+      }
+    }
   });
 });
 

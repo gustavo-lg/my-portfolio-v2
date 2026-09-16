@@ -10,6 +10,7 @@ import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import gsap from "gsap";
 import { SCENES, type CameraFraming, type SceneKey } from "./categoryScenes";
+import { framingForAspect, resolveFitForWidth } from "./responsiveFraming";
 
 export interface GalaxyCameraApi {
   flyTo: (
@@ -36,15 +37,32 @@ export function useGalaxyCamera(): GalaxyCameraApi {
 
 export function GalaxyCamera({ initial = "menu" }: { initial?: SceneKey }) {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
+  const size = useThree((s) => s.size);
   const apiRef = useContext(CameraCtx);
   const lookAt = useRef(new THREE.Vector3());
   const initialRef = useRef(initial);
+  // Last framing asked for, before any aspect correction. Kept so a resize or
+  // an orientation change can be re-fitted without replaying the flight.
+  const authoredRef = useRef<CameraFraming>(SCENES[initial].framing);
+
+  const aspect = size.height > 0 ? size.width / size.height : 1;
+  const aspectRef = useRef(aspect);
+  aspectRef.current = aspect;
+  // Live width for the phone check below, kept fresh the same way aspectRef
+  // is: written every render, read from imperative closures a one-time
+  // effect defines, so it never needs to be an effect dependency.
+  const widthRef = useRef(size.width);
+  widthRef.current = size.width;
+
+  const resolveFit = (f: CameraFraming): CameraFraming =>
+    resolveFitForWidth(f, widthRef.current);
 
   useEffect(() => {
     const apply = (f: CameraFraming) => {
-      camera.position.set(...f.position);
-      lookAt.current.set(...f.lookAt);
-      camera.fov = f.fov;
+      const fitted = framingForAspect(resolveFit(f), aspectRef.current);
+      camera.position.set(...fitted.position);
+      lookAt.current.set(...fitted.lookAt);
+      camera.fov = fitted.fov;
       camera.updateProjectionMatrix();
       camera.lookAt(lookAt.current);
     };
@@ -53,6 +71,8 @@ export function GalaxyCamera({ initial = "menu" }: { initial?: SceneKey }) {
 
     const flyTo: GalaxyCameraApi["flyTo"] = (f, o) =>
       new Promise<void>((resolve) => {
+        authoredRef.current = f;
+        f = framingForAspect(resolveFit(f), aspectRef.current);
         if (o.instant || o.duration <= 0) {
           apply(f);
           resolve();
@@ -97,6 +117,20 @@ export function GalaxyCamera({ initial = "menu" }: { initial?: SceneKey }) {
       apiRef.current = noop;
     };
   }, [camera, apiRef]);
+
+  // Re-fit when the viewport changes shape. A phone rotated to landscape has
+  // room the portrait pull-back no longer needs, and vice versa. Snapped, not
+  // animated: a resize is not a camera move the viewer asked for.
+  useEffect(() => {
+    const fitted = framingForAspect(resolveFit(authoredRef.current), aspect);
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(camera);
+    camera.position.set(...fitted.position);
+    lookAt.current.set(...fitted.lookAt);
+    camera.fov = fitted.fov;
+    camera.updateProjectionMatrix();
+    camera.lookAt(lookAt.current);
+  }, [aspect, camera]);
 
   return null;
 }

@@ -1,5 +1,6 @@
 import {
   Suspense,
+  lazy,
   useCallback,
   useEffect,
   useRef,
@@ -27,7 +28,8 @@ import { OrbitalLabels } from "@/experience/menu/OrbitalLabels";
 import { ContentArea } from "@/experience/pages/ContentArea";
 import { SWAP_MS } from "@/experience/pages/pageTransition";
 import NotFound from "@/pages/NotFound";
-import GalaxyCanvas from "@/experience/galaxy/GalaxyCanvas";
+
+const GalaxyCanvas = lazy(() => import("@/experience/galaxy/GalaxyCanvas"));
 
 const SETTLE_MS = 1200;
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -220,7 +222,6 @@ function ExperienceShell() {
 
   useEffect(() => () => clearTimeout(settleTimer.current), []);
 
-  const idleMotion = ctx.state !== "intro-forming";
   // Overlay is on only when something is meant to be read over the galaxy:
   // the settled menu, or a content page that has finished swinging in. It
   // stays off through every transition AND the return-to-home choreography so
@@ -250,7 +251,6 @@ function ExperienceShell() {
       ) : (
         <Suspense fallback={<GalaxyBackdrop />}>
           <GalaxyCanvas
-            idle={idleMotion}
             activeScene={activeScene}
             onFormed={handleFormed}
             onAnchors={menuActive && !staticGalaxy ? handleAnchors : undefined}

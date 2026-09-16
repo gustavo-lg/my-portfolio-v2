@@ -5,6 +5,8 @@ import {
   generateColors,
   galaxyDisk,
   galaxyField,
+  galaxyFieldSplit,
+  stratify,
   CORE_FRACTION,
   CORE_RADIUS,
   DISPERSED_RADIUS,
@@ -12,6 +14,7 @@ import {
   type Deformation,
   type DiskParams,
 } from "./particleGeometry";
+import { LADDER } from "@/experience/lib/qualityLadder";
 
 const N = 3000;
 
@@ -198,5 +201,89 @@ describe("galaxyField", () => {
     }
     expect(nearRight).toBeGreaterThan(0);
     expect(nearLeft).toBeGreaterThan(0);
+  });
+});
+
+describe("stratify", () => {
+  const P: DiskParams = {
+    bulge: 1.5,
+    outer: 9,
+    thickness: 0.4,
+    arms: 2,
+    twist: 3,
+    armStrength: 0.6,
+    warp: 0.5,
+    tilt: [0.9, 0.1, 0.2],
+  };
+
+  function zoneFractions(buf: Float32Array, count: number, bulge: number, outer: number) {
+    let inBulge = 0;
+    let inDisk = 0;
+    let inHalo = 0;
+    for (let i = 0; i < count; i++) {
+      const d = Math.hypot(buf[i * 3], buf[i * 3 + 1], buf[i * 3 + 2]);
+      if (d < bulge) inBulge++;
+      else if (d <= outer) inDisk++;
+      else inHalo++;
+    }
+    return { bulge: inBulge / count, disk: inDisk / count, halo: inHalo / count };
+  }
+
+  it("is a permutation: same multiset of triples, nothing duplicated or lost", () => {
+    const buf = galaxyDisk(N, P, 4);
+    const before = new Map<string, number>();
+    for (let i = 0; i < N; i++) {
+      const key = `${buf[i * 3]},${buf[i * 3 + 1]},${buf[i * 3 + 2]}`;
+      before.set(key, (before.get(key) ?? 0) + 1);
+    }
+    stratify(buf, N, 42);
+    const after = new Map<string, number>();
+    for (let i = 0; i < N; i++) {
+      const key = `${buf[i * 3]},${buf[i * 3 + 1]},${buf[i * 3 + 2]}`;
+      after.set(key, (after.get(key) ?? 0) + 1);
+    }
+    expect(after.size).toBe(before.size);
+    for (const [key, count] of before) {
+      expect(after.get(key)).toBe(count);
+    }
+  });
+
+  it("is deterministic for a given seed", () => {
+    const a = galaxyDisk(N, P, 4);
+    const b = galaxyDisk(N, P, 4);
+    stratify(a, N, 42);
+    stratify(b, N, 42);
+    expect(Array.from(a)).toEqual(Array.from(b));
+  });
+
+  it("preserves zone proportions in any prefix of the shuffled buffer", () => {
+    const buf = galaxyDisk(N, P, 4);
+    const full = zoneFractions(buf, N, P.bulge, P.outer);
+    stratify(buf, N, 7);
+
+    for (const frac of [0.3, 0.6]) {
+      const prefixCount = Math.floor(N * frac);
+      const sample = zoneFractions(buf, prefixCount, P.bulge, P.outer);
+      expect(Math.abs(sample.bulge - full.bulge)).toBeLessThanOrEqual(0.03);
+      expect(Math.abs(sample.disk - full.disk)).toBeLessThanOrEqual(0.03);
+      expect(Math.abs(sample.halo - full.halo)).toBeLessThanOrEqual(0.03);
+    }
+  });
+});
+
+describe("galaxyFieldSplit drawn count matches the ladder", () => {
+  it("min(alloc.main, want.main) + minis * min(alloc.mini, want.mini) equals the live split total", () => {
+    const minis = 4;
+    for (const allocRung of LADDER) {
+      const alloc = galaxyFieldSplit(allocRung.particleCount, minis, 3);
+      for (const currentRung of LADDER) {
+        if (currentRung.particleCount > allocRung.particleCount) continue;
+        const want = galaxyFieldSplit(currentRung.particleCount, minis, 3);
+        const mainDrawn = Math.min(alloc.main, want.main);
+        const miniDrawn = Math.min(alloc.mini, want.mini);
+        const drawnTotal = mainDrawn + minis * miniDrawn;
+        expect(drawnTotal).toBe(want.total);
+      }
+    }
   });
 });

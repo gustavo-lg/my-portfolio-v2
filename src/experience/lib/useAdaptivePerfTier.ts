@@ -1,14 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { applyMove, decide, storeIndex, type AdaptState } from "./adaptiveTier";
+import {
+  applyMove,
+  decide,
+  normalizeRefreshRate,
+  storeIndex,
+  type AdaptState,
+} from "./adaptiveTier";
 import { rungAt } from "./qualityLadder";
 import { PERF_DEBUG, perfStats } from "./perfDebug";
 import type { GpuClass } from "./gpuTier";
 
-const WARMUP_MS = 1800;
 /** One sample window. Ten of these make a round, as drei's monitor does. */
 const SAMPLE_MS = 250;
 const SAMPLES = 10;
 const MAX_ROUNDS = 6;
+/**
+ * Deadlock guard: if the scene never reports settled (WebGL unavailable so
+ * GalaxyCanvas never mounts, onFormed never fires), the probe must still run
+ * eventually instead of measuring nothing forever.
+ */
+const SETTLE_FALLBACK_MS = 8000;
 
 function median(values: number[]): number {
   if (values.length === 0) return 0;
@@ -31,11 +42,7 @@ export function useAdaptivePerfTier(
   gpu: GpuClass,
   enabled: boolean,
 ): number {
-  const [state, setState] = useState<AdaptState>({
-    index: initialIndex,
-    demoted: false,
-    promotions: 0,
-  });
+  const [state, setState] = useState<AdaptState>({ index: initialIndex });
 
   // Read inside the rAF loop without making it a dependency.
   const stateRef = useRef(state);
@@ -51,7 +58,7 @@ export function useAdaptivePerfTier(
   const seededFrom = useRef(initialIndex);
   if (seededFrom.current !== initialIndex) {
     seededFrom.current = initialIndex;
-    stateRef.current = { index: initialIndex, demoted: false, promotions: 0 };
+    stateRef.current = { index: initialIndex };
     roundsRef.current = 0;
     setState(stateRef.current);
   }
@@ -66,6 +73,7 @@ export function useAdaptivePerfTier(
     let windowFrames = 0;
     let samples: number[] = [];
     let aborted = false;
+    let bootAt: number | null = null;
 
     const reset = () => {
       roundStart = 0;
@@ -83,13 +91,21 @@ export function useAdaptivePerfTier(
         return;
       }
 
+      if (bootAt === null) bootAt = now;
+      const settled =
+        perfStats.sceneSettled || now - bootAt >= SETTLE_FALLBACK_MS;
+      // Measuring before the scene settles means measuring the entry
+      // formation, not the steady state (RC1) — throw away every frame until
+      // then, or until the fallback fires.
+      if (!settled) {
+        reset();
+        return;
+      }
+
       if (roundStart === 0) {
         roundStart = now;
         return;
       }
-      // Warm-up frames are thrown away: they cover mount cost, shader
-      // compilation and the entry formation.
-      if (now - roundStart < WARMUP_MS) return;
 
       if (windowStart === 0) {
         windowStart = now;
@@ -110,7 +126,8 @@ export function useAdaptivePerfTier(
       if (samples.length < SAMPLES) return;
 
       const current = stateRef.current;
-      const move = decide(samples, refreshRef.current);
+      const refresh = normalizeRefreshRate(refreshRef.current);
+      const move = decide(samples, refresh);
       const next = applyMove(
         current,
         move,
@@ -125,7 +142,7 @@ export function useAdaptivePerfTier(
 
       if (PERF_DEBUG) {
         console.info(
-          `[perf] probe mediana=${mid.toFixed(1)} refresh=${refreshRef.current.toFixed(0)} ` +
+          `[perf] probe mediana=${mid.toFixed(1)} refresh=${refresh.toFixed(0)} ` +
             `move=${move} rung=${rungAt(current.index).id} -> ${rungAt(next.index).id} ` +
             `round=${roundsRef.current} amostras=[${samples.map((s) => s.toFixed(0)).join(",")}]`,
         );

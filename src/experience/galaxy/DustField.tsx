@@ -1,11 +1,14 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { generateDustField } from "./particleGeometry";
 import { getParticleTexture } from "./particleTexture";
 
 interface Props {
+  /** Allocated (buffer) count — the session's highest rung, fixed at mount. */
   count: number;
+  /** How many of the allocated points to actually draw at the live tier. */
+  drawn: number;
   reducedMotion: boolean;
 }
 
@@ -14,9 +17,13 @@ interface Props {
  * near shell plus a sparse far field. It never morphs; during a camera dive the
  * near motes sweep past while the far ones barely shift, which sells the depth.
  * It also guarantees the frame is never empty of particles.
+ *
+ * Allocated once at `count` and never reallocated; a lower adaptive tier only
+ * shrinks `drawn` via `geometry.setDrawRange` (fix-performance-v2.md, Fase 2).
  */
-export function DustField({ count, reducedMotion }: Props) {
+export function DustField({ count, drawn, reducedMotion }: Props) {
   const groupRef = useRef<THREE.Group>(null);
+  const pointsRef = useRef<THREE.Points>(null);
 
   const positions = useMemo(() => generateDustField(count), [count]);
   const colors = useMemo(() => {
@@ -47,9 +54,15 @@ export function DustField({ count, reducedMotion }: Props) {
     groupRef.current.rotation.y += delta * 0.006;
   });
 
+  useEffect(() => {
+    const geom = pointsRef.current?.geometry;
+    if (!geom) return;
+    geom.setDrawRange(0, drawn);
+  }, [drawn]);
+
   return (
     <group ref={groupRef}>
-      <points frustumCulled={false}>
+      <points ref={pointsRef} frustumCulled={false}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"

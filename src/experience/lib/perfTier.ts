@@ -40,9 +40,11 @@ export function tierFromRung(
 }
 
 /**
- * Picks the rung the scene STARTS on. It never picks the top rung: reaching
- * "ultra" is earned by measured frame rate in useAdaptivePerfTier, never
- * guessed from a vendor string.
+ * Picks the rung the scene STARTS on. With promotion removed, this is also
+ * the highest rung the session will ever use — the ladder only steps down
+ * from here (see fix-performance-v2.md, RC1-RC3). Starting a "high" GPU class
+ * straight on "ultra" is only safe because a step down is now a cheap
+ * `geometry.groups` draw-count change, not a remount (Fase 2).
  *
  * `reducedMotion` is deliberately absent — that is an accessibility preference
  * handled by REDUCED_RUNG, not a performance verdict.
@@ -68,7 +70,7 @@ export function getStartIndex(opts: PerfTierOptions = {}): number {
   if (hardwareConcurrency <= 2) return indexOfId("low");
 
   if (gpuClass === "high") {
-    return hardwareConcurrency >= 8 ? indexOfId("high") : indexOfId("mid");
+    return hardwareConcurrency >= 8 ? indexOfId("ultra") : indexOfId("mid");
   }
   if (gpuClass === "mid") return indexOfId("mid");
 
