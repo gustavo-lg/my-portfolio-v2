@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useExperience } from "@/experience/machine/useExperienceMachine";
 import { usePrefersReducedMotion } from "@/experience/lib/useReducedMotion";
@@ -11,11 +11,19 @@ export function BackButton() {
   const reducedMotion = usePrefersReducedMotion();
   const busy = useRef(false);
 
+  // Reset the guard every time the component mounts so a previous
+  // stale `true` never blocks future clicks.
+  useEffect(() => {
+    busy.current = false;
+  }, []);
+
   const onBack = async () => {
     if (busy.current) return;
     busy.current = true;
     await smoothScrollToTop({ instant: reducedMotion });
     send({ type: "REQUEST_RETURN" });
+    // Allow future clicks once the event has been dispatched.
+    busy.current = false;
   };
 
   return (
